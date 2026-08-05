@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RELAY | 福岡中央特別支援学校　教育実践</title>
+
+<link rel="stylesheet" href="../css/style.css">
+
+<style>
+
+body{
+    margin:0;
+    background:#f4f7fb;
+    font-family:"Yu Gothic","Meiryo",sans-serif;
+}
+
+header{
+    background:#1565C0;
+    color:white;
+    padding:25px;
+}
+
+header h1{
+    margin:0;
+    font-size:28px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+}
+
+.card{
+
+    background:white;
+
+    border-radius:15px;
+
+    padding:35px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+.tag{
+
+display:inline-block;
+
+background:#E3F2FD;
+
+color:#1565C0;
+
+padding:5px 12px;
+
+border-radius:20px;
+
+margin:3px;
+
+font-size:14px;
+
+}
+
+.section{
+
+margin-top:35px;
+
+}
+
+.section h2{
+
+color:#1565C0;
+
+border-left:6px solid #1565C0;
+
+padding-left:10px;
+
+margin-bottom:15px;
+
+}
+
+.section p{
+
+line-height:2;
+
+font-size:17px;
+
+}
+
+.reaction{
+
+margin-top:45px;
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:15px;
+
+}
+
+.reaction button{
+
+padding:18px;
+
+font-size:16px;
+
+border:none;
+
+border-radius:12px;
+
+background:#1565C0;
+
+color:white;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.reaction button:hover{
+
+background:#0D47A1;
+
+transform:translateY(-2px);
+
+}
+
+.back{
+
+margin-top:40px;
+
+text-align:center;
+
+}
+
+.back a{
+
+display:inline-block;
+
+background:#43A047;
+
+color:white;
+
+padding:15px 35px;
+
+border-radius:10px;
+
+text-decoration:none;
+
+font-weight:bold;
+
+}
+
+.back a:hover{
+
+background:#2E7D32;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>RELAY</h1>
+
+<p>教育実践ひろば</p>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<h2 id="title">読み込み中...</h2>
+
+<img id="image" class="detail-image" alt="実践写真">
+
+<p>
+
+<strong>学部：</strong>
+
+<span id="department"></span>
+
+</p>
+
+<div id="tags"></div>
+
+<div class="section">
+
+<h2>教材のねらい</h2>
+
+<p id="purpose"></p>
+
+</div>
+
+<div class="section">
+
+<h2>学習方法（使い方）</h2>
+
+<p id="method"></p>
+
+</div>
+
+<div class="section">
+
+<h2>実践してみて</h2>
+
+<p id="practice"></p>
+
+</div>
+
+<div class="section">
+
+<h2>この実践を受け取った先生のリアクション</h2>
+
+<div class="reaction">
+
+<button>🤝 ありがとう</button>
+
+<button>💡 参考になりました</button>
+
+<button>🌱 やってみます</button>
+
+<button>🔄 実践しました</button>
+
+<button>✨ 工夫を加えてみました</button>
+
+<button>💬 詳しく知りたいです</button>
+
+</div>
+
+</div>
+
+<div class="back">
+
+<a href="index.html">
+
+← 一覧へ戻る
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="js/detail.js"></script>
+
+</body>
+</html>

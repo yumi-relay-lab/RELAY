@@ -1,0 +1,146 @@
+/* 全体 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Yu Gothic UI", "Meiryo", sans-serif;
+    background: #f5f7fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ヘッダー */
+header {
+    background: #1565C0;
+    color: white;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+header h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+header h2 {
+    margin-top: 25px;
+    font-size: 30px;
+    font-weight: normal;
+}
+
+/* メイン */
+main {
+    max-width: 1000px;
+    margin: auto;
+    padding: 30px;
+}
+
+/* 検索 */
+.search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.search button,
+.post-button button {
+    background: #1565C0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+}
+
+.search button:hover,
+.post-button button:hover {
+    background: #0d47a1;
+}
+
+.post-button {
+    margin-bottom: 30px;
+}
+
+/* 投稿カード表示エリア */
+#posts {
+    display: grid;
+    gap: 20px;
+}
+.detail-button{
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 20px;
+    background:#1565C0;
+    color:#fff;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:bold;
+    transition:.3s;
+}
+
+.detail-button:hover{
+    background:#0D47A1;
+}
+.card img {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+.detail-image {
+    width: 100%;
+    max-height: 450px;
+    object-fit: contain;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+label {
+    display:block;
+    margin-top:20px;
+    font-weight:bold;
+    color:#1565C0;
+}
+
+input,
+textarea,
+select {
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+textarea {
+    height:120px;
+}
+
+.submit-button {
+    margin-top:30px;
+    width:100%;
+    padding:15px;
+    background:#1565C0;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    cursor:pointer;
+}
