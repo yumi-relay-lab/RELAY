@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RELAY | 福岡中央特別支援学校　教育実践</title>
+<title>RELAY | 福岡中央特別支援学校 教育実践</title>
 
 <link rel="stylesheet" href="../css/style.css">
 
@@ -16,156 +18,200 @@ body{
     font-family:"Yu Gothic","Meiryo",sans-serif;
 }
 
+
 header{
+
     background:#1565C0;
     color:white;
     padding:25px;
+
 }
+
 
 header h1{
+
     margin:0;
     font-size:28px;
+
 }
 
+
 .container{
+
     max-width:900px;
     margin:auto;
     padding:30px;
+
 }
+
 
 .card{
 
     background:white;
-
     border-radius:15px;
-
     padding:35px;
-
     box-shadow:0 5px 15px rgba(0,0,0,.08);
 
 }
 
-.tag{
 
-display:inline-block;
+.detail-image{
 
-background:#E3F2FD;
-
-color:#1565C0;
-
-padding:5px 12px;
-
-border-radius:20px;
-
-margin:3px;
-
-font-size:14px;
+    max-width:100%;
+    border-radius:12px;
+    margin:20px 0;
 
 }
+
+
+
+.tag{
+
+    display:inline-block;
+    background:#E3F2FD;
+    color:#1565C0;
+    padding:5px 12px;
+    border-radius:20px;
+    margin:3px;
+    font-size:14px;
+
+}
+
+
 
 .section{
 
-margin-top:35px;
+    margin-top:35px;
 
 }
+
+
 
 .section h2{
 
-color:#1565C0;
-
-border-left:6px solid #1565C0;
-
-padding-left:10px;
-
-margin-bottom:15px;
+    color:#1565C0;
+    border-left:6px solid #1565C0;
+    padding-left:10px;
+    margin-bottom:15px;
 
 }
+
+
 
 .section p{
 
-line-height:2;
-
-font-size:17px;
+    line-height:2;
+    font-size:17px;
 
 }
+
+
+
+/* リアクション */
 
 .reaction{
 
-margin-top:45px;
+    margin-top:45px;
 
-display:grid;
+    display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
 
-gap:15px;
+    gap:15px;
 
 }
+
+
 
 .reaction button{
 
-padding:18px;
+    padding:15px;
 
-font-size:16px;
+    font-size:16px;
 
-border:none;
+    border:none;
 
-border-radius:12px;
+    border-radius:12px;
 
-background:#1565C0;
+    background:#1565C0;
 
-color:white;
+    color:white;
 
-cursor:pointer;
+    cursor:pointer;
 
-transition:.3s;
+    transition:.3s;
 
 }
+
+
 
 .reaction button:hover{
 
-background:#0D47A1;
+    background:#0D47A1;
 
-transform:translateY(-2px);
+    transform:translateY(-2px);
 
 }
+
+
+
+.reaction-count{
+
+    margin-left:8px;
+
+    font-weight:bold;
+
+}
+
+
+
+/* 戻るボタン */
 
 .back{
 
-margin-top:40px;
+    margin-top:40px;
 
-text-align:center;
+    text-align:center;
 
 }
+
+
 
 .back a{
 
-display:inline-block;
+    display:inline-block;
 
-background:#43A047;
+    background:#43A047;
 
-color:white;
+    color:white;
 
-padding:15px 35px;
+    padding:15px 35px;
 
-border-radius:10px;
+    border-radius:10px;
 
-text-decoration:none;
+    text-decoration:none;
 
-font-weight:bold;
+    font-weight:bold;
 
 }
+
+
 
 .back a:hover{
 
-background:#2E7D32;
+    background:#2E7D32;
 
 }
+
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <header>
 
@@ -175,13 +221,24 @@ background:#2E7D32;
 
 </header>
 
+
+
 <div class="container">
+
 
 <div class="card">
 
-<h2 id="title">読み込み中...</h2>
+
+
+<h2 id="title">
+読み込み中...
+</h2>
+
+
 
 <img id="image" class="detail-image" alt="実践写真">
+
+
 
 <p>
 
@@ -191,55 +248,162 @@ background:#2E7D32;
 
 </p>
 
+
+
 <div id="tags"></div>
+
+
+
 
 <div class="section">
 
-<h2>教材のねらい</h2>
+
+<h2>
+教材のねらい
+</h2>
+
 
 <p id="purpose"></p>
 
+
 </div>
+
+
+
+
 
 <div class="section">
 
-<h2>学習方法（使い方）</h2>
+
+<h2>
+学習方法（使い方）
+</h2>
+
 
 <p id="method"></p>
 
+
 </div>
+
+
+
+
 
 <div class="section">
 
-<h2>実践してみて</h2>
+
+<h2>
+実践してみて
+</h2>
+
 
 <p id="practice"></p>
 
+
 </div>
+
+
+
+
+
 
 <div class="section">
 
-<h2>この実践を受け取った先生のリアクション</h2>
+
+<h2>
+この実践を受け取った先生のリアクション
+</h2>
+
+
 
 <div class="reaction">
 
-<button>🤝 ありがとう</button>
 
-<button>💡 参考になりました</button>
 
-<button>🌱 やってみます</button>
+<button data-reaction="thanks">
 
-<button>🔄 実践しました</button>
+🤝 ありがとう
 
-<button>✨ 工夫を加えてみました</button>
+<span class="reaction-count">
+0
+</span>
 
-<button>💬 詳しく知りたいです</button>
+</button>
+
+
+
+<button data-reaction="reference">
+
+💡 参考になりました
+
+<span class="reaction-count">
+0
+</span>
+
+</button>
+
+
+
+<button data-reaction="try">
+
+🌱 やってみます
+
+<span class="reaction-count">
+0
+</span>
+
+</button>
+
+
+
+<button data-reaction="done">
+
+🔄 実践しました
+
+<span class="reaction-count">
+0
+</span>
+
+</button>
+
+
+
+<button data-reaction="idea">
+
+✨ 工夫を加えてみました
+
+<span class="reaction-count">
+0
+</span>
+
+</button>
+
+
+
+<button data-reaction="question">
+
+💬 詳しく知りたいです
+
+<span class="reaction-count">
+0
+</span>
+
+</button>
+
+
 
 </div>
 
+
 </div>
+
+
+
+
+
 
 <div class="back">
+
 
 <a href="index.html">
 
@@ -247,13 +411,23 @@ background:#2E7D32;
 
 </a>
 
-</div>
 
 </div>
 
+
+
+
 </div>
+
+
+</div>
+
+
+
 
 <script src="js/detail.js"></script>
 
+
 </body>
+
 </html>
