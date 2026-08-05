@@ -1,60 +1,34 @@
-// ================================
-// RELAY detail.js Ver1.1
-// リアクション機能対応版
-// ================================
+// =========================
+// RELAY detail.js
+// 詳細表示 + リアクション + 🤝ありがとう機能
+// =========================
 
 
-// URLからID取得
+// URLからIDを取得
 
 const params = new URLSearchParams(window.location.search);
-const id = Number(params.get("id"));
 
-console.log("URL:", window.location.href);
-console.log("ID:", id);
+const id = Number(params.get("id"));
 
 
 
 // 投稿データ読み込み
 
-fetch("data/posts.json")
+fetch("../data/posts.json")
 
 .then(response => response.json())
 
 .then(posts => {
 
 
-    // localStorageの投稿取得
-
-    const savedPosts =
-        JSON.parse(localStorage.getItem("relayPosts")) || [];
-
-
-
-    // 初期データ＋新規投稿
-
-    posts = posts.concat(savedPosts);
-
-
-
-    console.log("全投稿:", posts);
-
-
-
-    // 該当投稿検索
-
-    const post =
-        posts.find(item => item.id === id);
-
-
-
-    console.log("表示投稿:", post);
+    const post = posts.find(item => item.id === id);
 
 
 
     if(!post){
 
-        document.getElementById("title").textContent =
-            "このページは一覧から実践を選択して開いてください。";
+        document.querySelector(".card").innerHTML =
+        "<h2>投稿が見つかりません</h2>";
 
         return;
 
@@ -62,120 +36,100 @@ fetch("data/posts.json")
 
 
 
-
-
     // =========================
-    // 基本情報表示
+    // 詳細表示
     // =========================
 
 
     document.getElementById("title").textContent =
-        post.title || "";
+    post.title;
+
+
+
+    document.getElementById("image").src =
+    post.image || "";
 
 
 
     document.getElementById("department").textContent =
-        post.schoolDivision || "";
+    post.schoolDivision;
 
 
 
+    document.getElementById("purpose").textContent =
+    post.purpose;
 
 
-    // =========================
-    // 画像（任意項目）
-    // =========================
+
+    document.getElementById("method").textContent =
+    post.howToUse;
 
 
-    const image =
-        document.getElementById("image");
+
+    document.getElementById("practice").textContent =
+    post.practice || "";
 
 
-    if(post.image){
 
-        image.src = post.image;
+    // タグ表示
 
-        image.style.display = "block";
+    const tagArea =
+    document.getElementById("tags");
 
-    }else{
 
-        image.style.display = "none";
+    tagArea.innerHTML = "";
+
+
+    if(post.tags){
+
+        post.tags.forEach(tag => {
+
+
+            const span =
+            document.createElement("span");
+
+
+            span.className = "tag";
+
+            span.textContent = tag;
+
+
+            tagArea.appendChild(span);
+
+
+        });
 
     }
 
 
 
-
-
-
-
     // =========================
-    // タグ表示
+    // リアクション機能
     // =========================
 
 
-    const tags =
-        post.aiTags || post.tags || [];
+    const reactionKey =
+    `reaction_${id}`;
 
 
+    let reactions =
+    JSON.parse(localStorage.getItem(reactionKey))
+    ||
+    {
 
-    document.getElementById("tags").innerHTML =
+        thanks:0,
+        reference:0,
+        try:0,
+        done:0,
+        idea:0,
+        question:0
 
-        tags.map(tag =>
+    };
 
-            `<span class="tag">#${tag}</span>`
-
-        ).join("");
-
-
-
-
-
-
-
-
-
-    // =========================
-    // 実践内容
-    // =========================
-
-
-    document.getElementById("purpose").textContent =
-        post.purpose || "";
-
-
-
-    document.getElementById("method").textContent =
-        post.howToUse || "";
-
-
-
-    document.getElementById("practice").textContent =
-        post.reflection ||
-        "実践の振り返りは登録されていません。";
-
-
-
-
-
-
-    // =========================
-    // リアクション読み込み
-    // =========================
-
-
-    loadReactions(id);
-
-
-
-
-
-    // =========================
-    // リアクションボタン設定
-    // =========================
 
 
     const buttons =
-        document.querySelectorAll(".reaction button");
+    document.querySelectorAll(".reaction button");
 
 
 
@@ -183,235 +137,159 @@ fetch("data/posts.json")
 
 
         const type =
-            button.dataset.reaction;
+        button.dataset.reaction;
+
+
+        const count =
+        button.querySelector(".reaction-count");
+
+
+
+        count.textContent =
+        reactions[type];
 
 
 
         button.addEventListener("click",()=>{
 
 
-            addReaction(id,type,button);
+            reactions[type]++;
+
+
+            count.textContent =
+            reactions[type];
+
+
+            localStorage.setItem(
+                reactionKey,
+                JSON.stringify(reactions)
+            );
 
 
         });
 
 
-
     });
 
 
 
-})
+
+
+    // =========================
+    // 🤝ありがとうメッセージ機能
+    // =========================
+
+
+    const thanksKey =
+    `thanksMessage_${id}`;
 
 
 
-.catch(error => {
-
-    console.error(
-        "読み込みエラー:",
-        error
-    );
-
-});
+    let thanksMessages =
+    JSON.parse(localStorage.getItem(thanksKey))
+    ||
+    [];
 
 
 
+    const thanksList =
+    document.getElementById("thanksList");
 
 
 
+    const thanksMessage =
+    document.getElementById("thanksMessage");
 
 
 
-// =================================
-// リアクション保存データ取得
-// =================================
-
-
-function getReactionData(){
-
-
-    return JSON.parse(
-
-        localStorage.getItem("relayReactions")
-
-    ) || {};
-
-}
+    const thanksButton =
+    document.getElementById("thanksButton");
 
 
 
 
+    // 表示
+
+    function displayThanks(){
+
+
+        thanksList.innerHTML = "";
+
+
+
+        thanksMessages.forEach(message=>{
+
+
+            const div =
+            document.createElement("div");
+
+
+            div.className =
+            "thanks-item";
+
+
+
+            div.textContent =
+            "🤝 " + message;
+
+
+
+            thanksList.appendChild(div);
+
+
+        });
+
+
+    }
+
+
+
+    displayThanks();
 
 
 
 
 
-// =================================
-// リアクション表示
-// =================================
+    // 送信
+
+    thanksButton.addEventListener("click",()=>{
 
 
-function loadReactions(postId){
-
-
-    const data =
-        getReactionData();
+        const text =
+        thanksMessage.value.trim();
 
 
 
-    const reactions =
-        data[postId] || {};
+        if(text===""){
 
+            alert("メッセージを入力してください");
 
-
-    document
-    .querySelectorAll(".reaction button")
-    .forEach(button=>{
-
-
-        const type =
-            button.dataset.reaction;
-
-
-
-        const count =
-            reactions[type] || 0;
-
-
-
-        button.querySelector(".reaction-count")
-        .textContent = count;
-
-
-
-        // 押した履歴確認
-
-        const key =
-            `relay_${postId}_${type}`;
-
-
-
-        if(localStorage.getItem(key)){
-
-
-            button.textContent =
-                button.textContent + " ✓";
-
-
-            button.disabled = true;
-
+            return;
 
         }
 
 
 
+        thanksMessages.push(text);
+
+
+
+        localStorage.setItem(
+            thanksKey,
+            JSON.stringify(thanksMessages)
+        );
+
+
+
+        thanksMessage.value="";
+
+
+
+        displayThanks();
+
+
     });
 
 
 
-}
-
-
-
-
-
-
-
-
-
-// =================================
-// リアクション追加
-// =================================
-
-
-function addReaction(postId,type,button){
-
-
-
-    const key =
-        `relay_${postId}_${type}`;
-
-
-
-    // 2回押し防止
-
-    if(localStorage.getItem(key)){
-
-        return;
-
-    }
-
-
-
-
-
-    const data =
-        getReactionData();
-
-
-
-    if(!data[postId]){
-
-        data[postId] = {};
-
-    }
-
-
-
-    if(!data[postId][type]){
-
-        data[postId][type] = 0;
-
-    }
-
-
-
-    data[postId][type]++;
-
-
-
-
-    localStorage.setItem(
-
-        "relayReactions",
-
-        JSON.stringify(data)
-
-    );
-
-
-
-    // 押した記録
-
-    localStorage.setItem(
-
-        key,
-
-        "true"
-
-    );
-
-
-
-    // 表示更新
-
-    const count =
-        button.querySelector(".reaction-count");
-
-
-
-    count.textContent =
-        data[postId][type];
-
-
-
-    button.disabled = true;
-
-
-
-    button.textContent =
-        button.textContent + " ✓";
-
-
-
-}
+});
