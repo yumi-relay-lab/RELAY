@@ -1,10 +1,12 @@
 // =========================
-// RELAY detail.js
+// RELAY detail.js Ver1.2
 // 詳細表示 + リアクション + 🤝ありがとう機能
 // =========================
 
 
-// URLからIDを取得
+// =========================
+// URLからID取得
+// =========================
 
 const params = new URLSearchParams(window.location.search);
 
@@ -12,7 +14,9 @@ const id = Number(params.get("id"));
 
 
 
+// =========================
 // 投稿データ読み込み
+// =========================
 
 fetch("../data/posts.json")
 
@@ -27,8 +31,14 @@ fetch("../data/posts.json")
 
     if(!post){
 
-        document.querySelector(".card").innerHTML =
-        "<h2>投稿が見つかりません</h2>";
+        const card = document.querySelector(".card");
+
+        if(card){
+
+            card.innerHTML =
+            "<h2>投稿が見つかりません</h2>";
+
+        }
 
         return;
 
@@ -41,65 +51,128 @@ fetch("../data/posts.json")
     // =========================
 
 
-    document.getElementById("title").textContent =
-    post.title;
+    const title =
+    document.getElementById("title");
+
+    if(title){
+
+        title.textContent = post.title;
+
+    }
 
 
 
-    document.getElementById("image").src =
-    post.image || "";
+    const image =
+    document.getElementById("image");
+
+
+    if(image){
+
+        image.src = post.image || "";
+
+    }
 
 
 
-    document.getElementById("department").textContent =
-    post.schoolDivision;
+    const department =
+    document.getElementById("department");
+
+
+    if(department){
+
+        department.textContent =
+        post.schoolDivision || "";
+
+    }
 
 
 
-    document.getElementById("purpose").textContent =
-    post.purpose;
+    const purpose =
+    document.getElementById("purpose");
+
+
+    if(purpose){
+
+        purpose.textContent =
+        post.purpose || "";
+
+    }
 
 
 
-    document.getElementById("method").textContent =
-    post.howToUse;
+    const method =
+    document.getElementById("method");
+
+
+    if(method){
+
+        method.textContent =
+        post.howToUse || "";
+
+    }
 
 
 
-    document.getElementById("practice").textContent =
-    post.practice || "";
+    const practice =
+    document.getElementById("practice");
+
+
+    if(practice){
+
+        practice.textContent =
+        post.practice || "";
+
+    }
 
 
 
+
+
+    // =========================
     // タグ表示
+    // =========================
+
 
     const tagArea =
     document.getElementById("tags");
 
 
-    tagArea.innerHTML = "";
+    if(tagArea){
 
 
-    if(post.tags){
-
-        post.tags.forEach(tag => {
+        tagArea.innerHTML = "";
 
 
-            const span =
-            document.createElement("span");
+        if(post.tags){
 
 
-            span.className = "tag";
-
-            span.textContent = tag;
+            post.tags.forEach(tag=>{
 
 
-            tagArea.appendChild(span);
+                const span =
+                document.createElement("span");
 
 
-        });
+                span.className =
+                "tag";
+
+
+                span.textContent =
+                tag;
+
+
+                tagArea.appendChild(span);
+
+
+            });
+
+
+        }
 
     }
+
+
+
 
 
 
@@ -110,6 +183,7 @@ fetch("../data/posts.json")
 
     const reactionKey =
     `reaction_${id}`;
+
 
 
     let reactions =
@@ -128,16 +202,19 @@ fetch("../data/posts.json")
 
 
 
+
+
     const buttons =
     document.querySelectorAll(".reaction button");
 
 
 
-    buttons.forEach(button => {
+    buttons.forEach(button=>{
 
 
         const type =
         button.dataset.reaction;
+
 
 
         const count =
@@ -145,8 +222,12 @@ fetch("../data/posts.json")
 
 
 
-        count.textContent =
-        reactions[type];
+        if(count){
+
+            count.textContent =
+            reactions[type] || 0;
+
+        }
 
 
 
@@ -156,13 +237,21 @@ fetch("../data/posts.json")
             reactions[type]++;
 
 
-            count.textContent =
-            reactions[type];
+            if(count){
+
+                count.textContent =
+                reactions[type];
+
+            }
+
 
 
             localStorage.setItem(
+
                 reactionKey,
+
                 JSON.stringify(reactions)
+
             );
 
 
@@ -175,8 +264,9 @@ fetch("../data/posts.json")
 
 
 
+
     // =========================
-    // 🤝ありがとうメッセージ機能
+    // 🤝ありがとうメッセージ
     // =========================
 
 
@@ -208,16 +298,28 @@ fetch("../data/posts.json")
 
 
 
-    // 表示
+
+    // 表示処理
 
     function displayThanks(){
+
+
+        if(!thanksList){
+
+            return;
+
+        }
+
 
 
         thanksList.innerHTML = "";
 
 
 
-        thanksMessages.forEach(message=>{
+        thanksMessages
+        .slice()
+        .reverse()
+        .forEach(item=>{
 
 
             const div =
@@ -229,8 +331,12 @@ fetch("../data/posts.json")
 
 
 
-            div.textContent =
-            "🤝 " + message;
+            div.innerHTML =
+
+            "🤝 " +
+            item.datetime +
+            "<br><br>" +
+            item.message;
 
 
 
@@ -244,51 +350,164 @@ fetch("../data/posts.json")
 
 
 
+
     displayThanks();
 
 
 
 
 
-    // 送信
-
-    thanksButton.addEventListener("click",()=>{
 
 
-        const text =
-        thanksMessage.value.trim();
+    // 送信処理
+
+    if(thanksButton){
 
 
+        thanksButton.addEventListener("click",()=>{
 
-        if(text===""){
 
-            alert("メッセージを入力してください");
+            if(!thanksMessage){
 
-            return;
+                return;
 
-        }
+            }
 
 
 
-        thanksMessages.push(text);
+            const text =
+            thanksMessage.value.trim();
 
 
 
-        localStorage.setItem(
-            thanksKey,
-            JSON.stringify(thanksMessages)
-        );
+
+            if(text===""){
+
+
+                alert(
+                "メッセージを入力してください"
+                );
+
+
+                return;
+
+
+            }
 
 
 
-        thanksMessage.value="";
+
+
+            const now =
+            new Date();
 
 
 
-        displayThanks();
+            const datetime =
+
+            now.getFullYear()
+            + "/"
+            +
+            String(now.getMonth()+1)
+            .padStart(2,"0")
+            + "/"
+            +
+            String(now.getDate())
+            .padStart(2,"0")
+            + " "
+            +
+            String(now.getHours())
+            .padStart(2,"0")
+            + ":"
+            +
+            String(now.getMinutes())
+            .padStart(2,"0");
 
 
-    });
+
+
+
+
+
+            // 匿名メッセージ保存
+
+            thanksMessages.push({
+
+                message:text,
+
+                datetime:datetime
+
+            });
+
+
+
+
+
+            localStorage.setItem(
+
+                thanksKey,
+
+                JSON.stringify(thanksMessages)
+
+            );
+
+
+
+
+
+
+
+            // 🤝ありがとう数も増加
+
+            reactions.thanks++;
+
+
+
+            localStorage.setItem(
+
+                reactionKey,
+
+                JSON.stringify(reactions)
+
+            );
+
+
+
+
+            const thanksCount =
+
+            document.querySelector(
+
+            '[data-reaction="thanks"] .reaction-count'
+
+            );
+
+
+
+            if(thanksCount){
+
+
+                thanksCount.textContent =
+                reactions.thanks;
+
+
+            }
+
+
+
+
+            thanksMessage.value = "";
+
+
+
+            displayThanks();
+
+
+
+        });
+
+
+    }
 
 
 
