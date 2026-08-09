@@ -1,0 +1,43 @@
+// =========================
+// RELAY Firebase 接続
+// =========================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+import {
+    getFirestore
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
+// Firebase 設定
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBtxD9anSZbN053Ag-9uh1AtyAikEvqFXw",
+
+    authDomain: "relay-lab-2026.firebaseapp.com",
+
+    projectId: "relay-lab-2026",
+
+    storageBucket: "relay-lab-2026.firebasestorage.app",
+
+    messagingSenderId: "161339476177",
+
+    appId: "1:161339476177:web:4099a20a281da611b79df0"
+
+};
+
+
+// Firebase 初期化
+
+const app = initializeApp(firebaseConfig);
+
+
+// Firestore
+
+const db = getFirestore(app);
+
+
+// 他のJSから使えるようにする
+
+export { db };

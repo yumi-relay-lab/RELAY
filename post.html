@@ -1,7 +1,124 @@
-<label for="author">👤 実践者（ニックネーム）</label>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RELAY | 実践を投稿する</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+<header>
+
+<h1>🏫 RELAY</h1>
+
+<p>教育実践ひろば</p>
+
+</header>
+
+
+<main>
+
+<h2>＋ 実践を投稿する</h2>
+
+
+<form id="postForm">
+
+
+<label for="author">
+👤 実践者（ニックネーム）
+</label>
 
 <input
     type="text"
     id="author"
     placeholder="例：ゆみ先生"
     required>
+
+
+<label for="schoolDivision">
+🏫 学部
+</label>
+
+<select id="schoolDivision" required>
+
+<option value="">選択してください</option>
+
+<option value="小学部">小学部</option>
+
+<option value="中学部">中学部</option>
+
+<option value="高等部">高等部</option>
+
+</select>
+
+
+<label for="title">
+📝 実践タイトル
+</label>
+
+<input
+    type="text"
+    id="title"
+    placeholder="例：見通しをもって活動するための視覚支援"
+    required>
+
+
+<label for="purpose">
+🎯 ねらい・目的
+</label>
+
+<textarea
+    id="purpose"
+    rows="5"
+    placeholder="この実践で大切にしたこと、ねらいを書いてください"
+    required></textarea>
+
+
+<label for="howToUse">
+💡 実践方法
+</label>
+
+<textarea
+    id="howToUse"
+    rows="7"
+    placeholder="実際にどのような方法で実践したかを書いてください"
+    required></textarea>
+
+
+<label for="reflection">
+🌱 実践してみて
+</label>
+
+<textarea
+    id="reflection"
+    rows="7"
+    placeholder="子どもの様子や、実践してみて分かったことを書いてください"
+    required></textarea>
+
+
+<button
+    type="button"
+    class="submit-button">
+    📤 実践を投稿する
+</button>
+
+
+</form>
+
+</main>
+
+
+<script src="js/post.js"></script>
+
+</body>
+
+</html>
