@@ -1,6 +1,24 @@
+import { auth, db } from "./firebase.js";
+
+import {
+    addDoc,
+    collection,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
 const button = document.querySelector(".submit-button");
 
-button.addEventListener("click", function () {
+button.addEventListener("click", async function () {
+
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+
+        alert("投稿するにはGoogleでサインインしてください。トップページからサインインしてください。");
+        return;
+
+    }
 
     const newPost = {
 
@@ -35,6 +53,41 @@ button.addEventListener("click", function () {
     };
 
     // 既存データを取得
+    const firestorePost = {
+        authorId: currentUser.uid,
+        authorName: newPost.author,
+        schoolDivision: newPost.schoolDivision,
+        title: newPost.title,
+        purpose: newPost.purpose,
+        howToUse: newPost.howToUse,
+        reflection: newPost.reflection,
+        imageUrl: newPost.image || null,
+        aiSummary: newPost.aiSummary,
+        aiTags: newPost.aiTags,
+        reactionCounts: {
+            thanks: 0,
+            reference: 0,
+            try: 0,
+            done: 0,
+            idea: 0,
+            question: 0
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    };
+
+    try {
+
+        await addDoc(collection(db, "posts"), firestorePost);
+
+    } catch (error) {
+
+        console.error("Firestoreへの投稿保存に失敗しました:", error);
+        alert("投稿の保存に失敗しました。時間をおいて再度お試しください。");
+        return;
+
+    }
+
     let posts =
         JSON.parse(localStorage.getItem("relayPosts")) || [];
 

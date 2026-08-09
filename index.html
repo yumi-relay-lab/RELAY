@@ -17,6 +17,18 @@
         あなたの実践が<br>
         わたしたちの力になる
     </h2>
+
+    <section class="auth-controls" aria-label="ログイン">
+        <p id="authStatus" class="auth-status" aria-live="polite">
+            ログインしていません
+        </p>
+        <button id="googleSignInButton" class="auth-button" type="button">
+            Googleでサインイン
+        </button>
+        <button id="signOutButton" class="auth-button" type="button" hidden>
+            ログアウト
+        </button>
+    </section>
 </header>
 
 <main>
@@ -49,6 +61,7 @@
 
 </main>
 
+<script type="module" src="js/auth.js"></script>
 <script type="module" src="js/script.js"></script>
 
 </body>

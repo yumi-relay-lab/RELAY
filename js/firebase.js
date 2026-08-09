@@ -8,6 +8,10 @@ import {
     getFirestore
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
 
 // Firebase 設定
 
@@ -36,3 +40,7 @@ const app = initializeApp(firebaseConfig);
 // Firestore
 
 export const db = getFirestore(app);
+
+
+// Firebase Authentication
+export const auth = getAuth(app);
