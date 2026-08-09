@@ -35,9 +35,4 @@ const app = initializeApp(firebaseConfig);
 
 // Firestore
 
-const db = getFirestore(app);
-
-
-// 他のJSから使えるようにする
-
-export { db };
+export const db = getFirestore(app);

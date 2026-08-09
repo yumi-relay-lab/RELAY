@@ -18,7 +18,7 @@ const id = Number(params.get("id"));
 // 投稿データ読み込み
 // =========================
 
-fetch("../data/posts.json")
+fetch("./data/posts.json")
 
 .then(response => response.json())
 
