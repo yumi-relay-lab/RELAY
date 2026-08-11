@@ -3,6 +3,13 @@
 // 詳細表示 + リアクション + 🤝ありがとう機能
 // =========================
 
+import { db } from "./firebase.js";
+
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
 
 // =========================
 // URLからID取得
@@ -10,7 +17,7 @@
 
 const params = new URLSearchParams(window.location.search);
 
-const id = Number(params.get("id"));
+const id = params.get("id");
 
 
 
@@ -18,14 +25,44 @@ const id = Number(params.get("id"));
 // 投稿データ読み込み
 // =========================
 
-fetch("./data/posts.json")
+async function loadPost() {
 
-.then(response => response.json())
+    const response = await fetch("./data/posts.json");
+    const samplePosts = await response.json();
+    const savedPosts = JSON.parse(localStorage.getItem("relayPosts")) || [];
+    const legacyPost = samplePosts
+        .concat(savedPosts)
+        .find(item => String(item.id) === id);
 
-.then(posts => {
+    if (legacyPost) {
+        return legacyPost;
+    }
+
+    try {
+
+        const snapshot = await getDoc(doc(db, "posts", id));
+
+        if (snapshot.exists()) {
+            return {
+                ...snapshot.data(),
+                id: snapshot.id
+            };
+        }
+
+    } catch (error) {
+
+        console.error("Firestore投稿の読み込みエラー:", error);
+
+    }
+
+    return null;
+
+}
 
 
-    const post = posts.find(item => item.id === id);
+loadPost()
+
+.then(post => {
 
 
 
@@ -68,7 +105,13 @@ fetch("./data/posts.json")
 
     if(image){
 
-        image.src = post.image || "";
+        const imageUrl = post.image || post.imageUrl;
+
+        if (imageUrl) {
+            image.src = imageUrl;
+        } else {
+            image.hidden = true;
+        }
 
     }
 
@@ -120,7 +163,7 @@ fetch("./data/posts.json")
     if(practice){
 
         practice.textContent =
-        post.practice || "";
+        post.reflection || post.practice || "";
 
     }
 
@@ -143,10 +186,12 @@ fetch("./data/posts.json")
         tagArea.innerHTML = "";
 
 
-        if(post.tags){
+        const tags = post.aiTags || post.tags || [];
+
+        if(tags.length){
 
 
-            post.tags.forEach(tag=>{
+            tags.forEach(tag=>{
 
 
                 const span =
@@ -510,5 +555,17 @@ fetch("./data/posts.json")
     }
 
 
+
+})
+
+.catch(error => {
+
+    console.error("読み込みエラー:", error);
+
+    const card = document.querySelector(".card");
+
+    if (card) {
+        card.innerHTML = "<h2>投稿が見つかりません</h2>";
+    }
 
 });

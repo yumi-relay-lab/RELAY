@@ -1,75 +1,122 @@
-fetch("data/posts.json")
-  .then(response => response.json())
-  .then(posts => {
+import { db } from "./firebase.js";
+
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
-    // ブラウザ保存された投稿を取得
-    const savedPosts =
-      JSON.parse(localStorage.getItem("relayPosts")) || [];
+function getPostComparisonKey(post) {
+
+  return [
+    post.authorName || post.author || "",
+    post.schoolDivision || "",
+    post.title || "",
+    post.purpose || "",
+    post.howToUse || "",
+    post.reflection || ""
+  ]
+    .map(value => String(value).trim())
+    .join("\u0000");
+
+}
 
 
-    // 既存データ＋新規投稿
-    posts = posts.concat(savedPosts);
+async function loadPosts() {
+
+  const response = await fetch("data/posts.json");
+  const samplePosts = await response.json();
+  const savedPosts = JSON.parse(localStorage.getItem("relayPosts")) || [];
+
+  let firestorePosts = [];
+
+  try {
+
+    const snapshot = await getDocs(collection(db, "posts"));
+
+    firestorePosts = snapshot.docs.map(document => ({
+      ...document.data(),
+      id: document.id
+    }));
+
+  } catch (error) {
+
+    // Firestoreを取得できない場合も、従来の投稿一覧は表示する
+    console.error("Firestore投稿の読み込みエラー:", error);
+
+  }
+
+  const firestoreIds = new Set(
+    firestorePosts.map(post => String(post.id))
+  );
+  const firestorePostKeys = new Set(
+    firestorePosts.map(getPostComparisonKey)
+  );
+
+  const uniqueSavedPosts = savedPosts.filter(post => {
+
+    const hasSameId = firestoreIds.has(String(post.id));
+    const hasSameContent = firestorePostKeys.has(getPostComparisonKey(post));
+
+    return !hasSameId && !hasSameContent;
+
+  });
+
+  // 同じ投稿が両方にある場合は、Firestore側のデータを一覧に残す
+  return samplePosts.concat(uniqueSavedPosts, firestorePosts);
+
+}
 
 
+function displayPosts(posts) {
 
-    const postsArea = document.getElementById("posts");
+  const postsArea = document.getElementById("posts");
+  postsArea.innerHTML = "";
 
+  posts.forEach(post => {
 
-    postsArea.innerHTML = "";
+    const card = document.createElement("article");
+    const imageUrl = post.image || post.imageUrl;
+    const authorName = post.authorName || post.author || "";
+    const tags = post.aiTags || post.tags || [];
 
+    card.className = "card";
 
-    posts.forEach(post => {
+    card.innerHTML = `
+      ${imageUrl ? `<img src="${imageUrl}" alt="${post.title}">` : ""}
 
+      <h2>${post.title}</h2>
 
-      const card = document.createElement("article");
+      <p class="division">
+        ${post.schoolDivision || ""}
+      </p>
 
+      <p class="author">
+        実践者：${authorName}
+      </p>
 
-      card.className = "card";
+      <p class="summary">
+        ${post.aiSummary || ""}
+      </p>
 
+      <div class="tags">
+        ${tags.map(tag => `<span>#${tag}</span>`).join("")}
+      </div>
 
-      card.innerHTML = `
+      <a class="detail-button" href="detail.html?id=${encodeURIComponent(post.id)}">
+        ▶ 詳細を見る
+      </a>
+    `;
 
-        <img src="${post.image}" alt="${post.title}">
+    postsArea.appendChild(card);
 
+  });
 
-        <h2>${post.title}</h2>
-
-
-        <p class="division">
-          ${post.schoolDivision}
-        </p>
-
-
-        <p class="summary">
-          ${post.aiSummary}
-        </p>
-
-
-        <div class="tags">
-          ${post.aiTags.map(tag => `<span>#${tag}</span>`).join("")}
-        </div>
-
-
-        <a class="detail-button" href="detail.html?id=${post.id}">
-          ▶ 詳細を見る
-        </a>
-
-
-      `;
-
-
-      postsArea.appendChild(card);
+}
 
 
-    });
-
-
-  })
-
-
+loadPosts()
+  .then(displayPosts)
   .catch(error => {
-
     console.error("読み込みエラー:", error);
-
   });
