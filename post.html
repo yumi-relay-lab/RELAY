@@ -105,6 +105,51 @@
     required></textarea>
 
 
+<section class="attachment-area" aria-labelledby="attachmentHeading">
+
+<h3 id="attachmentHeading">📎 資料を添付</h3>
+
+<label class="attachment-drop-zone" id="attachmentDropZone" for="attachments">
+
+<span class="attachment-main-text">
+ここへドラッグ＆ドロップ<br>
+またはクリックして選択
+</span>
+
+<span>画像・PDF・Word・Excel</span>
+
+<span class="attachment-limit">
+最大3ファイル<br>
+1ファイル5MBまで
+</span>
+
+</label>
+
+<input
+    type="file"
+    id="attachments"
+    class="attachment-input"
+    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    multiple>
+
+<p id="attachmentStatus" class="attachment-status" aria-live="polite"></p>
+
+<ul id="attachmentList" class="attachment-list" aria-label="選択した添付資料"></ul>
+
+<div id="privacyConfirmation" class="privacy-confirmation" hidden>
+
+<label for="privacyConfirmed">
+<input type="checkbox" id="privacyConfirmed">
+<span>
+添付資料に、児童生徒や教職員など個人を特定できる氏名・顔写真・住所・連絡先等の個人情報が含まれていないことを確認しました。
+</span>
+</label>
+
+</div>
+
+</section>
+
+
 <button
     type="button"
     class="submit-button">

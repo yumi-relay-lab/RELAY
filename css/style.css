@@ -160,6 +160,138 @@ textarea {
     height:120px;
 }
 
+.attachment-area {
+    margin-top: 28px;
+}
+
+.attachment-area h3 {
+    color: #1565C0;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.attachment-drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 0;
+    padding: 28px 20px;
+    border: 2px dashed #90CAF9;
+    border-radius: 12px;
+    background: #F7FBFF;
+    color: #333;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+
+.attachment-drop-zone:hover,
+.attachment-drop-zone:focus-within,
+.attachment-drop-zone.is-dragging {
+    border-color: #1565C0;
+    background: #E3F2FD;
+}
+
+.attachment-main-text {
+    color: #1565C0;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.attachment-limit {
+    color: #555;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.attachment-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.attachment-status {
+    min-height: 1.6em;
+    margin-top: 10px;
+    color: #1565C0;
+}
+
+.attachment-status.is-error {
+    color: #B71C1C;
+    font-weight: bold;
+}
+
+.attachment-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 6px;
+    list-style: none;
+}
+
+.attachment-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid #D9E2EC;
+    border-radius: 9px;
+    background: white;
+    overflow-wrap: anywhere;
+}
+
+.attachment-remove {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: #E3F2FD;
+    color: #0D47A1;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.attachment-remove:hover,
+.attachment-remove:focus-visible {
+    background: #BBDEFB;
+}
+
+.privacy-confirmation {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #FFF8E1;
+}
+
+.privacy-confirmation[hidden] {
+    display: none;
+}
+
+.privacy-confirmation label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 0;
+    color: #333;
+    cursor: pointer;
+}
+
+.privacy-confirmation input {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 3px;
+}
+
 .submit-button {
     margin-top:30px;
     width:100%;
