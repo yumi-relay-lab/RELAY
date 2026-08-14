@@ -1,15 +1,23 @@
-import { auth, db } from "./firebase.js";
+import { auth, db, storage } from "./firebase.js";
 
 import {
     addDoc,
     collection,
-    serverTimestamp
+    deleteDoc,
+    serverTimestamp,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+import {
+    deleteObject,
+    getDownloadURL,
+    ref,
+    uploadBytes
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_LOCAL_IMAGE_SIZE = 700 * 1024;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_EXTENSIONS = new Set([
     "jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"
@@ -29,6 +37,110 @@ function getExtension(fileName) {
     return fileName.includes(".")
         ? fileName.split(".").pop().toLowerCase()
         : "";
+
+}
+
+
+function getFileCategory(file) {
+
+    const extension = getExtension(file.name);
+
+    if (["jpg", "jpeg", "png", "webp"].includes(extension)) {
+        return "image";
+    }
+
+    if (extension === "pdf") {
+        return "pdf";
+    }
+
+    if (extension === "doc" || extension === "docx") {
+        return "word";
+    }
+
+    return "excel";
+
+}
+
+
+function getContentType(file) {
+
+    if (file.type) {
+        return file.type;
+    }
+
+    const contentTypes = {
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        png: "image/png",
+        webp: "image/webp",
+        pdf: "application/pdf",
+        doc: "application/msword",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        xls: "application/vnd.ms-excel",
+        xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    };
+
+    return contentTypes[getExtension(file.name)];
+
+}
+
+
+async function uploadAttachments(postId, authorId) {
+
+    const uploadedReferences = [];
+    const attachments = [];
+
+    try {
+
+        for (const file of selectedFiles) {
+
+            const id = crypto.randomUUID();
+            const extension = getExtension(file.name);
+            const storagePath = `posts/${postId}/${authorId}/${id}.${extension}`;
+            const storageReference = ref(storage, storagePath);
+            const contentType = getContentType(file);
+
+            await uploadBytes(storageReference, file, { contentType });
+            uploadedReferences.push(storageReference);
+
+            const downloadUrl = await getDownloadURL(storageReference);
+
+            attachments.push({
+                id,
+                name: file.name,
+                storagePath,
+                downloadUrl,
+                contentType,
+                size: file.size,
+                category: getFileCategory(file)
+            });
+
+        }
+
+        return { attachments, uploadedReferences };
+
+    } catch (error) {
+
+        await deleteUploadedFiles(uploadedReferences);
+
+        throw error;
+
+    }
+
+}
+
+
+async function deleteUploadedFiles(uploadedReferences) {
+
+    const results = await Promise.allSettled(
+        uploadedReferences.map(storageReference => deleteObject(storageReference))
+    );
+
+    results.forEach(result => {
+        if (result.status === "rejected") {
+            console.error("アップロード済みファイルの削除に失敗しました:", result.reason);
+        }
+    });
 
 }
 
@@ -191,44 +303,6 @@ async function compressImage(file, maxSize = MAX_FILE_SIZE, maxDimension = 2000)
 }
 
 
-function fileToDataUrl(file) {
-
-    return new Promise((resolve, reject) => {
-
-        const reader = new FileReader();
-
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("画像を読み込めませんでした。"));
-        reader.readAsDataURL(file);
-
-    });
-
-}
-
-
-async function createLocalImageDataUrl() {
-
-    const imageFile = selectedFiles.find(isImageFile);
-
-    if (!imageFile) {
-        return "";
-    }
-
-    const localImage = await compressImage(
-        imageFile,
-        MAX_LOCAL_IMAGE_SIZE,
-        1600
-    );
-
-    if (!localImage) {
-        throw new Error("詳細表示用の画像を作成できませんでした。");
-    }
-
-    return fileToDataUrl(localImage);
-
-}
-
-
 function isDuplicateFile(file) {
 
     return selectedFiles.some(selectedFile =>
@@ -336,9 +410,18 @@ dropZone.addEventListener("drop", event => {
 });
 
 
-const button = document.querySelector(".submit-button");
+const form = document.getElementById("postForm");
+const submitButton = form.querySelector(".submit-button");
+const defaultSubmitButtonText = submitButton.textContent;
+let isSubmitting = false;
 
-button.addEventListener("click", async function () {
+form.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    if (isSubmitting) {
+        return;
+    }
 
     if (selectedFiles.length > 0 && !privacyCheckbox.checked) {
 
@@ -357,19 +440,10 @@ button.addEventListener("click", async function () {
 
     }
 
-    let localImageDataUrl = "";
 
-    try {
-
-        localImageDataUrl = await createLocalImageDataUrl();
-
-    } catch (error) {
-
-        console.error("詳細表示用画像の作成に失敗しました:", error);
-        setAttachmentStatus("画像を詳細画面用に保存できませんでした。画像を選び直してください。", true);
-        return;
-
-    }
+    isSubmitting = true;
+    submitButton.disabled = true;
+    submitButton.textContent = "投稿中…";
 
     const newPost = {
 
@@ -393,8 +467,6 @@ button.addEventListener("click", async function () {
         reflection:
         document.getElementById("reflection").value,
 
-        image: localImageDataUrl,
-
         aiSummary:
         "先生の実践投稿です。",
 
@@ -412,8 +484,6 @@ button.addEventListener("click", async function () {
         purpose: newPost.purpose,
         howToUse: newPost.howToUse,
         reflection: newPost.reflection,
-        // Storage未実装のため、画像本体は従来どおりlocalStorageにだけ保存する
-        imageUrl: null,
         aiSummary: newPost.aiSummary,
         aiTags: newPost.aiTags,
         reactionCounts: {
@@ -428,35 +498,67 @@ button.addEventListener("click", async function () {
         updatedAt: serverTimestamp()
     };
 
+    let postReference = null;
+    let uploadedReferences = [];
+
     try {
 
-        const postReference = await addDoc(collection(db, "posts"), firestorePost);
+        postReference = await addDoc(collection(db, "posts"), firestorePost);
+
+        const uploadResult = await uploadAttachments(
+            postReference.id,
+            currentUser.uid
+        );
+
+        uploadedReferences = uploadResult.uploadedReferences;
+
+        await updateDoc(postReference, {
+            attachments: uploadResult.attachments,
+            updatedAt: serverTimestamp()
+        });
 
         // 一覧のFirestore IDと詳細画面が参照するlocalStorage IDを揃える
         newPost.id = postReference.id;
 
+        try {
+
+            const posts = JSON.parse(localStorage.getItem("relayPosts")) || [];
+            posts.push(newPost);
+            localStorage.setItem("relayPosts", JSON.stringify(posts));
+
+        } catch (localStorageError) {
+
+            // Firestoreへの保存は完了しているため、localStorageの失敗で投稿を失敗扱いにしない
+            console.warn("localStorageへの投稿情報の保存をスキップしました:", localStorageError);
+
+        }
+
+        alert("実践を投稿しました！");
+        location.href = "index.html";
+
     } catch (error) {
 
-        console.error("Firestoreへの投稿保存に失敗しました:", error);
+        console.error("投稿または添付ファイルの保存に失敗しました:", error);
+
+        await deleteUploadedFiles(uploadedReferences);
+
+        if (postReference) {
+            try {
+                await deleteDoc(postReference);
+            } catch (cleanupError) {
+                console.error("保存途中のFirestore投稿の削除に失敗しました:", cleanupError);
+            }
+        }
+
         alert("投稿の保存に失敗しました。時間をおいて再度お試しください。");
         return;
 
+    } finally {
+
+        isSubmitting = false;
+        submitButton.disabled = false;
+        submitButton.textContent = defaultSubmitButtonText;
+
     }
-
-    let posts =
-        JSON.parse(localStorage.getItem("relayPosts")) || [];
-
-    // 新しい投稿を追加
-    posts.push(newPost);
-
-    // 保存
-    localStorage.setItem(
-        "relayPosts",
-        JSON.stringify(posts)
-    );
-
-    alert("実践を投稿しました！");
-
-    location.href = "index.html";
 
 });

@@ -12,6 +12,10 @@ import {
     getAuth
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
+import {
+    getStorage
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
+
 
 // Firebase 設定
 
@@ -44,3 +48,7 @@ export const db = getFirestore(app);
 
 // Firebase Authentication
 export const auth = getAuth(app);
+
+
+// Cloud Storage
+export const storage = getStorage(app);

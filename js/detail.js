@@ -30,13 +30,6 @@ async function loadPost() {
     const response = await fetch("./data/posts.json");
     const samplePosts = await response.json();
     const savedPosts = JSON.parse(localStorage.getItem("relayPosts")) || [];
-    const legacyPost = samplePosts
-        .concat(savedPosts)
-        .find(item => String(item.id) === id);
-
-    if (legacyPost) {
-        return legacyPost;
-    }
 
     try {
 
@@ -55,7 +48,24 @@ async function loadPost() {
 
     }
 
-    return null;
+    return samplePosts
+        .concat(savedPosts)
+        .find(item => String(item.id) === id)
+        || null;
+
+}
+
+
+function getFirstAttachmentImage(post) {
+
+    const attachments = Array.isArray(post.attachments) ? post.attachments : [];
+    const imageAttachment = attachments.find(attachment =>
+        attachment.category === "image"
+        && typeof attachment.downloadUrl === "string"
+        && attachment.downloadUrl
+    );
+
+    return imageAttachment ? imageAttachment.downloadUrl : "";
 
 }
 
@@ -105,7 +115,7 @@ loadPost()
 
     if(image){
 
-        const imageUrl = post.image || post.imageUrl;
+        const imageUrl = getFirstAttachmentImage(post);
 
         if (imageUrl) {
             image.src = imageUrl;

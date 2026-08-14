@@ -102,7 +102,7 @@ posts/{postId}
 ├─ purpose
 ├─ howToUse
 ├─ reflection
-├─ imageUrl        現在は null
+├─ attachments     StorageのダウンロードURLを含む添付ファイル情報
 ├─ aiSummary       現在は固定文言
 ├─ aiTags          現在は固定配列
 ├─ reactionCounts  6種類の初期値がすべて0のマップ

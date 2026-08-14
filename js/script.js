@@ -22,6 +22,20 @@ function getPostComparisonKey(post) {
 }
 
 
+function getFirstAttachmentImage(post) {
+
+  const attachments = Array.isArray(post.attachments) ? post.attachments : [];
+  const imageAttachment = attachments.find(attachment =>
+    attachment.category === "image"
+    && typeof attachment.downloadUrl === "string"
+    && attachment.downloadUrl
+  );
+
+  return imageAttachment ? imageAttachment.downloadUrl : "";
+
+}
+
+
 async function loadPosts() {
 
   const response = await fetch("data/posts.json");
@@ -76,7 +90,7 @@ function displayPosts(posts) {
   posts.forEach(post => {
 
     const card = document.createElement("article");
-    const imageUrl = post.image || post.imageUrl;
+    const imageUrl = getFirstAttachmentImage(post);
     const authorName = post.authorName || post.author || "";
     const tags = post.aiTags || post.tags || [];
 
