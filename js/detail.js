@@ -58,7 +58,9 @@ async function loadPost() {
 
 function getFirstAttachmentImage(post) {
 
-    const attachments = Array.isArray(post.attachments) ? post.attachments : [];
+    const attachments = Array.isArray(post.attachments)
+        ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+        : [];
     const imageAttachment = attachments.find(attachment =>
         attachment.category === "image"
         && typeof attachment.downloadUrl === "string"
@@ -66,6 +68,122 @@ function getFirstAttachmentImage(post) {
     );
 
     return imageAttachment ? imageAttachment.downloadUrl : "";
+
+}
+
+
+function formatFileSize(size) {
+
+    const bytes = Number(size);
+
+    if (!Number.isFinite(bytes) || bytes < 0) {
+        return "";
+    }
+
+    if (bytes >= 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+}
+
+
+function createUnavailableMessage() {
+
+    const message = document.createElement("span");
+    message.className = "detail-attachment-error";
+    message.textContent = "ファイルを開けません";
+
+    return message;
+
+}
+
+
+function renderAttachments(post) {
+
+    const attachmentSection = document.getElementById("detailAttachments");
+    const attachmentList = document.getElementById("detailAttachmentList");
+    const attachments = Array.isArray(post.attachments)
+        ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+        : [];
+
+    if (!attachmentSection || !attachmentList || attachments.length === 0) {
+        return;
+    }
+
+    attachmentList.innerHTML = "";
+
+    attachments.forEach(attachment => {
+
+        const item = document.createElement("article");
+        const fileName = document.createElement("h3");
+        const fileSize = formatFileSize(attachment.size);
+        const downloadUrl = typeof attachment.downloadUrl === "string"
+            ? attachment.downloadUrl.trim()
+            : "";
+
+        item.className = "detail-attachment-item";
+        fileName.className = "detail-attachment-name";
+        fileName.textContent = attachment.name || "名前のないファイル";
+        item.appendChild(fileName);
+
+        if (fileSize) {
+            const size = document.createElement("p");
+            size.className = "detail-attachment-size";
+            size.textContent = fileSize;
+            item.appendChild(size);
+        }
+
+        if (!downloadUrl) {
+            item.appendChild(createUnavailableMessage());
+            attachmentList.appendChild(item);
+            return;
+        }
+
+        if (attachment.category === "image") {
+            const preview = document.createElement("img");
+            preview.className = "detail-attachment-preview";
+            preview.src = downloadUrl;
+            preview.alt = attachment.name || "添付画像";
+            preview.loading = "lazy";
+            preview.addEventListener("error", () => {
+                preview.remove();
+                item.appendChild(createUnavailableMessage());
+            }, { once: true });
+            item.appendChild(preview);
+        } else {
+            const linkLabels = {
+                pdf: "PDFを開く",
+                word: "Wordをダウンロード",
+                excel: "Excelをダウンロード"
+            };
+            const linkLabel = linkLabels[attachment.category];
+
+            if (linkLabel) {
+                const link = document.createElement("a");
+                link.className = "detail-attachment-link";
+                link.href = downloadUrl;
+                link.textContent = linkLabel;
+
+                if (attachment.category === "pdf") {
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                } else {
+                    link.download = attachment.name || "";
+                }
+
+                item.appendChild(link);
+            } else {
+                item.appendChild(createUnavailableMessage());
+            }
+        }
+
+        attachmentList.appendChild(item);
+
+    });
+
+    attachmentSection.hidden = false;
 
 }
 
@@ -124,6 +242,9 @@ loadPost()
         }
 
     }
+
+
+    renderAttachments(post);
 
 
 
