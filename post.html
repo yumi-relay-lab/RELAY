@@ -29,6 +29,13 @@
 
 <h2>＋ 実践を投稿する</h2>
 
+<aside class="test-publish-notice" aria-labelledby="testPublishNoticeHeading">
+<h3 id="testPublishNoticeHeading">🧪 テスト公開中のお願い</h3>
+<p>
+現在はテスト公開中です。実在する児童生徒・教職員が分かる氏名・顔写真・住所・連絡先などの個人情報は投稿しないでください。
+</p>
+</aside>
+
 
 <form id="postForm">
 
@@ -68,7 +75,7 @@
 <input
     type="text"
     id="title"
-    placeholder="例：見通しをもって活動するための視覚支援"
+    placeholder="例：朝の支度カード"
     required>
 
 
@@ -79,7 +86,7 @@
 <textarea
     id="purpose"
     rows="5"
-    placeholder="この実践で大切にしたこと、ねらいを書いてください"
+    placeholder="例：活動の見通しをもち、自分で準備に取り組む。"
     required></textarea>
 
 
@@ -90,7 +97,7 @@
 <textarea
     id="howToUse"
     rows="7"
-    placeholder="実際にどのような方法で実践したかを書いてください"
+    placeholder="例：カードを順番に確認し、終わったら裏返す。"
     required></textarea>
 
 
@@ -101,7 +108,7 @@
 <textarea
     id="reflection"
     rows="7"
-    placeholder="子どもの様子や、実践してみて分かったことを書いてください"
+    placeholder="例：次にすることが分かりやすくなり、声かけが減った。"
     required></textarea>
 
 
@@ -121,6 +128,10 @@
 <section class="attachment-area" aria-labelledby="attachmentHeading">
 
 <h3 id="attachmentHeading">📎 資料を添付</h3>
+
+<p class="attachment-privacy-note">
+添付する画像・PDF・Word・Excelには、個人が特定できる情報が含まれていないことを確認してください。
+</p>
 
 <label class="attachment-drop-zone" id="attachmentDropZone" for="attachments">
 
