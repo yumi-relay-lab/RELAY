@@ -3,17 +3,43 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /posts/{postId} {
+      function isPostOwner() {
+        return request.auth != null
+               && resource.data.authorId == request.auth.uid;
+      }
+
+      function updatesOnlyEditablePostFields() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'schoolDivision',
+          'title',
+          'purpose',
+          'howToUse',
+          'reflection',
+          'aiTags',
+          'updatedAt'
+        ]);
+      }
+
+      function addsInitialAttachments() {
+        return !resource.data.keys().hasAll(['attachments'])
+               && request.resource.data.keys().hasAll(['attachments'])
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                 'attachments',
+                 'updatedAt'
+               ]);
+      }
+
       allow read: if true;
 
       allow create: if request.auth != null
                     && request.resource.data.authorId == request.auth.uid;
 
-      allow update: if request.auth != null
-                    && resource.data.authorId == request.auth.uid
-                    && request.resource.data.authorId == resource.data.authorId;
+      allow update: if isPostOwner()
+                    && request.resource.data.authorId == resource.data.authorId
+                    && (updatesOnlyEditablePostFields()
+                        || addsInitialAttachments());
 
-      allow delete: if request.auth != null
-                    && resource.data.authorId == request.auth.uid;
+      allow delete: if isPostOwner();
     }
   }
 }

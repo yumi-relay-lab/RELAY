@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RELAY | 実践を編集する</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<header>
+<h1>🏫 RELAY</h1>
+<p>教育実践ひろば</p>
+</header>
+
+<main>
+
+<section class="edit-page" aria-labelledby="editHeading">
+<h2 id="editHeading">✏️ 実践を編集する</h2>
+
+<p id="editStatus" class="edit-status" role="status" aria-live="polite">
+投稿を読み込んでいます…
+</p>
+
+<form id="editForm" class="edit-form" hidden>
+
+<label for="schoolDivision">
+🏫 学部
+</label>
+<select id="schoolDivision" required>
+<option value="">選択してください</option>
+<option value="小学部">小学部</option>
+<option value="中学部">中学部</option>
+<option value="高等部">高等部</option>
+</select>
+
+<label for="title">
+📝 実践タイトル
+</label>
+<input type="text" id="title" required>
+
+<label for="purpose">
+🎯 ねらい・目的
+</label>
+<textarea id="purpose" rows="5" required></textarea>
+
+<label for="howToUse">
+💡 実践方法
+</label>
+<textarea id="howToUse" rows="7" required></textarea>
+
+<label for="reflection">
+🌱 実践してみて
+</label>
+<textarea id="reflection" rows="7" required></textarea>
+
+<label for="aiTags">
+🏷️ タグ（カンマ区切り）
+</label>
+<input
+    type="text"
+    id="aiTags"
+    placeholder="例：視覚支援, 自立活動, 教材">
+
+<aside id="editAttachmentNotice" class="edit-attachment-notice" hidden>
+📎 現在の添付ファイルはそのまま保持されます。添付ファイルの編集は次の段階で対応します。
+</aside>
+
+<button id="saveEditButton" type="submit" class="submit-button">
+💾 変更を保存する
+</button>
+
+<a id="cancelEditLink" class="edit-cancel-link" href="index.html">
+キャンセルして戻る
+</a>
+
+</form>
+</section>
+
+</main>
+
+<script type="module" src="js/edit.js"></script>
+
+</body>
+</html>

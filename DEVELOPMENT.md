@@ -24,12 +24,14 @@ RELAYは、特別支援教育を含む教育実践を先生同士で共有する
 RELAY/
 ├─ index.html              トップ・投稿一覧・ログイン表示
 ├─ post.html               新規投稿フォーム
+├─ edit.html               投稿者本人の本文編集フォーム
 ├─ detail.html             投稿詳細・リアクション・ありがとう
 ├─ share.html              簡易投稿一覧
 ├─ css/style.css           共通スタイル
 ├─ js/firebase.js          Firebase App / Firestore / Authentication / Storage初期化
 ├─ js/auth.js              Googleサインイン・ログアウト・状態表示
 ├─ js/post.js              投稿作成・Firestore保存・localStorage保存
+├─ js/edit.js              投稿者本人の本文編集・Firestore更新
 ├─ js/script.js            トップ一覧表示
 ├─ js/detail.js            詳細表示・リアクション・ありがとう
 ├─ js/share.js             共有一覧表示
@@ -158,7 +160,7 @@ posts/{postId}
 
 Firestore Rulesはリポジトリ内の `firestore.rules` で管理する。現在は投稿の読み取りを許可し、作成時は `request.resource.data.authorId == request.auth.uid`、更新・削除時は既存投稿の `authorId == request.auth.uid` を検証するRulesを持つ。
 
-Storage Rulesは `storage.rules` で管理し、deploy済みである。現行Rulesは認証済みユーザーに対する読み書き許可であり、投稿者本人だけの編集・削除を実装する前に、Storageパス内の `authorId` と `request.auth.uid` を一致させるRulesへ強化する。
+Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは、読み取りを認証済みユーザーに限定し、書込み・削除はStorageパス内の `authorId` と `request.auth.uid` が一致する場合だけ許可する。Rules変更後はdeploy状況を確認する。
 
 ## 7. localStorageとの現在の関係
 
@@ -197,7 +199,7 @@ Storage Rulesは `storage.rules` で管理し、deploy済みである。現行Ru
 ## 9. 今後の開発ロードマップ
 
 1. Storage RulesをStorageパスの `authorId` 単位へ強化する
-2. `authorId === auth.currentUser.uid` を基準に、投稿者本人だけの編集・削除を追加する
+2. `authorId === auth.currentUser.uid` を基準に、投稿者本人だけの本文編集に続いて、添付編集・投稿削除を追加する
 3. 削除時にFirestore投稿とCloud Storageの添付ファイルを整合性を保って削除する
 4. 共有一覧をFirestore参照へ移行する
 5. リアクション・ありがとうを認証済みのFirestoreデータへ移行し、ありがとうメッセージは匿名表示を維持しながら送信者本人だけが削除できるようにする
@@ -208,7 +210,7 @@ Storage Rulesは `storage.rules` で管理し、deploy済みである。現行Ru
 
 ## 10. 現在の開発段階と次に行う作業
 
-現在は **添付機能 Ver.1完了、投稿者本人の編集・削除機能の準備段階** である。
+現在は **添付機能 Ver.1と投稿者本人の本文編集が完了し、投稿削除機能の準備段階** である。
 
 - Firebase AuthenticationのGoogleログイン: 実装済み
 - Firestore投稿処理: 実装済み
@@ -217,9 +219,10 @@ Storage Rulesは `storage.rules` で管理し、deploy済みである。現行Ru
 - Firestoreへ保存した投稿の一覧・詳細表示: 実装済み
 - Cloud StorageとStorage Rulesのdeploy: 実施済み
 - 添付機能 Ver.1: 実装済み
-- 投稿者本人の編集・削除: 未実装
+- 投稿者本人の本文編集: 実装済み
+- 投稿者本人の添付編集・投稿削除: 未実装
 
-次の主要タスクは、**Firebase UIDによる所有者識別を使った、投稿者本人だけの編集・削除機能** である。実装前にStorage Rulesを `authorId` 単位の最小権限へ強化し、Firestore投稿とStorage添付の削除順序、失敗時の再試行と整合性保持を設計する。
+次の主要タスクは、**Firebase UIDによる所有者識別を使った、投稿者本人だけの投稿削除機能** である。Firestore投稿とStorage添付の削除順序、失敗時の再試行と整合性保持を設計する。添付ファイルの追加・削除は別段階とする。
 
 ## 11. セキュリティ・Firestore Rules
 

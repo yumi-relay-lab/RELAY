@@ -395,3 +395,53 @@ textarea {
 .owner-delete-button:focus-visible {
     background: #8E0000;
 }
+
+.edit-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+}
+
+.edit-status {
+    margin-top: 18px;
+    color: #1565C0;
+}
+
+.edit-status:empty {
+    display: none;
+}
+
+.edit-status.is-error {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #FFEBEE;
+    color: #B71C1C;
+    font-weight: bold;
+}
+
+.edit-form[hidden] {
+    display: none;
+}
+
+.edit-attachment-notice {
+    margin-top: 24px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #FFF8E1;
+    color: #5D4037;
+}
+
+.edit-attachment-notice[hidden] {
+    display: none;
+}
+
+.edit-cancel-link {
+    display: block;
+    margin-top: 16px;
+    color: #1565C0;
+    text-align: center;
+    font-weight: bold;
+}

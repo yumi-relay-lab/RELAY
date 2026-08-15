@@ -104,7 +104,7 @@ function setupOwnerActions(post, isFirestorePost) {
     }
 
     editButton.addEventListener("click", () => {
-        alert("編集機能は次の段階で実装します");
+        location.href = `edit.html?id=${encodeURIComponent(post.id)}`;
     });
 
     deleteButton.addEventListener("click", () => {
