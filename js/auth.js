@@ -13,6 +13,7 @@ import {
 const signInButton = document.getElementById("googleSignInButton");
 const signOutButton = document.getElementById("signOutButton");
 const authStatus = document.getElementById("authStatus");
+let currentAuthUser = auth.currentUser;
 
 
 function setStatus(message) {
@@ -59,9 +60,9 @@ function getSignInErrorMessage(error) {
 
     switch (error.code) {
         case "auth/popup-closed-by-user":
-            return "サインインがキャンセルされました。";
+            return "ログイン画面が閉じられたため、ログインは完了しませんでした。";
         case "auth/popup-blocked":
-            return "ポップアップがブロックされました。ブラウザの設定を確認してください。";
+            return "ログイン画面を開けませんでした。ブラウザのポップアップ設定を確認してください。";
         case "auth/unauthorized-domain":
             return "このサイトではサインインを利用できません。管理者にお問い合わせください。";
         default:
@@ -71,7 +72,12 @@ function getSignInErrorMessage(error) {
 }
 
 
-onAuthStateChanged(auth, displayUser);
+onAuthStateChanged(auth, user => {
+
+    currentAuthUser = user;
+    displayUser(user);
+
+});
 
 
 if (signInButton) {
@@ -87,12 +93,22 @@ if (signInButton) {
 
             const provider = new GoogleAuthProvider();
 
-            await signInWithPopup(auth, provider);
+            const result = await signInWithPopup(auth, provider);
+
+            currentAuthUser = result.user;
+            displayUser(result.user);
 
         } catch (error) {
 
             console.error("Googleサインインに失敗しました:", error);
-            setStatus(getSignInErrorMessage(error));
+
+            const signedInUser = auth.currentUser || currentAuthUser;
+
+            if (signedInUser) {
+                displayUser(signedInUser);
+            } else {
+                setStatus(getSignInErrorMessage(error));
+            }
 
         } finally {
 

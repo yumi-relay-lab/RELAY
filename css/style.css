@@ -72,13 +72,17 @@ main {
 
 /* 検索 */
 .search {
+    margin-bottom: 20px;
+}
+
+.search-form {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 .search input {
     flex: 1;
+    margin-top: 0;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -100,6 +104,77 @@ main {
     background: #0d47a1;
 }
 
+.search .search-clear-button {
+    border: 1px solid #90A4AE;
+    background: white;
+    color: #455A64;
+}
+
+.search .search-clear-button:hover {
+    background: #ECEFF1;
+}
+
+.search button[hidden] {
+    display: none;
+}
+
+.division-filter {
+    margin-top: 16px;
+    padding: 0;
+    border: 0;
+}
+
+.division-filter legend {
+    margin-bottom: 8px;
+    color: #455A64;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.division-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.search .division-filter-button {
+    padding: 8px 14px;
+    border: 1px solid #90CAF9;
+    background: white;
+    color: #1565C0;
+}
+
+.search .division-filter-button:hover,
+.search .division-filter-button:focus-visible {
+    background: #E3F2FD;
+}
+
+.search .division-filter-button.is-selected {
+    border-color: #1565C0;
+    background: #1565C0;
+    color: white;
+    font-weight: bold;
+}
+
+.search-result-count {
+    margin-top: 10px;
+    color: #546E7A;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .post-button {
     margin-bottom: 30px;
 }
@@ -108,6 +183,29 @@ main {
 #posts {
     display: grid;
     gap: 20px;
+}
+
+.posts-empty-message {
+    padding: 28px 20px;
+    border: 1px solid #D7E3F1;
+    border-radius: 10px;
+    background: white;
+    color: #546E7A;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .search-form {
+        flex-wrap: wrap;
+    }
+
+    .search-form input {
+        flex-basis: 100%;
+    }
+
+    .division-filter-button {
+        flex: 1;
+    }
 }
 .detail-button{
     display:inline-block;

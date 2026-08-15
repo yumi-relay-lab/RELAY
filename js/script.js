@@ -5,6 +5,9 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+let allPosts = [];
+let selectedSchoolDivision = "";
+
 
 function getPostComparisonKey(post) {
 
@@ -32,6 +35,57 @@ function getFirstAttachmentImage(post) {
   );
 
   return imageAttachment ? imageAttachment.downloadUrl : "";
+
+}
+
+
+function getCreatedAtMilliseconds(post) {
+
+  const createdAt = post && post.createdAt;
+
+  if (!createdAt) return null;
+
+  if (typeof createdAt.toMillis === "function") {
+    return createdAt.toMillis();
+  }
+
+  if (typeof createdAt.toDate === "function") {
+    return createdAt.toDate().getTime();
+  }
+
+  if (typeof createdAt === "object" && Number.isFinite(createdAt.seconds)) {
+    return createdAt.seconds * 1000;
+  }
+
+  const milliseconds = new Date(createdAt).getTime();
+
+  return Number.isFinite(milliseconds) ? milliseconds : null;
+
+}
+
+
+function sortPostsByCreatedAt(posts) {
+
+  return posts
+    .map((post, originalIndex) => ({
+      post,
+      originalIndex,
+      createdAt: getCreatedAtMilliseconds(post)
+    }))
+    .sort((first, second) => {
+
+      if (first.createdAt === null && second.createdAt === null) {
+        return first.originalIndex - second.originalIndex;
+      }
+
+      if (first.createdAt === null) return 1;
+      if (second.createdAt === null) return -1;
+
+      return second.createdAt - first.createdAt
+        || first.originalIndex - second.originalIndex;
+
+    })
+    .map(item => item.post);
 
 }
 
@@ -77,7 +131,99 @@ async function loadPosts() {
   });
 
   // 同じ投稿が両方にある場合は、Firestore側のデータを一覧に残す
-  return samplePosts.concat(uniqueSavedPosts, firestorePosts);
+  return sortPostsByCreatedAt(
+    samplePosts.concat(uniqueSavedPosts, firestorePosts)
+  );
+
+}
+
+
+function normalizeSearchText(value) {
+
+  return String(value || "").trim().toLocaleLowerCase("ja");
+
+}
+
+
+function matchesSearch(post, keyword) {
+
+  if (!keyword) return true;
+
+  const tags = Array.isArray(post.aiTags) ? post.aiTags : [];
+  const searchableValues = [
+    post.title,
+    post.purpose,
+    post.howToUse,
+    post.reflection,
+    post.schoolDivision,
+    ...tags
+  ];
+
+  return searchableValues.some(value =>
+    normalizeSearchText(value).includes(keyword)
+  );
+
+}
+
+
+function matchesSchoolDivision(post, schoolDivision) {
+
+  return !schoolDivision
+    || normalizeSearchText(post.schoolDivision) === normalizeSearchText(schoolDivision);
+
+}
+
+
+function createPostCard(post) {
+
+  const card = document.createElement("article");
+  const imageUrl = getFirstAttachmentImage(post);
+  const authorName = post.authorName || post.author || "";
+  const tags = Array.isArray(post.aiTags)
+    ? post.aiTags
+    : (Array.isArray(post.tags) ? post.tags : []);
+
+  card.className = "card";
+
+  if (imageUrl) {
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = post.title || "実践の添付画像";
+    card.appendChild(image);
+  }
+
+  const title = document.createElement("h2");
+  title.textContent = post.title || "無題の実践";
+
+  const division = document.createElement("p");
+  division.className = "division";
+  division.textContent = post.schoolDivision || "";
+
+  const author = document.createElement("p");
+  author.className = "author";
+  author.textContent = `実践者：${authorName}`;
+
+  const summary = document.createElement("p");
+  summary.className = "summary";
+  summary.textContent = post.aiSummary || "";
+
+  const tagsArea = document.createElement("div");
+  tagsArea.className = "tags";
+
+  tags.forEach(tag => {
+    const tagElement = document.createElement("span");
+    tagElement.textContent = `#${tag}`;
+    tagsArea.appendChild(tagElement);
+  });
+
+  const detailLink = document.createElement("a");
+  detailLink.className = "detail-button";
+  detailLink.href = `detail.html?id=${encodeURIComponent(post.id)}`;
+  detailLink.textContent = "▶ 詳細を見る";
+
+  card.append(title, division, author, summary, tagsArea, detailLink);
+
+  return card;
 
 }
 
@@ -85,52 +231,137 @@ async function loadPosts() {
 function displayPosts(posts) {
 
   const postsArea = document.getElementById("posts");
-  postsArea.innerHTML = "";
+  postsArea.replaceChildren();
+
+  if (posts.length === 0) {
+    const message = document.createElement("p");
+
+    message.className = "posts-empty-message";
+    message.textContent = allPosts.length === 0
+      ? "まだ投稿はありません。最初の実践を投稿してみましょう。"
+      : "選択した条件に一致する実践は見つかりませんでした。検索キーワードや学部を変えてみてください。";
+    postsArea.appendChild(message);
+    return;
+  }
 
   posts.forEach(post => {
 
-    const card = document.createElement("article");
-    const imageUrl = getFirstAttachmentImage(post);
-    const authorName = post.authorName || post.author || "";
-    const tags = post.aiTags || post.tags || [];
-
-    card.className = "card";
-
-    card.innerHTML = `
-      ${imageUrl ? `<img src="${imageUrl}" alt="${post.title}">` : ""}
-
-      <h2>${post.title}</h2>
-
-      <p class="division">
-        ${post.schoolDivision || ""}
-      </p>
-
-      <p class="author">
-        実践者：${authorName}
-      </p>
-
-      <p class="summary">
-        ${post.aiSummary || ""}
-      </p>
-
-      <div class="tags">
-        ${tags.map(tag => `<span>#${tag}</span>`).join("")}
-      </div>
-
-      <a class="detail-button" href="detail.html?id=${encodeURIComponent(post.id)}">
-        ▶ 詳細を見る
-      </a>
-    `;
-
-    postsArea.appendChild(card);
+    postsArea.appendChild(createPostCard(post));
 
   });
 
 }
 
 
+function applySearch() {
+
+  const input = document.getElementById("postSearchInput");
+  const clearButton = document.getElementById("clearSearchButton");
+  const resultCount = document.getElementById("searchResultCount");
+  const originalKeyword = input ? input.value.trim() : "";
+  const keyword = normalizeSearchText(originalKeyword);
+  const filteredPosts = allPosts.filter(post => {
+    const matchesKeyword = matchesSearch(post, keyword);
+    const matchesDivision = matchesSchoolDivision(post, selectedSchoolDivision);
+
+    return matchesKeyword && matchesDivision;
+  });
+
+  if (clearButton) {
+    clearButton.hidden = !originalKeyword && !selectedSchoolDivision;
+  }
+
+  if (resultCount) {
+    if (originalKeyword && selectedSchoolDivision) {
+      resultCount.textContent = `${selectedSchoolDivision}で “${originalKeyword}” の検索結果：${filteredPosts.length}件`;
+    } else if (originalKeyword) {
+      resultCount.textContent = `“${originalKeyword}” の検索結果：${filteredPosts.length}件`;
+    } else if (selectedSchoolDivision) {
+      resultCount.textContent = `${selectedSchoolDivision}の実践：${filteredPosts.length}件`;
+    } else {
+      resultCount.textContent = `${filteredPosts.length}件の実践`;
+    }
+  }
+
+  displayPosts(filteredPosts);
+
+}
+
+
+function updateDivisionFilterButtons() {
+
+  const buttons = document.querySelectorAll(".division-filter-button");
+
+  buttons.forEach(button => {
+    const isSelected = button.dataset.division === selectedSchoolDivision;
+
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
+  });
+
+}
+
+
+function setupSearch() {
+
+  const form = document.getElementById("searchForm");
+  const input = document.getElementById("postSearchInput");
+  const clearButton = document.getElementById("clearSearchButton");
+  const divisionButtons = document.querySelectorAll(".division-filter-button");
+
+  if (form) {
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      applySearch();
+    });
+  }
+
+  if (input) {
+    input.addEventListener("input", applySearch);
+  }
+
+  if (clearButton && input) {
+    clearButton.addEventListener("click", () => {
+      input.value = "";
+      selectedSchoolDivision = "";
+      updateDivisionFilterButtons();
+      applySearch();
+      input.focus();
+    });
+  }
+
+  divisionButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      selectedSchoolDivision = button.dataset.division || "";
+      updateDivisionFilterButtons();
+      applySearch();
+    });
+  });
+
+}
+
+
+setupSearch();
+
 loadPosts()
-  .then(displayPosts)
+  .then(posts => {
+    allPosts = posts;
+    applySearch();
+  })
   .catch(error => {
     console.error("読み込みエラー:", error);
+
+    const resultCount = document.getElementById("searchResultCount");
+    const postsArea = document.getElementById("posts");
+
+    if (resultCount) {
+      resultCount.textContent = "投稿を読み込めませんでした";
+    }
+
+    if (postsArea) {
+      const message = document.createElement("p");
+      message.className = "posts-empty-message";
+      message.textContent = "投稿の読み込みに失敗しました。時間をおいて再度お試しください。";
+      postsArea.replaceChildren(message);
+    }
   });

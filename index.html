@@ -35,13 +35,36 @@
 
 <section class="search">
 
-    <input
-        type="text"
-        placeholder="実践を探す">
+    <form id="searchForm" class="search-form" role="search">
+        <label class="visually-hidden" for="postSearchInput">実践を検索</label>
+        <input
+            id="postSearchInput"
+            type="search"
+            placeholder="教材名・活動・困りごとから実践を探す"
+            autocomplete="off">
 
-    <button>
-        🔍 検索
-    </button>
+        <button type="submit">
+            🔍 検索
+        </button>
+
+        <button id="clearSearchButton" class="search-clear-button" type="button" hidden>
+            絞り込みをクリア
+        </button>
+    </form>
+
+    <fieldset id="divisionFilter" class="division-filter">
+        <legend>学部で絞り込む</legend>
+        <div class="division-filter-options">
+            <button class="division-filter-button is-selected" type="button" data-division="" aria-pressed="true">すべて</button>
+            <button class="division-filter-button" type="button" data-division="小学部" aria-pressed="false">小学部</button>
+            <button class="division-filter-button" type="button" data-division="中学部" aria-pressed="false">中学部</button>
+            <button class="division-filter-button" type="button" data-division="高等部" aria-pressed="false">高等部</button>
+        </div>
+    </fieldset>
+
+    <p id="searchResultCount" class="search-result-count" aria-live="polite">
+        投稿を読み込んでいます…
+    </p>
 
 </section>
 

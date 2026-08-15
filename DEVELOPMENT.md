@@ -35,7 +35,7 @@ RELAY/
 ├─ js/script.js            トップ一覧表示
 ├─ js/detail.js            詳細表示・リアクション・ありがとう
 ├─ js/share.js             共有一覧表示
-├─ data/posts.json         3件のサンプル投稿
+├─ data/posts.json         空配列（Ver.1では初期サンプル投稿を非表示）
 ├─ images/asanojunbi.jpg   サンプル画像
 ├─ firestore.rules         Firestore Security Rules
 ├─ storage.rules           Cloud Storage Security Rules
@@ -154,15 +154,15 @@ posts/{postId}
 - `authorId` はFirebase UIDであり、将来の投稿編集・削除の権限判定に使う
 - `authorId` にメールアドレスを入れない
 - `attachments` の各要素は `id`, `name`, `storagePath`, `downloadUrl`, `contentType`, `size`, `category` を持つ
-- `data/posts.json` の3件のサンプル投稿はFirestoreへ移行しない
+- 初期サンプル投稿3件はFirestoreへ移行せず、Ver.1運用では表示しない
 
 ## 6. Firestoreの現在の利用状況
 
 - Firebase App、Firestore、Authenticationの初期化は完了している
 - `post.js` は `addDoc(collection(db, "posts"), firestorePost)` で投稿を保存する
 - トップ一覧と詳細画面はFirestoreを優先して参照する
-- 共有画面は現時点で `data/posts.json` のみを参照する
-- サンプル投稿3件はFirestoreに登録しない
+- 共有画面は現時点で `data/posts.json` のみを参照するため、空配列の間は投稿を表示しない
+- 初期サンプル投稿3件はFirestoreに登録せず、`data/posts.json` からも除外済み
 
 Firestore Rulesはリポジトリ内の `firestore.rules` で管理する。現在は投稿の読み取りを許可し、作成時は `request.resource.data.authorId == request.auth.uid`、更新・削除時は既存投稿の `authorId == request.auth.uid` を検証するRulesを持つ。
 
@@ -175,15 +175,15 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 | localStorage | `relayPosts` | ブラウザで作成された投稿の配列 |
 | localStorage | `reaction_{id}` | 投稿別のリアクション数 |
 | localStorage | `thanksMessage_{id}` | 投稿別のありがとうメッセージ配列 |
-| data/posts.json | — | 初期表示用の3件のサンプル投稿 |
+| data/posts.json | — | Ver.1では初期サンプルを表示しないため空配列 |
 | Firestore | `posts/{postId}` | 新規投稿と添付メタデータの正本 |
 | Cloud Storage | `posts/{postId}/{authorId}/{fileId}.{extension}` | 添付ファイル本体 |
 
 重要な現状:
 
-- トップ一覧は `data/posts.json`、`relayPosts`、Firestore投稿を結合し、重複時はFirestore側を残す
+- トップ一覧は空の `data/posts.json`、`relayPosts`、Firestore投稿を結合し、重複時はFirestore側を残す
 - 詳細画面はFirestore投稿を優先し、見つからない場合は `data/posts.json` と `relayPosts` を参照する
-- 共有一覧は `data/posts.json` のみを参照する
+- 共有一覧は `data/posts.json` のみを参照するため、現在は初期サンプルを表示しない
 - Firestore保存は成功した後にだけ `relayPosts` へ保存される
 - `localStorage` は従来データとの互換表示用であり、添付情報の正本ではない
 - 添付ファイル本体はCloud Storage、画像表示を含む添付メタデータはFirestoreの `attachments` 配列を正とする
@@ -199,7 +199,7 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 - 投稿一覧、詳細、共有一覧の動作
 - リアクション機能とありがとうメッセージ機能
 - 実装済みの添付機能（画像・PDF・Word・Excel）
-- `data/posts.json` と3件のサンプル投稿
+- 空配列として維持する `data/posts.json`
 - Firestore Rules
 
 ## 9. 今後の開発ロードマップ
@@ -231,6 +231,17 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 - 投稿者本人の新規添付追加: 実装済み
 
 次の主要タスクは、**localStorageで管理しているリアクション・ありがとうメッセージのFirestore移行設計** とする。匿名表示を維持しながら、認証済み送信と送信者本人の削除をRulesで保護する。
+
+### トップページとタグのVer.1方針
+
+- トップページは `createdAt` による新着順、キーワード検索、学部フィルターを優先する
+- 学部フィルターは「すべて」「小学部」「中学部」「高等部」を提供し、キーワード検索と同時に適用する
+- 人気順やランキングはVer.1では実装しない
+- AI APIによる本文解析・自動タグ付けはVer.1では実装しない
+- Ver.1のタグは、投稿者本人が用意されたタグ候補から選ぶ方針とする
+- 現時点では既存の `aiTags` をトップページの検索対象として扱う
+- タグ候補選択UIとタグフィルターは次以降の段階で実装する
+- Ver.2以降、必要性を確認したうえでAI APIによるタグ候補の自動提案を検討する
 
 ## 11. セキュリティ・Firestore Rules
 
