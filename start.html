@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELAY Labを開く前に</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="start-page">
+
+<main class="start-main">
+    <section class="start-card" aria-labelledby="startHeading">
+        <div class="start-brand" aria-label="RELAY Lab">
+            <span class="start-brand-mark" aria-hidden="true">R</span>
+            <span>RELAY Lab</span>
+        </div>
+
+        <h1 id="startHeading">RELAY Labを開く前に</h1>
+
+        <p class="start-introduction">
+            LINEや一部のアプリ内ブラウザでは、Googleログインがうまく動かないことがあります。<br>
+            スマホやiPadで使う場合は、SafariまたはChromeで開いてください。
+        </p>
+
+        <div class="start-device-guides">
+            <section class="start-device-guide">
+                <h2>iPhone・iPadの場合</h2>
+                <p>右上または右下のメニューから「Safariで開く」を選んでください。</p>
+            </section>
+
+            <section class="start-device-guide">
+                <h2>Androidの場合</h2>
+                <p>右上メニューから「Chromeで開く」を選んでください。</p>
+            </section>
+        </div>
+
+        <aside class="start-test-notice" aria-label="テスト公開中の注意">
+            <p>
+                現在はテスト公開中です。実在する児童生徒・教職員が分かる氏名・顔写真・住所・連絡先などの個人情報は投稿しないでください。
+            </p>
+        </aside>
+
+        <div class="start-actions">
+            <a class="start-open-button" href="index.html">RELAY Labを開く</a>
+            <button id="copyAppUrlButton" class="start-copy-button" type="button">URLをコピー</button>
+        </div>
+
+        <div class="start-copy-area">
+            <label for="appUrl">Safari・Chromeで開くURL</label>
+            <input
+                id="appUrl"
+                type="text"
+                value="https://relay-lab-2026.web.app"
+                readonly>
+            <p id="copyStatus" class="start-copy-status" role="status" aria-live="polite"></p>
+        </div>
+    </section>
+</main>
+
+<script>
+    (() => {
+        const appUrl = "https://relay-lab-2026.web.app";
+        const copyButton = document.getElementById("copyAppUrlButton");
+        const urlInput = document.getElementById("appUrl");
+        const status = document.getElementById("copyStatus");
+
+        function showManualCopyGuide() {
+            if (urlInput) {
+                urlInput.focus();
+                urlInput.select();
+                urlInput.setSelectionRange(0, urlInput.value.length);
+            }
+
+            if (status) {
+                status.textContent = "自動でコピーできませんでした。表示されたURLをコピーして、SafariまたはChromeのアドレス欄に貼り付けてください。";
+                status.classList.add("is-error");
+            }
+        }
+
+        if (urlInput) {
+            urlInput.addEventListener("click", () => urlInput.select());
+        }
+
+        if (copyButton) {
+            copyButton.addEventListener("click", async () => {
+                try {
+                    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+                        showManualCopyGuide();
+                        return;
+                    }
+
+                    await navigator.clipboard.writeText(appUrl);
+
+                    if (status) {
+                        status.textContent = "URLをコピーしました";
+                        status.classList.remove("is-error");
+                    }
+                } catch (error) {
+                    console.warn("URLをコピーできませんでした:", error);
+                    showManualCopyGuide();
+                }
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

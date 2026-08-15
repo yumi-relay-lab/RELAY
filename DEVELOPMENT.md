@@ -247,6 +247,14 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 - トップページの投稿カードは初期10件を表示し、「もっと見る」で10件ずつ追加表示する
 - タグ管理画面とAI APIによるタグ候補の自動提案は、Ver.2以降に必要性を確認して検討する
 
+### 公開URLとスマホ・QRコードからの利用
+
+- PC・ブックマーク・直接入力用URLは `https://relay-lab-2026.web.app`
+- QRコード・スマホ・iPad配布用URLは `https://relay-lab-2026.web.app/start.html`
+- `start.html` はFirebase Authentication、Firestore、Storageを読み込まず、ログイン処理を行わない案内ページとする
+- LINEなどのアプリ内ブラウザではGoogleログインが失敗することがあるため、SafariまたはChromeで開くよう案内する
+- 本番運用でも、QRコード配布時は `start.html` の利用を推奨する
+
 ## 11. セキュリティ・Firestore Rules
 
 ### 決定していること
