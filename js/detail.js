@@ -303,6 +303,181 @@ function setupOwnerActions(post, isFirestorePost) {
 }
 
 
+function formatDevTimestamp(value) {
+
+    if (!value) return "未設定";
+
+    let date;
+
+    if (typeof value.toDate === "function") {
+        date = value.toDate();
+    } else if (value instanceof Date) {
+        date = value;
+    } else if (typeof value === "object" && Number.isFinite(value.seconds)) {
+        date = new Date(value.seconds * 1000);
+    } else {
+        date = new Date(value);
+    }
+
+    if (Number.isNaN(date.getTime())) return "未設定";
+
+    return new Intl.DateTimeFormat("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    }).format(date);
+
+}
+
+
+async function copyDevText(text, label) {
+
+    const status = document.getElementById("devPanelStatus");
+
+    try {
+        await navigator.clipboard.writeText(text);
+        if (status) {
+            status.textContent = `${label}をコピーしました`;
+            status.hidden = false;
+        }
+    } catch (error) {
+        console.error(`${label}のコピーエラー:`, error);
+        if (status) {
+            status.textContent = `${label}をコピーできませんでした`;
+            status.hidden = false;
+        }
+    }
+
+}
+
+
+function createDevInfoRow(label, value) {
+
+    const row = document.createElement("div");
+    const term = document.createElement("dt");
+    const description = document.createElement("dd");
+
+    term.textContent = label;
+    description.textContent = value;
+    row.append(term, description);
+
+    return { row, description };
+
+}
+
+
+function createDevCopyButton(text, label) {
+
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "dev-panel-button";
+    button.textContent = "コピー";
+    button.addEventListener("click", () => copyDevText(text, label));
+
+    return button;
+
+}
+
+
+function renderDevInfo(post, isFirestorePost) {
+
+    const content = document.getElementById("devPanelContent");
+
+    if (!content) return;
+
+    content.replaceChildren();
+
+    const postId = post && post.id != null ? String(post.id) : (id || "不明");
+    const summary = document.createElement("dl");
+    const postIdRow = createDevInfoRow("投稿ID", postId);
+
+    postIdRow.description.append(" ", createDevCopyButton(postId, "投稿ID"));
+    summary.append(postIdRow.row);
+
+    if (!isFirestorePost) {
+        const notice = document.createElement("p");
+        notice.className = "dev-panel-notice";
+        notice.textContent = "Firestore投稿ではありません";
+        content.append(summary, notice);
+        return;
+    }
+
+    const attachments = Array.isArray(post.attachments)
+        ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+        : [];
+
+    summary.append(
+        createDevInfoRow("authorId", post.authorId || "未設定").row,
+        createDevInfoRow("createdAt", formatDevTimestamp(post.createdAt)).row,
+        createDevInfoRow("updatedAt", formatDevTimestamp(post.updatedAt)).row,
+        createDevInfoRow("attachments", `${attachments.length}件`).row
+    );
+    content.append(summary);
+
+    const attachmentList = document.createElement("div");
+    attachmentList.className = "dev-panel-attachments";
+
+    if (attachments.length === 0) {
+        attachmentList.textContent = "添付ファイルはありません";
+    }
+
+    attachments.forEach((attachment, index) => {
+        const item = document.createElement("section");
+        const heading = document.createElement("p");
+        const details = document.createElement("dl");
+        const storagePath = typeof attachment.storagePath === "string"
+            ? attachment.storagePath
+            : "";
+        const downloadUrl = typeof attachment.downloadUrl === "string"
+            ? attachment.downloadUrl
+            : "";
+
+        item.className = "dev-panel-attachment";
+        heading.className = "dev-panel-attachment-title";
+        heading.textContent = `添付 ${index + 1}`;
+        details.append(
+            createDevInfoRow("name", attachment.name || "未設定").row,
+            createDevInfoRow("category", attachment.category || "未設定").row,
+            createDevInfoRow("contentType", attachment.contentType || "未設定").row,
+            createDevInfoRow("size", formatFileSize(attachment.size) || "未設定").row,
+            createDevInfoRow("storagePath", storagePath || "未設定").row,
+            createDevInfoRow("downloadUrl", downloadUrl ? "あり" : "なし").row
+        );
+
+        const actions = document.createElement("div");
+        actions.className = "dev-panel-actions";
+
+        if (storagePath) {
+            actions.append(createDevCopyButton(storagePath, `添付${index + 1}のstoragePath`));
+        }
+
+        if (downloadUrl) {
+            const openLink = document.createElement("a");
+            openLink.className = "dev-panel-button";
+            openLink.href = downloadUrl;
+            openLink.target = "_blank";
+            openLink.rel = "noopener noreferrer";
+            openLink.textContent = "URLを開く";
+            actions.append(
+                openLink,
+                createDevCopyButton(downloadUrl, `添付${index + 1}のdownloadUrl`)
+            );
+        }
+
+        item.append(heading, details, actions);
+        attachmentList.append(item);
+    });
+
+    content.append(attachmentList);
+
+}
+
+
 function getFirstAttachmentImage(post) {
 
     const attachments = Array.isArray(post.attachments)
@@ -499,6 +674,8 @@ Promise.all([
     renderAttachments(post);
 
     setupOwnerActions(post, isFirestorePost);
+
+    renderDevInfo(post, isFirestorePost);
 
 
 

@@ -650,3 +650,89 @@ textarea {
 .thanks-action-status[hidden] {
     display: none;
 }
+
+.dev-panel {
+    margin-top: 28px;
+    padding: 12px;
+    border: 1px dashed #CFD8DC;
+    border-radius: 8px;
+    background: #FAFAFA;
+    color: #607D8B;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.dev-panel-title {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.dev-panel dl div {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.dev-panel dt {
+    min-width: 84px;
+    font-weight: bold;
+}
+
+.dev-panel dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.dev-panel-attachments {
+    margin-top: 10px;
+}
+
+.dev-panel-attachment {
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid #ECEFF1;
+    border-radius: 6px;
+    background: white;
+}
+
+.dev-panel-attachment-title {
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.dev-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.dev-panel-button {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+    padding: 3px 7px;
+    border: 1px solid #B0BEC5;
+    border-radius: 4px;
+    background: white;
+    color: #455A64;
+    font: inherit;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.dev-panel-button:hover,
+.dev-panel-button:focus-visible {
+    background: #ECEFF1;
+}
+
+.dev-panel-notice,
+.dev-panel-status {
+    margin-top: 8px;
+}
+
+.dev-panel-status[hidden],
+.dev-panel[hidden] {
+    display: none;
+}
