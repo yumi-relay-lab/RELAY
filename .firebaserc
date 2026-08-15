@@ -1,6 +1,6 @@
 {
   "projects": {
-    "? default": "relay-lab-2026"
+    "default": "relay-lab-2026"
   },
   "targets": {},
   "etags": {}

@@ -4,5 +4,19 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "firestore.rules",
+      "storage.rules",
+      "DEVELOPMENT.md",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "firepit-log.txt"
+    ]
   }
 }
