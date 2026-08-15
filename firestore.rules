@@ -23,10 +23,45 @@ service cloud.firestore {
       function addsInitialAttachments() {
         return !resource.data.keys().hasAll(['attachments'])
                && request.resource.data.keys().hasAll(['attachments'])
+               && hasValidAttachments()
                && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                  'attachments',
                  'updatedAt'
                ]);
+      }
+
+      function isValidAttachment(attachment) {
+        return attachment is map
+               && attachment.keys().hasAll([
+                 'id',
+                 'name',
+                 'storagePath',
+                 'downloadUrl',
+                 'contentType',
+                 'size',
+                 'category'
+               ])
+               && attachment.id is string
+               && attachment.name is string
+               && attachment.storagePath is string
+               && attachment.downloadUrl is string
+               && attachment.contentType is string
+               && attachment.size is int
+               && attachment.category is string
+               && attachment.storagePath.matches(
+                 '^posts/' + postId + '/' + request.auth.uid + '/[^/]+$'
+               );
+      }
+
+      function hasValidAttachments() {
+        return request.resource.data.attachments is list
+               && request.resource.data.attachments.size() <= 3
+               && (request.resource.data.attachments.size() < 1
+                   || isValidAttachment(request.resource.data.attachments[0]))
+               && (request.resource.data.attachments.size() < 2
+                   || isValidAttachment(request.resource.data.attachments[1]))
+               && (request.resource.data.attachments.size() < 3
+                   || isValidAttachment(request.resource.data.attachments[2]));
       }
 
       function updatesEditableFieldsAndRemovesAttachments() {
@@ -48,6 +83,21 @@ service cloud.firestore {
                ]);
       }
 
+      function updatesEditableFieldsAndAttachments() {
+        return request.resource.data.keys().hasAll(['attachments'])
+               && hasValidAttachments()
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                 'schoolDivision',
+                 'title',
+                 'purpose',
+                 'howToUse',
+                 'reflection',
+                 'aiTags',
+                 'attachments',
+                 'updatedAt'
+               ]);
+      }
+
       allow read: if true;
 
       allow create: if request.auth != null
@@ -57,6 +107,7 @@ service cloud.firestore {
                     && request.resource.data.authorId == resource.data.authorId
                     && (updatesOnlyEditablePostFields()
                         || updatesEditableFieldsAndRemovesAttachments()
+                        || updatesEditableFieldsAndAttachments()
                         || addsInitialAttachments());
 
       allow delete: if isPostOwner();

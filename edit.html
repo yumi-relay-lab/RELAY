@@ -72,9 +72,41 @@
 <div id="editAttachmentList" class="edit-attachment-list"></div>
 </section>
 
-<aside id="editAttachmentNotice" class="edit-attachment-notice">
-添付ファイルの追加は次の段階で対応します。
-</aside>
+<section class="attachment-area edit-add-attachments" aria-labelledby="editAddAttachmentsHeading">
+<h3 id="editAddAttachmentsHeading">➕ 新しい添付ファイルを追加</h3>
+
+<label class="attachment-drop-zone" id="editAttachmentDropZone" for="editAttachments">
+<span class="attachment-main-text">
+ここへドラッグ＆ドロップ<br>
+またはクリックして選択
+</span>
+<span>画像・PDF・Word・Excel</span>
+<span class="attachment-limit">
+既存添付と合わせて最大3ファイル<br>
+1ファイル5MBまで
+</span>
+</label>
+
+<input
+    type="file"
+    id="editAttachments"
+    class="attachment-input"
+    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    multiple>
+
+<p id="editAttachmentStatus" class="attachment-status" aria-live="polite"></p>
+
+<ul id="editNewAttachmentList" class="attachment-list" aria-label="追加予定の添付ファイル"></ul>
+
+<div id="editPrivacyConfirmation" class="privacy-confirmation" hidden>
+<label for="editPrivacyConfirmed">
+<input type="checkbox" id="editPrivacyConfirmed">
+<span>
+添付資料に、児童生徒や教職員など個人を特定できる氏名・顔写真・住所・連絡先等の個人情報が含まれていないことを確認しました。
+</span>
+</label>
+</div>
+</section>
 
 <button id="saveEditButton" type="submit" class="submit-button">
 💾 変更を保存する

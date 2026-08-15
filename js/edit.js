@@ -13,10 +13,18 @@ import {
 
 import {
     deleteObject,
-    ref
+    getDownloadURL,
+    ref,
+    uploadBytes
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 
+const MAX_FILES = 3;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_EXTENSIONS = new Set([
+    "jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"
+]);
 const params = new URLSearchParams(window.location.search);
 const postId = params.get("id");
 const form = document.getElementById("editForm");
@@ -25,16 +33,184 @@ const saveButton = document.getElementById("saveEditButton");
 const cancelLink = document.getElementById("cancelEditLink");
 const attachmentList = document.getElementById("editAttachmentList");
 const noAttachmentsMessage = document.getElementById("editNoAttachments");
+const fileInput = document.getElementById("editAttachments");
+const dropZone = document.getElementById("editAttachmentDropZone");
+const newAttachmentList = document.getElementById("editNewAttachmentList");
+const attachmentStatus = document.getElementById("editAttachmentStatus");
+const privacyConfirmation = document.getElementById("editPrivacyConfirmation");
+const privacyCheckbox = document.getElementById("editPrivacyConfirmed");
 const defaultSaveButtonText = saveButton.textContent;
 const pendingDeletionPaths = new Set();
+const selectedNewFiles = [];
 let displayedAttachments = [];
 let isSaving = false;
+let isAddingFiles = false;
 
 
 function setStatus(message, isError = false) {
 
     status.textContent = message;
     status.classList.toggle("is-error", isError);
+
+}
+
+
+function setAttachmentStatus(message, isError = false) {
+
+    attachmentStatus.textContent = message;
+    attachmentStatus.classList.toggle("is-error", isError);
+
+}
+
+
+function getExtension(fileName) {
+
+    return fileName.includes(".")
+        ? fileName.split(".").pop().toLowerCase()
+        : "";
+
+}
+
+
+function getFileCategory(file) {
+
+    const extension = getExtension(file.name);
+
+    if (["jpg", "jpeg", "png", "webp"].includes(extension)) {
+        return "image";
+    }
+
+    if (extension === "pdf") {
+        return "pdf";
+    }
+
+    if (extension === "doc" || extension === "docx") {
+        return "word";
+    }
+
+    return "excel";
+
+}
+
+
+function getContentType(file) {
+
+    if (file.type) {
+        return file.type;
+    }
+
+    const contentTypes = {
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        png: "image/png",
+        webp: "image/webp",
+        pdf: "application/pdf",
+        doc: "application/msword",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        xls: "application/vnd.ms-excel",
+        xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    };
+
+    return contentTypes[getExtension(file.name)];
+
+}
+
+
+function isAllowedFile(file) {
+
+    return ALLOWED_EXTENSIONS.has(getExtension(file.name));
+
+}
+
+
+function isImageFile(file) {
+
+    return IMAGE_TYPES.has(file.type)
+        && ["jpg", "jpeg", "png", "webp"].includes(getExtension(file.name));
+
+}
+
+
+function isDuplicateNewFile(file) {
+
+    return selectedNewFiles.some(selectedFile =>
+        selectedFile.name === file.name
+        && selectedFile.size === file.size
+        && selectedFile.lastModified === file.lastModified
+    );
+
+}
+
+
+function loadImage(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const image = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        image.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(image);
+        };
+
+        image.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error("画像を読み込めませんでした。"));
+        };
+
+        image.src = objectUrl;
+
+    });
+
+}
+
+
+function canvasToBlob(canvas, type, quality) {
+
+    return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+
+}
+
+
+async function compressImage(file, maxSize = MAX_FILE_SIZE, maxDimension = 2000) {
+
+    const image = await loadImage(file);
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    let scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+    let quality = 0.85;
+    let blob = null;
+
+    for (let attempt = 0; attempt < 10; attempt++) {
+
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        blob = await canvasToBlob(canvas, file.type, quality);
+
+        if (!blob) {
+            throw new Error("画像を圧縮できませんでした。");
+        }
+
+        if (blob.size <= maxSize) {
+            return new File([blob], file.name, {
+                type: file.type,
+                lastModified: file.lastModified
+            });
+        }
+
+        if (file.type === "image/png" || quality <= 0.55) {
+            scale *= 0.8;
+        } else {
+            quality -= 0.1;
+        }
+
+    }
+
+    return null;
 
 }
 
@@ -79,6 +255,7 @@ function setFormValues(post) {
         : [];
     pendingDeletionPaths.clear();
     renderAttachments();
+    renderNewAttachments();
 
 }
 
@@ -170,10 +347,15 @@ function renderAttachments() {
             : "この添付を削除";
         toggleButton.addEventListener("click", () => {
             if (isPendingDeletion) {
+                if (getPlannedAttachmentCount() >= MAX_FILES) {
+                    setAttachmentStatus("添付は既存ファイルと追加予定を合わせて最大3ファイルです。", true);
+                    return;
+                }
                 pendingDeletionPaths.delete(storagePath);
             } else {
                 pendingDeletionPaths.add(storagePath);
             }
+            setAttachmentStatus("");
             renderAttachments();
         });
 
@@ -185,12 +367,159 @@ function renderAttachments() {
 }
 
 
+function getRetainedAttachmentCount() {
+
+    return displayedAttachments.filter(attachment => {
+        const storagePath = typeof attachment.storagePath === "string"
+            ? attachment.storagePath.trim()
+            : "";
+
+        return !pendingDeletionPaths.has(storagePath);
+    }).length;
+
+}
+
+
+function getPlannedAttachmentCount() {
+
+    return getRetainedAttachmentCount() + selectedNewFiles.length;
+
+}
+
+
+function renderNewAttachments() {
+
+    newAttachmentList.innerHTML = "";
+
+    selectedNewFiles.forEach((file, index) => {
+
+        const item = document.createElement("li");
+        const fileName = document.createElement("span");
+        const removeButton = document.createElement("button");
+
+        fileName.textContent = `追加予定：${file.name} (${formatFileSize(file.size)})`;
+        removeButton.type = "button";
+        removeButton.className = "attachment-remove";
+        removeButton.textContent = "×";
+        removeButton.setAttribute("aria-label", `${file.name}を追加予定から外す`);
+        removeButton.addEventListener("click", () => {
+            selectedNewFiles.splice(index, 1);
+            setAttachmentStatus("");
+            renderNewAttachments();
+        });
+
+        item.append(fileName, removeButton);
+        newAttachmentList.appendChild(item);
+
+    });
+
+    const hasNewAttachments = selectedNewFiles.length > 0;
+
+    privacyConfirmation.hidden = !hasNewAttachments;
+    privacyCheckbox.required = hasNewAttachments;
+
+    if (!hasNewAttachments) {
+        privacyCheckbox.checked = false;
+    }
+
+}
+
+
+async function addNewFiles(files) {
+
+    if (isAddingFiles || isSaving) {
+        return;
+    }
+
+    isAddingFiles = true;
+    fileInput.disabled = true;
+    saveButton.disabled = true;
+    dropZone.classList.add("is-disabled");
+    setAttachmentStatus("");
+
+    try {
+
+        for (const originalFile of files) {
+
+            if (getPlannedAttachmentCount() >= MAX_FILES) {
+                setAttachmentStatus("添付は既存ファイルと追加予定を合わせて最大3ファイルです。", true);
+                break;
+            }
+
+            if (!isAllowedFile(originalFile)) {
+                setAttachmentStatus(`${originalFile.name} は対応していない形式です。`, true);
+                continue;
+            }
+
+            if (isDuplicateNewFile(originalFile)) {
+                setAttachmentStatus(`${originalFile.name} はすでに追加予定です。`, true);
+                continue;
+            }
+
+            let file = originalFile;
+
+            if (file.size > MAX_FILE_SIZE && isImageFile(file)) {
+                setAttachmentStatus(`${file.name} を5MB以下に圧縮しています。`);
+
+                try {
+                    file = await compressImage(file);
+                } catch (error) {
+                    console.error("画像圧縮エラー:", error);
+                    file = null;
+                }
+
+                if (!file || file.size > MAX_FILE_SIZE) {
+                    setAttachmentStatus(`${originalFile.name} は圧縮後も5MBを超えるため追加できません。`, true);
+                    continue;
+                }
+
+                setAttachmentStatus(`${originalFile.name} を圧縮して追加予定にしました。`);
+
+            } else if (file.size > MAX_FILE_SIZE) {
+                setAttachmentStatus("PDF・Word・Excelは自動圧縮できません。5MB以下のファイルを選択してください。", true);
+                continue;
+            }
+
+            if (isDuplicateNewFile(file)) {
+                setAttachmentStatus(`${originalFile.name} はすでに追加予定です。`, true);
+                continue;
+            }
+
+            if (getPlannedAttachmentCount() >= MAX_FILES) {
+                setAttachmentStatus("添付は既存ファイルと追加予定を合わせて最大3ファイルです。", true);
+                break;
+            }
+
+            selectedNewFiles.push(file);
+
+        }
+
+    } finally {
+
+        isAddingFiles = false;
+        fileInput.disabled = isSaving;
+        saveButton.disabled = isSaving;
+        dropZone.classList.toggle("is-disabled", isSaving);
+        fileInput.value = "";
+        renderNewAttachments();
+
+    }
+
+}
+
+
 function setSavingState(saving) {
 
     isSaving = saving;
     saveButton.disabled = saving;
     saveButton.textContent = saving ? "保存中…" : defaultSaveButtonText;
+    fileInput.disabled = saving;
+    privacyCheckbox.disabled = saving;
+    dropZone.classList.toggle("is-disabled", saving);
     attachmentList.querySelectorAll(".edit-attachment-toggle").forEach(button => {
+        button.disabled = saving;
+    });
+    newAttachmentList.querySelectorAll(".attachment-remove").forEach(button => {
         button.disabled = saving;
     });
 
@@ -241,6 +570,73 @@ async function deleteStorageFiles(storagePaths) {
 }
 
 
+async function deleteUploadedFiles(uploadedReferences) {
+
+    const results = await Promise.allSettled(
+        uploadedReferences.map(storageReference => deleteObject(storageReference))
+    );
+
+    results.forEach(result => {
+        if (result.status === "rejected"
+            && result.reason.code !== "storage/object-not-found") {
+            console.error("新規アップロード済みファイルの補償削除エラー:", result.reason);
+        }
+    });
+
+    return results.every(result =>
+        result.status === "fulfilled"
+        || result.reason.code === "storage/object-not-found"
+    );
+
+}
+
+
+async function uploadNewAttachments(currentUser) {
+
+    const attachments = [];
+    const uploadedReferences = [];
+
+    try {
+
+        for (const file of selectedNewFiles) {
+
+            const fileId = crypto.randomUUID();
+            const extension = getExtension(file.name);
+            const storagePath = `posts/${postId}/${currentUser.uid}/${fileId}.${extension}`;
+            const storageReference = ref(storage, storagePath);
+            const contentType = getContentType(file);
+
+            await uploadBytes(storageReference, file, { contentType });
+            uploadedReferences.push(storageReference);
+
+            const downloadUrl = await getDownloadURL(storageReference);
+
+            attachments.push({
+                id: fileId,
+                name: file.name,
+                storagePath,
+                downloadUrl,
+                contentType,
+                size: file.size,
+                category: getFileCategory(file)
+            });
+
+        }
+
+        return { attachments, uploadedReferences };
+
+    } catch (error) {
+
+        const cleanupSucceeded = await deleteUploadedFiles(uploadedReferences);
+        error.relayStage = "upload";
+        error.cleanupFailed = !cleanupSucceeded;
+        throw error;
+
+    }
+
+}
+
+
 function getTags() {
 
     return document.getElementById("aiTags").value
@@ -274,6 +670,39 @@ function removeLocalStorageCopy() {
     }
 
 }
+
+
+fileInput.addEventListener("change", event => {
+    if (!isSaving) {
+        addNewFiles(Array.from(event.target.files));
+    }
+});
+
+
+["dragenter", "dragover"].forEach(eventName => {
+    dropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+
+        if (!isSaving) {
+            dropZone.classList.add("is-dragging");
+        }
+    });
+});
+
+
+["dragleave", "drop"].forEach(eventName => {
+    dropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        dropZone.classList.remove("is-dragging");
+    });
+});
+
+
+dropZone.addEventListener("drop", event => {
+    if (!isSaving) {
+        addNewFiles(Array.from(event.dataTransfer.files));
+    }
+});
 
 
 async function initializeEditPage() {
@@ -330,6 +759,11 @@ form.addEventListener("submit", async event => {
         return;
     }
 
+    if (isAddingFiles) {
+        setAttachmentStatus("画像の圧縮またはファイルの確認中です。完了後に保存してください。", true);
+        return;
+    }
+
     const currentUser = auth.currentUser;
 
     if (!currentUser) {
@@ -337,8 +771,21 @@ form.addEventListener("submit", async event => {
         return;
     }
 
+    if (selectedNewFiles.length > 0 && !privacyCheckbox.checked) {
+        setAttachmentStatus("新しい添付資料に個人情報が含まれていないことを確認し、チェックを入れてください。", true);
+        privacyCheckbox.focus();
+        return;
+    }
+
+    if (getPlannedAttachmentCount() > MAX_FILES) {
+        setAttachmentStatus("添付は既存ファイルと追加予定を合わせて最大3ファイルです。", true);
+        return;
+    }
+
     setSavingState(true);
     setStatus("");
+    setAttachmentStatus("");
+    let uploadedReferences = [];
 
     try {
 
@@ -375,7 +822,6 @@ form.addEventListener("submit", async event => {
         }
 
         validateDeletionPaths(requestedDeletionPaths, auth.currentUser);
-        await deleteStorageFiles(requestedDeletionPaths);
 
         const remainingAttachments = latestAttachments.filter(attachment => {
             const storagePath = typeof attachment.storagePath === "string"
@@ -384,6 +830,20 @@ form.addEventListener("submit", async event => {
 
             return !pendingDeletionPaths.has(storagePath);
         });
+
+        if (remainingAttachments.length + selectedNewFiles.length > MAX_FILES) {
+            const error = new Error("too-many-attachments");
+            error.relayStage = "validation";
+            throw error;
+        }
+
+        const uploadResult = await uploadNewAttachments(auth.currentUser);
+
+        uploadedReferences = uploadResult.uploadedReferences;
+
+        await deleteStorageFiles(requestedDeletionPaths);
+
+        const updatedAttachments = remainingAttachments.concat(uploadResult.attachments);
         const updates = {
             schoolDivision: document.getElementById("schoolDivision").value,
             title: document.getElementById("title").value.trim(),
@@ -394,16 +854,20 @@ form.addEventListener("submit", async event => {
             updatedAt: serverTimestamp()
         };
 
-        if (requestedDeletionPaths.length > 0) {
-            updates.attachments = remainingAttachments;
+        if (requestedDeletionPaths.length > 0 || uploadResult.attachments.length > 0) {
+            updates.attachments = updatedAttachments;
         }
 
         try {
             await updateDoc(postReference, updates);
         } catch (error) {
-            error.relayStage = requestedDeletionPaths.length > 0
-                ? "firestore-after-storage"
-                : "firestore";
+            if (requestedDeletionPaths.length > 0) {
+                error.relayStage = "firestore-after-storage";
+            } else if (uploadResult.attachments.length > 0) {
+                error.relayStage = "firestore-after-upload";
+            } else {
+                error.relayStage = "firestore";
+            }
             throw error;
         }
 
@@ -414,16 +878,35 @@ form.addEventListener("submit", async event => {
 
         console.error("投稿の更新エラー:", error);
 
+        if (uploadedReferences.length > 0) {
+            const cleanupSucceeded = await deleteUploadedFiles(uploadedReferences);
+            error.cleanupFailed = !cleanupSucceeded;
+        }
+
         if (error.message === "post-not-found") {
             setStatus("投稿が見つからないため保存できません。", true);
         } else if (error.message === "invalid-storage-path") {
             setStatus("添付ファイルの保存先を安全に確認できないため、変更は保存していません。", true);
         } else if (error.message === "attachments-changed") {
             setStatus("添付情報が画面表示後に変更されたため保存できません。ページを再読み込みしてください。", true);
+        } else if (error.message === "too-many-attachments") {
+            setStatus("添付情報が画面表示後に変更され、合計3ファイルを超えるため保存できません。ページを再読み込みしてください。", true);
+        } else if (error.relayStage === "upload") {
+            setStatus(error.cleanupFailed
+                ? "新しい添付ファイルのアップロードに失敗し、一部のファイルを自動削除できませんでした。Firestoreは更新していません。"
+                : "新しい添付ファイルをアップロードできなかったため、Firestoreは更新していません。再度保存をお試しください。", true);
         } else if (error.relayStage === "storage") {
-            setStatus("Storageの添付ファイルを削除できなかったため、Firestoreの添付情報と本文は更新していません。再度保存をお試しください。", true);
+            setStatus(error.cleanupFailed
+                ? "既存添付の削除に失敗し、アップロード済みの新規ファイルの一部を自動削除できませんでした。Firestoreは更新していません。"
+                : "Storageの既存添付を削除できなかったため、新規アップロード分を補償削除し、Firestoreは更新していません。再度保存をお試しください。", true);
         } else if (error.relayStage === "firestore-after-storage") {
-            setStatus("Storageファイルの削除は完了しましたが、Firestoreの変更を保存できませんでした。再度保存をお試しください。", true);
+            setStatus(error.cleanupFailed
+                ? "既存添付は削除されましたがFirestoreを更新できず、新規アップロード分の一部も自動削除できませんでした。再度保存をお試しください。"
+                : "既存添付のStorage削除後にFirestoreを更新できませんでした。新規アップロード分は補償削除しました。再度保存をお試しください。", true);
+        } else if (error.relayStage === "firestore-after-upload") {
+            setStatus(error.cleanupFailed
+                ? "Firestoreの変更を保存できず、アップロード済みの新規ファイルの一部も自動削除できませんでした。"
+                : "Firestoreの変更を保存できなかったため、アップロード済みの新規ファイルを補償削除しました。再度保存をお試しください。", true);
         } else if (error.message === "permission-denied" || error.code === "permission-denied") {
             setStatus("この投稿を編集する権限がないため保存できません。", true);
         } else {
