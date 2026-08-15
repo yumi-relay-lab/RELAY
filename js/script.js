@@ -9,6 +9,9 @@ import {
 let allPosts = [];
 let selectedSchoolDivision = "";
 const selectedTagFilters = new Set();
+const POSTS_PER_PAGE = 10;
+let visiblePostCount = POSTS_PER_PAGE;
+let currentFilteredPosts = [];
 
 
 function getPostComparisonKey(post) {
@@ -313,6 +316,20 @@ function displayPosts(posts) {
 }
 
 
+function renderVisiblePosts() {
+
+  const loadMoreButton = document.getElementById("loadMoreButton");
+  const visiblePosts = currentFilteredPosts.slice(0, visiblePostCount);
+
+  displayPosts(visiblePosts);
+
+  if (loadMoreButton) {
+    loadMoreButton.hidden = currentFilteredPosts.length <= visiblePostCount;
+  }
+
+}
+
+
 function applySearch() {
 
   const input = document.getElementById("postSearchInput");
@@ -320,13 +337,15 @@ function applySearch() {
   const resultCount = document.getElementById("searchResultCount");
   const originalKeyword = input ? input.value.trim() : "";
   const keyword = normalizeSearchText(originalKeyword);
-  const filteredPosts = allPosts.filter(post => {
+  currentFilteredPosts = allPosts.filter(post => {
     const matchesKeyword = matchesSearch(post, keyword);
     const matchesDivision = matchesSchoolDivision(post, selectedSchoolDivision);
     const matchesTags = matchesTagFilters(post, selectedTagFilters);
 
     return matchesKeyword && matchesDivision && matchesTags;
   });
+
+  visiblePostCount = POSTS_PER_PAGE;
 
   if (clearButton) {
     clearButton.hidden = !originalKeyword
@@ -348,20 +367,20 @@ function applySearch() {
       ].filter(Boolean);
 
       resultCount.textContent = conditions.length === 1
-        ? `${tagDescription}：${filteredPosts.length}件`
-        : `${conditions.join("・")}の絞り込み結果：${filteredPosts.length}件`;
+        ? `${tagDescription}：${currentFilteredPosts.length}件`
+        : `${conditions.join("・")}の絞り込み結果：${currentFilteredPosts.length}件`;
     } else if (originalKeyword && selectedSchoolDivision) {
-      resultCount.textContent = `${selectedSchoolDivision}で “${originalKeyword}” の検索結果：${filteredPosts.length}件`;
+      resultCount.textContent = `${selectedSchoolDivision}で “${originalKeyword}” の検索結果：${currentFilteredPosts.length}件`;
     } else if (originalKeyword) {
-      resultCount.textContent = `“${originalKeyword}” の検索結果：${filteredPosts.length}件`;
+      resultCount.textContent = `“${originalKeyword}” の検索結果：${currentFilteredPosts.length}件`;
     } else if (selectedSchoolDivision) {
-      resultCount.textContent = `${selectedSchoolDivision}の実践：${filteredPosts.length}件`;
+      resultCount.textContent = `${selectedSchoolDivision}の実践：${currentFilteredPosts.length}件`;
     } else {
-      resultCount.textContent = `${filteredPosts.length}件の実践`;
+      resultCount.textContent = `${currentFilteredPosts.length}件の実践`;
     }
   }
 
-  displayPosts(filteredPosts);
+  renderVisiblePosts();
 
 }
 
@@ -421,6 +440,7 @@ function setupSearch() {
   const form = document.getElementById("searchForm");
   const input = document.getElementById("postSearchInput");
   const clearButton = document.getElementById("clearSearchButton");
+  const loadMoreButton = document.getElementById("loadMoreButton");
   const divisionButtons = document.querySelectorAll(".division-filter-button");
   const tagButtons = document.querySelectorAll(".tag-filter-button");
 
@@ -432,7 +452,7 @@ function setupSearch() {
   }
 
   if (input) {
-    input.addEventListener("input", applySearch);
+    input.addEventListener("input", () => applySearch());
   }
 
   if (clearButton && input) {
@@ -470,6 +490,13 @@ function setupSearch() {
     });
   });
 
+  if (loadMoreButton) {
+    loadMoreButton.addEventListener("click", () => {
+      visiblePostCount += POSTS_PER_PAGE;
+      renderVisiblePosts();
+    });
+  }
+
 }
 
 
@@ -485,6 +512,7 @@ loadPosts()
 
     const resultCount = document.getElementById("searchResultCount");
     const postsArea = document.getElementById("posts");
+    const loadMoreButton = document.getElementById("loadMoreButton");
 
     if (resultCount) {
       resultCount.textContent = "投稿を読み込めませんでした";
@@ -495,5 +523,9 @@ loadPosts()
       message.className = "posts-empty-message";
       message.textContent = "投稿の読み込みに失敗しました。時間をおいて再度お試しください。";
       postsArea.replaceChildren(message);
+    }
+
+    if (loadMoreButton) {
+      loadMoreButton.hidden = true;
     }
   });

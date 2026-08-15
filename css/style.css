@@ -245,6 +245,34 @@ main {
     text-align: center;
 }
 
+.load-more-area {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.load-more-button {
+    min-width: 220px;
+    min-height: 48px;
+    padding: 11px 24px;
+    border: 1px solid #1565C0;
+    border-radius: 10px;
+    background: white;
+    color: #1565C0;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.load-more-button:hover,
+.load-more-button:focus-visible {
+    background: #E3F2FD;
+}
+
+.load-more-button[hidden] {
+    display: none;
+}
+
 @media (max-width: 640px) {
     .search-form {
         flex-wrap: wrap;
@@ -256,6 +284,10 @@ main {
 
     .division-filter-button {
         flex: 1;
+    }
+
+    .load-more-button {
+        width: 100%;
     }
 }
 .detail-button{
