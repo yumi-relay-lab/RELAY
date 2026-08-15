@@ -356,3 +356,42 @@ textarea {
     display: inline-block;
     color: #B71C1C;
 }
+
+.owner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.owner-actions[hidden] {
+    display: none;
+}
+
+.owner-action-button {
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.owner-edit-button {
+    background: #1565C0;
+}
+
+.owner-edit-button:hover,
+.owner-edit-button:focus-visible {
+    background: #0D47A1;
+}
+
+.owner-delete-button {
+    background: #C62828;
+}
+
+.owner-delete-button:hover,
+.owner-delete-button:focus-visible {
+    background: #8E0000;
+}

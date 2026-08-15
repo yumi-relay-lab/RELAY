@@ -1,6 +1,6 @@
 # RELAY 開発ガイド
 
-最終更新: 2026-08-10
+最終更新: 2026-08-15
 
 この文書は、RELAYの設計方針、現在の実装、次に行う開発を共有するための開発上の羅針盤です。
 
@@ -27,19 +27,23 @@ RELAY/
 ├─ detail.html             投稿詳細・リアクション・ありがとう
 ├─ share.html              簡易投稿一覧
 ├─ css/style.css           共通スタイル
-├─ js/firebase.js          Firebase App / Firestore / Authentication初期化
+├─ js/firebase.js          Firebase App / Firestore / Authentication / Storage初期化
 ├─ js/auth.js              Googleサインイン・ログアウト・状態表示
 ├─ js/post.js              投稿作成・Firestore保存・localStorage保存
 ├─ js/script.js            トップ一覧表示
 ├─ js/detail.js            詳細表示・リアクション・ありがとう
 ├─ js/share.js             共有一覧表示
 ├─ data/posts.json         3件のサンプル投稿
-└─ images/asanojunbi.jpg   サンプル画像
+├─ images/asanojunbi.jpg   サンプル画像
+├─ firestore.rules         Firestore Security Rules
+├─ storage.rules           Cloud Storage Security Rules
+└─ firebase.json           Firebase deploy設定
 ```
 
 - HTMLはプロジェクト直下にあり、JavaScriptはES Modulesとして読み込んでいます。
 - Firebase JavaScript SDKはCDN（`12.17.1`）から読み込んでいます。
-- `js/firebase.js` はFirestoreの `db` とFirebase Authenticationの `auth` をexportしています。
+- `js/firebase.js` はFirestoreの `db`、Firebase Authenticationの `auth`、Cloud Storageの `storage` をexportしています。
+- Cloud StorageはFirebase Blazeプランで有効化済みで、Storageバケットのリージョンは `asia-northeast1`（東京）です。
 
 ## 3. 現在実装済みの機能
 
@@ -49,6 +53,8 @@ RELAY/
 - 投稿フォームで投稿者名、学部、タイトル、目的、方法、振り返りを入力する
 - 投稿の詳細画面を表示する
 - 共有画面で簡易一覧を表示する
+- トップの一覧画面と詳細画面はFirestoreの投稿を優先して参照する
+- Firestoreを取得できない場合や対象がない場合に、`data/posts.json` と `localStorage` の互換データを利用する
 
 ### Google Authentication
 
@@ -64,6 +70,22 @@ RELAY/
 - Firestore保存成功後、従来どおり `localStorage` の `relayPosts` にも追加してトップへ移動する
 - 未ログイン時はFirestore投稿を行わず、Googleサインインを案内する
 - Firestore保存失敗時は、エラーを表示してトップへ移動しない
+- 投稿ボタンを処理中に無効化し、二重投稿を防止する
+
+### 添付機能 Ver.1
+
+- Cloud Storageバケットの作成とStorage Rulesのdeployは完了している
+- 画像（JPEG / PNG / WebP）、PDF、Word（DOC / DOCX）、Excel（XLS / XLSX）に対応する
+- 動画は対応しない
+- 1投稿に最大3ファイル、1ファイル5MBまでとする
+- ファイル選択とドラッグ＆ドロップに対応する
+- 5MBを超える対応画像はブラウザ上で自動圧縮する
+- PDF・Word・Excelは自動圧縮せず、5MBを超える場合は添付できない
+- 添付資料に個人情報が含まれていないことを確認するチェックを必須とする
+- Storage保存パスは `posts/{postId}/{authorId}/{fileId}.{extension}` とする
+- 添付情報はFirestoreの `posts/{postId}` に `attachments` 配列として保存する
+- 詳細画面は画像プレビュー、PDFの閲覧、Word / Excelのダウンロードに対応する
+- 画像を `localStorage` に保存せず、Cloud Storageと `attachments.downloadUrl` を正とする
 
 ### リアクション・ありがとう
 
@@ -71,6 +93,16 @@ RELAY/
   - `thanks` / `reference` / `try` / `done` / `idea` / `question`
 - ありがとうメッセージを送信できる
 - これらは現時点ではブラウザの `localStorage` に保存される
+
+#### ありがとうメッセージ Ver.1方針
+
+- ありがとうメッセージの画面上の表示は匿名を維持する
+- 送信した本人だけが、自分のありがとうメッセージを削除できる
+- ありがとうメッセージの編集機能はVer.1では実装しない
+- 内容を間違えた場合は、送信者本人が削除して再投稿する
+- 投稿そのものの編集・削除は、投稿の `authorId` に一致する投稿者本人だけに許可する
+- ありがとうメッセージの削除は、そのメッセージの送信者本人だけに許可する
+- 投稿所有者とメッセージ送信者は別の権限として判定し、投稿者であることを理由に他の利用者のありがとうメッセージを削除できる仕様にはしない
 
 ## 4. Firebase Authenticationの設計
 
@@ -113,22 +145,20 @@ posts/{postId}
 - `authorName` は画面表示用のニックネームであり、所有者識別には使わない
 - `authorId` はFirebase UIDであり、将来の投稿編集・削除の権限判定に使う
 - `authorId` にメールアドレスを入れない
+- `attachments` の各要素は `id`, `name`, `storagePath`, `downloadUrl`, `contentType`, `size`, `category` を持つ
 - `data/posts.json` の3件のサンプル投稿はFirestoreへ移行しない
 
 ## 6. Firestoreの現在の利用状況
 
 - Firebase App、Firestore、Authenticationの初期化は完了している
 - `post.js` は `addDoc(collection(db, "posts"), firestorePost)` で投稿を保存する
-- 一覧・詳細・共有画面はまだFirestoreを読まず、`data/posts.json` と `localStorage` を読んでいる
+- トップ一覧と詳細画面はFirestoreを優先して参照する
+- 共有画面は現時点で `data/posts.json` のみを参照する
 - サンプル投稿3件はFirestoreに登録しない
 
-Firestore Rulesはリポジトリ内のファイルではなくFirebase Console側で管理されている。現在共有されているRulesは、全ての読み書きを拒否する設定である。
+Firestore Rulesはリポジトリ内の `firestore.rules` で管理する。現在は投稿の読み取りを許可し、作成時は `request.resource.data.authorId == request.auth.uid`、更新・削除時は既存投稿の `authorId == request.auth.uid` を検証するRulesを持つ。
 
-```text
-allow read, write: if false;
-```
-
-そのため、現在はGoogleログインに成功していても、Firestoreへの投稿保存はRulesによって拒否される。これは想定どおりの状態である。
+Storage Rulesは `storage.rules` で管理し、deploy済みである。現行Rulesは認証済みユーザーに対する読み書き許可であり、投稿者本人だけの編集・削除を実装する前に、Storageパス内の `authorId` と `request.auth.uid` を一致させるRulesへ強化する。
 
 ## 7. localStorageとの現在の関係
 
@@ -138,14 +168,17 @@ allow read, write: if false;
 | localStorage | `reaction_{id}` | 投稿別のリアクション数 |
 | localStorage | `thanksMessage_{id}` | 投稿別のありがとうメッセージ配列 |
 | data/posts.json | — | 初期表示用の3件のサンプル投稿 |
-| Firestore | `posts/{postId}` | 新規投稿の保存先として実装済み。ただし現Rulesでは書込み拒否 |
+| Firestore | `posts/{postId}` | 新規投稿と添付メタデータの正本 |
+| Cloud Storage | `posts/{postId}/{authorId}/{fileId}.{extension}` | 添付ファイル本体 |
 
 重要な現状:
 
-- トップ一覧は `data/posts.json` と `relayPosts` を結合して表示する
-- 共有一覧と詳細画面は `data/posts.json` のみを参照する
+- トップ一覧は `data/posts.json`、`relayPosts`、Firestore投稿を結合し、重複時はFirestore側を残す
+- 詳細画面はFirestore投稿を優先し、見つからない場合は `data/posts.json` と `relayPosts` を参照する
+- 共有一覧は `data/posts.json` のみを参照する
 - Firestore保存は成功した後にだけ `relayPosts` へ保存される
-- Firestore保存がRulesで拒否される現在は、`relayPosts` への追加も行われない
+- `localStorage` は従来データとの互換表示用であり、添付情報の正本ではない
+- 添付ファイル本体はCloud Storage、画像表示を含む添付メタデータはFirestoreの `attachments` 配列を正とする
 
 ## 8. 現在変更してはいけない既存機能
 
@@ -157,38 +190,36 @@ allow read, write: if false;
 - 既存のFirestore投稿保存処理
 - 投稿一覧、詳細、共有一覧の動作
 - リアクション機能とありがとうメッセージ機能
-- 写真・動画アップロード機能（未実装）
+- 実装済みの添付機能（画像・PDF・Word・Excel）
 - `data/posts.json` と3件のサンプル投稿
 - Firestore Rules
 
 ## 9. 今後の開発ロードマップ
 
-1. 開発環境でFirestore書込みを安全に検証する
-   - Firestore Emulatorまたは開発専用Firebaseプロジェクトを使用する
-   - 開発用Rulesを最小権限で設計・検証する
-2. Firestore投稿を実運用できるRulesへ移行する
-   - 認証済みユーザーだけが投稿できるようにする
-   - `authorId == request.auth.uid` を検証する
-   - 保存項目、型、文字数、初期リアクション数を検証する
-3. 投稿一覧・詳細・共有一覧をFirestore参照へ移行する
-4. 投稿者本人による編集・削除を追加する
-5. リアクション・ありがとうを認証済みのFirestoreデータへ移行する
-6. 利用者プロフィール、教師承認、管理者ロール、公開前確認を設計する
-7. App Checkを監視モードから導入し、本番公開前に強制する
-8. 写真・動画アップロードをCloud StorageとStorage Rulesを含めて設計・実装する
-9. Apple・Microsoftなどの認証方式を必要に応じて追加する
+1. Storage RulesをStorageパスの `authorId` 単位へ強化する
+2. `authorId === auth.currentUser.uid` を基準に、投稿者本人だけの編集・削除を追加する
+3. 削除時にFirestore投稿とCloud Storageの添付ファイルを整合性を保って削除する
+4. 共有一覧をFirestore参照へ移行する
+5. リアクション・ありがとうを認証済みのFirestoreデータへ移行し、ありがとうメッセージは匿名表示を維持しながら送信者本人だけが削除できるようにする
+6. 先生が必要な実践を探しやすいトップページへ改善する
+7. 利用者プロフィール、教師承認、管理者ロール、公開前確認を設計する
+8. App Checkを監視モードから導入し、本番公開前に強制する
+9. 動画添付とApple・Microsoftなどの認証方式を、必要に応じて設計する
 
 ## 10. 現在の開発段階と次に行う作業
 
-現在は **第2段階③-3の準備段階** である。
+現在は **添付機能 Ver.1完了、投稿者本人の編集・削除機能の準備段階** である。
 
 - Firebase AuthenticationのGoogleログイン: 実装済み
 - Firestore投稿処理: 実装済み
 - 投稿への `authorId` 保存: 実装済み
-- Firestore Rulesによる認証済み投稿の許可: 未実施
-- Firestoreへ保存した投稿の一覧・詳細表示: 未実施
+- Firestore Rulesによる認証済み投稿の許可: 実装済み
+- Firestoreへ保存した投稿の一覧・詳細表示: 実装済み
+- Cloud StorageとStorage Rulesのdeploy: 実施済み
+- 添付機能 Ver.1: 実装済み
+- 投稿者本人の編集・削除: 未実装
 
-次に行う作業は、**開発・テスト用にFirestore書込みを安全に確認する方法とRulesを確定すること** である。候補はFirestore Emulatorまたは本番と分離した開発用Firebaseプロジェクトである。Rulesを変更する前に、許可する操作、検証する項目、影響範囲を確認する。
+次の主要タスクは、**Firebase UIDによる所有者識別を使った、投稿者本人だけの編集・削除機能** である。実装前にStorage Rulesを `authorId` 単位の最小権限へ強化し、Firestore投稿とStorage添付の削除順序、失敗時の再試行と整合性保持を設計する。
 
 ## 11. セキュリティ・Firestore Rules
 
@@ -198,9 +229,11 @@ allow read, write: if false;
 - 本番の投稿作成はFirebase Authenticationを前提にする
 - 投稿者の識別・所有権はメールアドレスではなくFirebase UIDで扱う
 - `authorId` は投稿作成者のUIDと一致することをRulesで検証する方針
+- 投稿の編集・削除権限と、ありがとうメッセージの削除権限を分けて検証する
+- ありがとうメッセージは匿名表示としつつ、削除権限の判定に必要な送信者情報を権限管理用に保持する
 - Firestoreへの直接書込みを操作別・コレクション別に最小限で許可する
 - App CheckはAuthenticationとRulesを補完する対策として、将来導入する
-- 写真・動画を導入する場合はCloud Storage Rulesを別途設計する
+- Cloud Storageの書込み・削除はStorageパスの `authorId` とFirebase UIDを使って最小権限で制御する
 
 ### 未決定事項
 
@@ -208,10 +241,9 @@ allow read, write: if false;
 - 公開済み投稿を未ログイン利用者に読ませるかどうか
 - 投稿の公開前確認と `pending` / `published` などの公開状態を導入するかどうか
 - 管理者ロールの付与・管理方法
-- 投稿者本人の編集・削除をいつ有効にするか
-- リアクション・ありがとうの重複防止、投稿者識別、集計方法
+- リアクション・ありがとうのFirestore保存構造、重複防止、集計方法
 - App Checkを導入・強制する具体的な時期
-- 写真・動画のファイル形式、容量、公開範囲、確認フロー
+- 動画添付のファイル形式、容量、公開範囲、確認フロー
 
 ## 12. 開発ルール
 

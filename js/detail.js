@@ -3,7 +3,11 @@
 // 詳細表示 + リアクション + 🤝ありがとう機能
 // =========================
 
-import { db } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
     doc,
@@ -37,8 +41,11 @@ async function loadPost() {
 
         if (snapshot.exists()) {
             return {
-                ...snapshot.data(),
-                id: snapshot.id
+                post: {
+                    ...snapshot.data(),
+                    id: snapshot.id
+                },
+                isFirestorePost: true
             };
         }
 
@@ -48,10 +55,63 @@ async function loadPost() {
 
     }
 
-    return samplePosts
-        .concat(savedPosts)
-        .find(item => String(item.id) === id)
-        || null;
+    return {
+        post: samplePosts
+            .concat(savedPosts)
+            .find(item => String(item.id) === id)
+            || null,
+        isFirestorePost: false
+    };
+
+}
+
+
+function waitForInitialAuthState() {
+
+    return new Promise(resolve => {
+
+        let unsubscribe = () => {};
+
+        unsubscribe = onAuthStateChanged(
+            auth,
+            user => {
+                unsubscribe();
+                resolve(user);
+            },
+            error => {
+                unsubscribe();
+                console.error("認証状態の取得エラー:", error);
+                resolve(null);
+            }
+        );
+
+    });
+
+}
+
+
+function setupOwnerActions(post, isFirestorePost) {
+
+    const ownerActions = document.getElementById("ownerActions");
+    const editButton = document.getElementById("editPostButton");
+    const deleteButton = document.getElementById("deletePostButton");
+    const isOwner = isFirestorePost
+        && auth.currentUser
+        && post.authorId === auth.currentUser.uid;
+
+    if (!ownerActions || !editButton || !deleteButton || !isOwner) {
+        return;
+    }
+
+    editButton.addEventListener("click", () => {
+        alert("編集機能は次の段階で実装します");
+    });
+
+    deleteButton.addEventListener("click", () => {
+        alert("削除機能は次の段階で実装します");
+    });
+
+    ownerActions.hidden = false;
 
 }
 
@@ -188,9 +248,14 @@ function renderAttachments(post) {
 }
 
 
-loadPost()
+Promise.all([
+    loadPost(),
+    waitForInitialAuthState()
+])
 
-.then(post => {
+.then(([postResult]) => {
+
+    const { post, isFirestorePost } = postResult;
 
 
 
@@ -245,6 +310,8 @@ loadPost()
 
 
     renderAttachments(post);
+
+    setupOwnerActions(post, isFirestorePost);
 
 
 
