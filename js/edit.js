@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase.js";
+import { auth, db, storage } from "./firebase.js";
 
 import {
     onAuthStateChanged
@@ -11,6 +11,11 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+import {
+    deleteObject,
+    ref
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
+
 
 const params = new URLSearchParams(window.location.search);
 const postId = params.get("id");
@@ -18,8 +23,11 @@ const form = document.getElementById("editForm");
 const status = document.getElementById("editStatus");
 const saveButton = document.getElementById("saveEditButton");
 const cancelLink = document.getElementById("cancelEditLink");
-const attachmentNotice = document.getElementById("editAttachmentNotice");
+const attachmentList = document.getElementById("editAttachmentList");
+const noAttachmentsMessage = document.getElementById("editNoAttachments");
 const defaultSaveButtonText = saveButton.textContent;
+const pendingDeletionPaths = new Set();
+let displayedAttachments = [];
 let isSaving = false;
 
 
@@ -66,8 +74,169 @@ function setFormValues(post) {
         ? post.aiTags.join(", ")
         : "";
 
-    attachmentNotice.hidden = !Array.isArray(post.attachments)
-        || post.attachments.length === 0;
+    displayedAttachments = Array.isArray(post.attachments)
+        ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+        : [];
+    pendingDeletionPaths.clear();
+    renderAttachments();
+
+}
+
+
+function formatFileSize(size) {
+
+    const bytes = Number(size);
+
+    if (!Number.isFinite(bytes) || bytes < 0) {
+        return "";
+    }
+
+    if (bytes >= 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+}
+
+
+function getCategoryLabel(category) {
+
+    const labels = {
+        image: "画像",
+        pdf: "PDF",
+        word: "Word",
+        excel: "Excel"
+    };
+
+    return labels[category] || "ファイル";
+
+}
+
+
+function renderAttachments() {
+
+    attachmentList.innerHTML = "";
+    noAttachmentsMessage.hidden = displayedAttachments.length > 0;
+
+    displayedAttachments.forEach(attachment => {
+
+        const storagePath = typeof attachment.storagePath === "string"
+            ? attachment.storagePath.trim()
+            : "";
+        const isPendingDeletion = pendingDeletionPaths.has(storagePath);
+        const item = document.createElement("article");
+        const details = document.createElement("div");
+        const name = document.createElement("h4");
+        const meta = document.createElement("p");
+        const toggleButton = document.createElement("button");
+        const fileSize = formatFileSize(attachment.size);
+
+        item.className = "edit-attachment-item";
+        item.classList.toggle("is-pending-deletion", isPendingDeletion);
+        details.className = "edit-attachment-details";
+        name.className = "edit-attachment-name";
+        name.textContent = attachment.name || "名前のないファイル";
+        meta.className = "edit-attachment-meta";
+        meta.textContent = [getCategoryLabel(attachment.category), fileSize]
+            .filter(Boolean)
+            .join(" / ");
+        details.append(name, meta);
+
+        if (attachment.category === "image"
+            && typeof attachment.downloadUrl === "string"
+            && attachment.downloadUrl) {
+            const preview = document.createElement("img");
+            preview.className = "edit-attachment-preview";
+            preview.src = attachment.downloadUrl;
+            preview.alt = attachment.name || "添付画像";
+            preview.loading = "lazy";
+            details.prepend(preview);
+        }
+
+        if (isPendingDeletion) {
+            const pendingLabel = document.createElement("strong");
+            pendingLabel.className = "edit-attachment-pending-label";
+            pendingLabel.textContent = "削除予定";
+            details.appendChild(pendingLabel);
+        }
+
+        toggleButton.type = "button";
+        toggleButton.className = "edit-attachment-toggle";
+        toggleButton.classList.toggle("is-cancel", isPendingDeletion);
+        toggleButton.setAttribute("aria-pressed", String(isPendingDeletion));
+        toggleButton.textContent = isPendingDeletion
+            ? "削除予定を取り消す"
+            : "この添付を削除";
+        toggleButton.addEventListener("click", () => {
+            if (isPendingDeletion) {
+                pendingDeletionPaths.delete(storagePath);
+            } else {
+                pendingDeletionPaths.add(storagePath);
+            }
+            renderAttachments();
+        });
+
+        item.append(details, toggleButton);
+        attachmentList.appendChild(item);
+
+    });
+
+}
+
+
+function setSavingState(saving) {
+
+    isSaving = saving;
+    saveButton.disabled = saving;
+    saveButton.textContent = saving ? "保存中…" : defaultSaveButtonText;
+    attachmentList.querySelectorAll(".edit-attachment-toggle").forEach(button => {
+        button.disabled = saving;
+    });
+
+}
+
+
+function validateDeletionPaths(storagePaths, currentUser) {
+
+    const expectedPrefix = `posts/${postId}/${currentUser.uid}/`;
+
+    storagePaths.forEach(storagePath => {
+        const fileName = storagePath.slice(expectedPrefix.length);
+
+        if (!storagePath.startsWith(expectedPrefix)
+            || !fileName
+            || fileName.includes("/")) {
+            const error = new Error("invalid-storage-path");
+            error.relayStage = "validation";
+            throw error;
+        }
+    });
+
+}
+
+
+async function deleteStorageFiles(storagePaths) {
+
+    const results = await Promise.allSettled(
+        storagePaths.map(async storagePath => {
+            try {
+                await deleteObject(ref(storage, storagePath));
+            } catch (error) {
+                if (error.code !== "storage/object-not-found") {
+                    throw error;
+                }
+            }
+        })
+    );
+    const failedResult = results.find(result => result.status === "rejected");
+
+    if (failedResult) {
+        const error = new Error("storage-delete-failed");
+        error.relayStage = "storage";
+        error.cause = failedResult.reason;
+        throw error;
+    }
 
 }
 
@@ -168,9 +337,7 @@ form.addEventListener("submit", async event => {
         return;
     }
 
-    isSaving = true;
-    saveButton.disabled = true;
-    saveButton.textContent = "保存中…";
+    setSavingState(true);
     setStatus("");
 
     try {
@@ -182,11 +349,42 @@ form.addEventListener("submit", async event => {
             throw new Error("post-not-found");
         }
 
-        if (latestSnapshot.data().authorId !== currentUser.uid) {
+        const latestPost = latestSnapshot.data();
+
+        if (!auth.currentUser || latestPost.authorId !== auth.currentUser.uid) {
             throw new Error("permission-denied");
         }
 
-        await updateDoc(postReference, {
+        const latestAttachments = Array.isArray(latestPost.attachments)
+            ? latestPost.attachments.filter(attachment => attachment && typeof attachment === "object")
+            : [];
+        const requestedDeletionPaths = [...pendingDeletionPaths];
+        const latestStoragePaths = new Set(latestAttachments.map(attachment => {
+            return typeof attachment.storagePath === "string"
+                ? attachment.storagePath.trim()
+                : "";
+        }));
+        const hasStaleDeletion = requestedDeletionPaths.some(storagePath => {
+            return !storagePath || !latestStoragePaths.has(storagePath);
+        });
+
+        if (hasStaleDeletion) {
+            const error = new Error("attachments-changed");
+            error.relayStage = "validation";
+            throw error;
+        }
+
+        validateDeletionPaths(requestedDeletionPaths, auth.currentUser);
+        await deleteStorageFiles(requestedDeletionPaths);
+
+        const remainingAttachments = latestAttachments.filter(attachment => {
+            const storagePath = typeof attachment.storagePath === "string"
+                ? attachment.storagePath.trim()
+                : "";
+
+            return !pendingDeletionPaths.has(storagePath);
+        });
+        const updates = {
             schoolDivision: document.getElementById("schoolDivision").value,
             title: document.getElementById("title").value.trim(),
             purpose: document.getElementById("purpose").value.trim(),
@@ -194,7 +392,20 @@ form.addEventListener("submit", async event => {
             reflection: document.getElementById("reflection").value.trim(),
             aiTags: getTags(),
             updatedAt: serverTimestamp()
-        });
+        };
+
+        if (requestedDeletionPaths.length > 0) {
+            updates.attachments = remainingAttachments;
+        }
+
+        try {
+            await updateDoc(postReference, updates);
+        } catch (error) {
+            error.relayStage = requestedDeletionPaths.length > 0
+                ? "firestore-after-storage"
+                : "firestore";
+            throw error;
+        }
 
         removeLocalStorageCopy();
         location.href = `detail.html?id=${encodeURIComponent(postId)}`;
@@ -205,6 +416,14 @@ form.addEventListener("submit", async event => {
 
         if (error.message === "post-not-found") {
             setStatus("投稿が見つからないため保存できません。", true);
+        } else if (error.message === "invalid-storage-path") {
+            setStatus("添付ファイルの保存先を安全に確認できないため、変更は保存していません。", true);
+        } else if (error.message === "attachments-changed") {
+            setStatus("添付情報が画面表示後に変更されたため保存できません。ページを再読み込みしてください。", true);
+        } else if (error.relayStage === "storage") {
+            setStatus("Storageの添付ファイルを削除できなかったため、Firestoreの添付情報と本文は更新していません。再度保存をお試しください。", true);
+        } else if (error.relayStage === "firestore-after-storage") {
+            setStatus("Storageファイルの削除は完了しましたが、Firestoreの変更を保存できませんでした。再度保存をお試しください。", true);
         } else if (error.message === "permission-denied" || error.code === "permission-denied") {
             setStatus("この投稿を編集する権限がないため保存できません。", true);
         } else {
@@ -213,9 +432,7 @@ form.addEventListener("submit", async event => {
 
     } finally {
 
-        isSaving = false;
-        saveButton.disabled = false;
-        saveButton.textContent = defaultSaveButtonText;
+        setSavingState(false);
 
     }
 

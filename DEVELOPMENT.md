@@ -203,7 +203,7 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 ## 9. 今後の開発ロードマップ
 
 1. Storage RulesをStorageパスの `authorId` 単位へ強化する
-2. `authorId === auth.currentUser.uid` を基準に、投稿者本人だけの本文編集・投稿削除に続いて、添付編集を追加する
+2. `authorId === auth.currentUser.uid` を基準に、投稿者本人だけの本文編集・投稿削除・既存添付の削除に続いて、新規添付の追加を実装する
 3. 投稿削除はCloud Storageの添付ファイルを先に削除し、完了後にFirestore投稿を削除する
 4. 共有一覧をFirestore参照へ移行する
 5. localStorage版で実装済みの匿名表示・送信者本人削除を維持しながら、リアクション・ありがとうを認証済みのFirestoreデータへ移行する
@@ -214,7 +214,7 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 
 ## 10. 現在の開発段階と次に行う作業
 
-現在は **添付機能 Ver.1、投稿者本人の本文編集、投稿削除が完了し、添付編集の準備段階** である。
+現在は **添付機能 Ver.1、投稿者本人の本文編集・投稿削除・既存添付の削除が完了し、新規添付追加の準備段階** である。
 
 - Firebase AuthenticationのGoogleログイン: 実装済み
 - Firestore投稿処理: 実装済み
@@ -225,9 +225,10 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 - 添付機能 Ver.1: 実装済み
 - 投稿者本人の本文編集: 実装済み
 - 投稿者本人の投稿削除: 実装済み
-- 投稿者本人の添付編集: 未実装
+- 投稿者本人の既存添付削除: 実装済み
+- 投稿者本人の新規添付追加: 未実装
 
-次の主要タスクは、**Firebase UIDによる所有者識別を使った、投稿者本人だけの添付編集機能** である。添付ファイルの追加・取り外しとFirestoreの `attachments` 更新の整合性を設計する。
+次の主要タスクは、**Firebase UIDによる所有者識別を使った、投稿者本人だけの新規添付追加機能** である。新規ファイルのStorageアップロード、Firestoreの `attachments` 更新、失敗時の補償処理の整合性を設計する。
 
 ## 11. セキュリティ・Firestore Rules
 

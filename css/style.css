@@ -461,6 +461,124 @@ textarea {
     display: none;
 }
 
+.edit-attachments {
+    margin-top: 26px;
+}
+
+.edit-attachments h3 {
+    color: #1565C0;
+}
+
+.edit-no-attachments {
+    margin-top: 10px;
+    color: #666;
+}
+
+.edit-no-attachments[hidden] {
+    display: none;
+}
+
+.edit-attachment-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.edit-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid #D9E2EC;
+    border-radius: 10px;
+    background: #F7FBFF;
+    transition: opacity .2s, background-color .2s, border-color .2s;
+}
+
+.edit-attachment-item.is-pending-deletion {
+    border-color: #EF9A9A;
+    background: #FFEBEE;
+    opacity: .72;
+}
+
+.edit-attachment-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.edit-attachment-name {
+    overflow-wrap: anywhere;
+    font-size: 16px;
+}
+
+.edit-attachment-meta {
+    margin-top: 3px;
+    color: #666;
+    font-size: 14px;
+}
+
+.edit-attachment-preview {
+    display: block;
+    width: 120px;
+    max-height: 90px;
+    margin-bottom: 8px;
+    border-radius: 7px;
+    object-fit: contain;
+}
+
+.edit-attachment-pending-label {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #C62828;
+    color: white;
+    font-size: 13px;
+}
+
+.edit-attachment-toggle {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    border: 1px solid #C62828;
+    border-radius: 7px;
+    background: white;
+    color: #B71C1C;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.edit-attachment-toggle:hover,
+.edit-attachment-toggle:focus-visible {
+    background: #FFEBEE;
+}
+
+.edit-attachment-toggle.is-cancel {
+    border-color: #1565C0;
+    color: #1565C0;
+}
+
+.edit-attachment-toggle.is-cancel:hover,
+.edit-attachment-toggle.is-cancel:focus-visible {
+    background: #E3F2FD;
+}
+
+.edit-attachment-toggle:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+@media (max-width: 600px) {
+    .edit-attachment-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .edit-attachment-toggle {
+        width: 100%;
+    }
+}
+
 .edit-cancel-link {
     display: block;
     margin-top: 16px;

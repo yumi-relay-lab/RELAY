@@ -64,8 +64,16 @@
     id="aiTags"
     placeholder="例：視覚支援, 自立活動, 教材">
 
-<aside id="editAttachmentNotice" class="edit-attachment-notice" hidden>
-📎 現在の添付ファイルはそのまま保持されます。添付ファイルの編集は次の段階で対応します。
+<section class="edit-attachments" aria-labelledby="editAttachmentsHeading">
+<h3 id="editAttachmentsHeading">📎 現在の添付ファイル</h3>
+<p id="editNoAttachments" class="edit-no-attachments" hidden>
+添付ファイルはありません。
+</p>
+<div id="editAttachmentList" class="edit-attachment-list"></div>
+</section>
+
+<aside id="editAttachmentNotice" class="edit-attachment-notice">
+添付ファイルの追加は次の段階で対応します。
 </aside>
 
 <button id="saveEditButton" type="submit" class="submit-button">

@@ -29,6 +29,25 @@ service cloud.firestore {
                ]);
       }
 
+      function updatesEditableFieldsAndRemovesAttachments() {
+        return resource.data.keys().hasAll(['attachments'])
+               && request.resource.data.keys().hasAll(['attachments'])
+               && resource.data.attachments is list
+               && request.resource.data.attachments is list
+               && resource.data.attachments.hasAll(request.resource.data.attachments)
+               && request.resource.data.attachments.size() <= resource.data.attachments.size()
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                 'schoolDivision',
+                 'title',
+                 'purpose',
+                 'howToUse',
+                 'reflection',
+                 'aiTags',
+                 'attachments',
+                 'updatedAt'
+               ]);
+      }
+
       allow read: if true;
 
       allow create: if request.auth != null
@@ -37,6 +56,7 @@ service cloud.firestore {
       allow update: if isPostOwner()
                     && request.resource.data.authorId == resource.data.authorId
                     && (updatesOnlyEditablePostFields()
+                        || updatesEditableFieldsAndRemovesAttachments()
                         || addsInitialAttachments());
 
       allow delete: if isPostOwner();
