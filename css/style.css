@@ -258,6 +258,77 @@ textarea {
     height:120px;
 }
 
+.tag-selector {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #BBDEFB;
+    border-radius: 10px;
+    background: #F7FBFF;
+}
+
+.tag-selector legend {
+    padding: 0 6px;
+    color: #1565C0;
+    font-weight: bold;
+}
+
+.tag-selector-help {
+    margin-bottom: 12px;
+    color: #455A64;
+    font-size: 14px;
+}
+
+.tag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-option {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    color: #1565C0;
+    cursor: pointer;
+}
+
+.tag-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    opacity: 0;
+}
+
+.tag-option span {
+    display: block;
+    padding: 7px 12px;
+    border: 1px solid #90CAF9;
+    border-radius: 999px;
+    background: white;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.tag-option input:checked + span {
+    border-color: #1565C0;
+    background: #1565C0;
+    color: white;
+    font-weight: bold;
+}
+
+.tag-option input:focus-visible + span {
+    outline: 3px solid #90CAF9;
+    outline-offset: 2px;
+}
+
+.tag-option input:disabled + span {
+    opacity: .6;
+    cursor: wait;
+}
+
 .attachment-area {
     margin-top: 28px;
 }

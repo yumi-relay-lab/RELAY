@@ -56,13 +56,21 @@
 </label>
 <textarea id="reflection" rows="7" required></textarea>
 
-<label for="aiTags">
-🏷️ タグ（カンマ区切り）
+<fieldset class="tag-selector" aria-describedby="editTagHelp">
+<legend>🏷️ タグ</legend>
+<p id="editTagHelp" class="tag-selector-help">
+この実践に近いタグを選んでください（複数選択可）
+</p>
+<div id="editTagOptions" class="tag-options"></div>
+</fieldset>
+
+<label for="otherTags">
+その他のタグ（候補にない既存タグ）
 </label>
 <input
     type="text"
-    id="aiTags"
-    placeholder="例：視覚支援, 自立活動, 教材">
+    id="otherTags"
+    placeholder="候補にないタグがある場合のみ、カンマ区切りで入力">
 
 <section class="edit-attachments" aria-labelledby="editAttachmentsHeading">
 <h3 id="editAttachmentsHeading">📎 現在の添付ファイル</h3>

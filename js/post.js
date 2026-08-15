@@ -22,6 +22,20 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_EXTENSIONS = new Set([
     "jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"
 ]);
+const TAG_CANDIDATES = Object.freeze([
+    "視覚支援",
+    "自立活動",
+    "教材・教具",
+    "生活単元学習",
+    "作業学習",
+    "ICT活用",
+    "コミュニケーション",
+    "行動支援",
+    "環境調整",
+    "スケジュール",
+    "余暇活動",
+    "日常生活の指導"
+]);
 
 const fileInput = document.getElementById("attachments");
 const dropZone = document.getElementById("attachmentDropZone");
@@ -30,6 +44,43 @@ const attachmentStatus = document.getElementById("attachmentStatus");
 const privacyConfirmation = document.getElementById("privacyConfirmation");
 const privacyCheckbox = document.getElementById("privacyConfirmed");
 const selectedFiles = [];
+
+
+function renderTagCandidates() {
+
+    const container = document.getElementById("postTagOptions");
+
+    if (!container) return;
+
+    TAG_CANDIDATES.forEach((tag, index) => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        const text = document.createElement("span");
+
+        label.className = "tag-option";
+        checkbox.type = "checkbox";
+        checkbox.name = "aiTags";
+        checkbox.value = tag;
+        checkbox.id = `postTag-${index}`;
+        text.textContent = tag;
+        label.append(checkbox, text);
+        container.appendChild(label);
+    });
+
+}
+
+
+function getSelectedTags() {
+
+    return Array.from(
+        document.querySelectorAll('#postTagOptions input[name="aiTags"]:checked'),
+        checkbox => checkbox.value
+    );
+
+}
+
+
+renderTagCandidates();
 
 
 function getExtension(fileName) {
@@ -445,6 +496,8 @@ form.addEventListener("submit", async function (event) {
     submitButton.disabled = true;
     submitButton.textContent = "投稿中…";
 
+    const selectedTags = getSelectedTags();
+
     const newPost = {
 
         id: Date.now(),
@@ -471,7 +524,7 @@ form.addEventListener("submit", async function (event) {
         "先生の実践投稿です。",
 
         aiTags:
-        ["実践共有"]
+        selectedTags.length > 0 ? selectedTags : ["実践共有"]
 
     };
 

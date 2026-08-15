@@ -25,6 +25,21 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_EXTENSIONS = new Set([
     "jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"
 ]);
+const TAG_CANDIDATES = Object.freeze([
+    "視覚支援",
+    "自立活動",
+    "教材・教具",
+    "生活単元学習",
+    "作業学習",
+    "ICT活用",
+    "コミュニケーション",
+    "行動支援",
+    "環境調整",
+    "スケジュール",
+    "余暇活動",
+    "日常生活の指導"
+]);
+const TAG_CANDIDATE_SET = new Set(TAG_CANDIDATES);
 const params = new URLSearchParams(window.location.search);
 const postId = params.get("id");
 const form = document.getElementById("editForm");
@@ -45,6 +60,33 @@ const selectedNewFiles = [];
 let displayedAttachments = [];
 let isSaving = false;
 let isAddingFiles = false;
+
+
+function renderTagCandidates() {
+
+    const container = document.getElementById("editTagOptions");
+
+    if (!container) return;
+
+    TAG_CANDIDATES.forEach((tag, index) => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        const text = document.createElement("span");
+
+        label.className = "tag-option";
+        checkbox.type = "checkbox";
+        checkbox.name = "aiTags";
+        checkbox.value = tag;
+        checkbox.id = `editTag-${index}`;
+        text.textContent = tag;
+        label.append(checkbox, text);
+        container.appendChild(label);
+    });
+
+}
+
+
+renderTagCandidates();
 
 
 function setStatus(message, isError = false) {
@@ -246,9 +288,16 @@ function setFormValues(post) {
     document.getElementById("purpose").value = post.purpose || "";
     document.getElementById("howToUse").value = post.howToUse || "";
     document.getElementById("reflection").value = post.reflection || "";
-    document.getElementById("aiTags").value = Array.isArray(post.aiTags)
-        ? post.aiTags.join(", ")
-        : "";
+    const existingTags = Array.isArray(post.aiTags)
+        ? post.aiTags.map(tag => String(tag).trim()).filter(Boolean)
+        : [];
+
+    document.querySelectorAll('#editTagOptions input[name="aiTags"]').forEach(checkbox => {
+        checkbox.checked = existingTags.includes(checkbox.value);
+    });
+    document.getElementById("otherTags").value = existingTags
+        .filter(tag => !TAG_CANDIDATE_SET.has(tag))
+        .join(", ");
 
     displayedAttachments = Array.isArray(post.attachments)
         ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
@@ -522,6 +571,10 @@ function setSavingState(saving) {
     newAttachmentList.querySelectorAll(".attachment-remove").forEach(button => {
         button.disabled = saving;
     });
+    document.querySelectorAll('#editTagOptions input[name="aiTags"]').forEach(checkbox => {
+        checkbox.disabled = saving;
+    });
+    document.getElementById("otherTags").disabled = saving;
 
 }
 
@@ -639,10 +692,16 @@ async function uploadNewAttachments(currentUser) {
 
 function getTags() {
 
-    return document.getElementById("aiTags").value
+    const selectedTags = Array.from(
+        document.querySelectorAll('#editTagOptions input[name="aiTags"]:checked'),
+        checkbox => checkbox.value
+    );
+    const otherTags = document.getElementById("otherTags").value
         .split(",")
         .map(tag => tag.trim())
         .filter(Boolean);
+
+    return [...new Set(selectedTags.concat(otherTags))];
 
 }
 
