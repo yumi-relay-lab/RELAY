@@ -422,6 +422,7 @@ function updateDivisionFilterButtons() {
 function updateTagFilterButtons() {
 
   const buttons = document.querySelectorAll(".tag-filter-button");
+  const summary = document.getElementById("tagFilterSummary");
 
   buttons.forEach(button => {
     const isSelected = selectedTagFilters.has(button.dataset.tag);
@@ -429,6 +430,12 @@ function updateTagFilterButtons() {
     button.classList.toggle("is-selected", isSelected);
     button.setAttribute("aria-pressed", String(isSelected));
   });
+
+  if (summary) {
+    summary.textContent = selectedTagFilters.size > 0
+      ? `タグで絞り込む（${selectedTagFilters.size}件選択中）`
+      : "タグで絞り込む";
+  }
 
 }
 
@@ -441,8 +448,20 @@ function setupSearch() {
   const input = document.getElementById("postSearchInput");
   const clearButton = document.getElementById("clearSearchButton");
   const loadMoreButton = document.getElementById("loadMoreButton");
+  const tagFilterToggle = document.getElementById("tagFilterToggle");
+  const tagFilterOptions = document.getElementById("tagFilterOptions");
   const divisionButtons = document.querySelectorAll(".division-filter-button");
   const tagButtons = document.querySelectorAll(".tag-filter-button");
+
+  if (tagFilterToggle && tagFilterOptions) {
+    tagFilterToggle.addEventListener("click", () => {
+      const willOpen = tagFilterOptions.hidden;
+
+      tagFilterOptions.hidden = !willOpen;
+      tagFilterToggle.setAttribute("aria-expanded", String(willOpen));
+      tagFilterToggle.textContent = willOpen ? "タグを閉じる ▴" : "タグを表示 ▾";
+    });
+  }
 
   if (form) {
     form.addEventListener("submit", event => {
