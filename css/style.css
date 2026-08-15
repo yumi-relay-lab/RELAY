@@ -468,3 +468,56 @@ textarea {
     text-align: center;
     font-weight: bold;
 }
+
+.thanks-item {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid #D9E2EC;
+    border-radius: 10px;
+    background: #F7FBFF;
+}
+
+.thanks-item-datetime {
+    color: #555;
+    font-size: 14px;
+}
+
+.thanks-item-message {
+    margin-top: 10px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.thanks-delete-button {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border: 1px solid #C62828;
+    border-radius: 7px;
+    background: white;
+    color: #B71C1C;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.thanks-delete-button:hover,
+.thanks-delete-button:focus-visible {
+    background: #FFEBEE;
+}
+
+.thanks-delete-button:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.thanks-action-status {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #FFEBEE;
+    color: #B71C1C;
+    font-weight: bold;
+}
+
+.thanks-action-status[hidden] {
+    display: none;
+}

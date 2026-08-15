@@ -705,10 +705,14 @@ Promise.all([
 
 
 
-    let thanksMessages =
+    const storedThanksMessages =
     JSON.parse(localStorage.getItem(thanksKey))
     ||
     [];
+
+    let thanksMessages = Array.isArray(storedThanksMessages)
+    ? storedThanksMessages
+    : [];
 
 
 
@@ -724,6 +728,47 @@ Promise.all([
 
     const thanksButton =
     document.getElementById("thanksButton");
+
+
+
+    const thanksActionStatus =
+    document.getElementById("thanksActionStatus");
+
+
+
+    function setThanksActionError(message){
+
+
+        if(!thanksActionStatus){
+
+            return;
+
+        }
+
+
+        thanksActionStatus.textContent = message;
+        thanksActionStatus.hidden = false;
+
+
+    }
+
+
+
+    function clearThanksActionError(){
+
+
+        if(!thanksActionStatus){
+
+            return;
+
+        }
+
+
+        thanksActionStatus.textContent = "";
+        thanksActionStatus.hidden = true;
+
+
+    }
 
 
 
@@ -747,9 +792,9 @@ Promise.all([
 
 
         thanksMessages
-        .slice()
+        .map((item, index) => ({ item, index }))
         .reverse()
-        .forEach(item=>{
+        .forEach(({ item, index })=>{
 
 
             const div =
@@ -761,12 +806,119 @@ Promise.all([
 
 
 
-            div.innerHTML =
+            const datetime =
+            document.createElement("p");
 
-            "🤝 " +
-            item.datetime +
-            "<br><br>" +
-            item.message;
+
+            datetime.className =
+            "thanks-item-datetime";
+
+
+            datetime.textContent =
+            `🤝 ${item.datetime || ""}`;
+
+
+
+            const message =
+            document.createElement("p");
+
+
+            message.className =
+            "thanks-item-message";
+
+
+            message.textContent =
+            item.message || "";
+
+
+            div.append(datetime, message);
+
+
+
+            const canDelete =
+            auth.currentUser
+            && typeof item.authorId === "string"
+            && item.authorId === auth.currentUser.uid;
+
+
+
+            if(canDelete){
+
+
+                const deleteButton =
+                document.createElement("button");
+
+
+                deleteButton.type = "button";
+                deleteButton.className = "thanks-delete-button";
+                deleteButton.textContent = "🗑️ 削除";
+
+
+                deleteButton.addEventListener("click",()=>{
+
+
+                    const confirmed = confirm(
+                        "このありがとうメッセージを削除します。よろしいですか？"
+                    );
+
+
+                    if(!confirmed){
+
+                        return;
+
+                    }
+
+
+                    if(!auth.currentUser || item.authorId !== auth.currentUser.uid){
+
+                        setThanksActionError("このメッセージを削除する権限がありません。");
+                        return;
+
+                    }
+
+
+                    deleteButton.disabled = true;
+                    deleteButton.textContent = "削除中…";
+                    clearThanksActionError();
+
+
+                    const updatedMessages = thanksMessages.filter((messageItem, messageIndex) => {
+                        return messageIndex !== index;
+                    });
+
+
+                    try{
+
+
+                        localStorage.setItem(
+                            thanksKey,
+                            JSON.stringify(updatedMessages)
+                        );
+
+
+                        thanksMessages = updatedMessages;
+                        displayThanks();
+
+
+                    }catch(error){
+
+
+                        console.error("ありがとうメッセージの削除エラー:", error);
+                        setThanksActionError("メッセージを削除できませんでした。時間をおいて再度お試しください。");
+                        deleteButton.disabled = false;
+                        deleteButton.textContent = "🗑️ 削除";
+
+
+                    }
+
+
+                });
+
+
+                div.appendChild(deleteButton);
+
+
+            }
 
 
 
@@ -781,7 +933,7 @@ Promise.all([
 
 
 
-    displayThanks();
+    onAuthStateChanged(auth, displayThanks);
 
 
 
@@ -800,6 +952,20 @@ Promise.all([
             if(!thanksMessage){
 
                 return;
+
+            }
+
+
+
+            const currentUser = auth.currentUser;
+
+
+            if(!currentUser){
+
+
+                alert("ありがとうメッセージを送信するにはGoogleでサインインしてください。");
+                return;
+
 
             }
 
@@ -863,9 +1029,13 @@ Promise.all([
 
             thanksMessages.push({
 
+                id:crypto.randomUUID(),
+
                 message:text,
 
-                datetime:datetime
+                datetime:datetime,
+
+                authorId:currentUser.uid
 
             });
 
@@ -927,6 +1097,9 @@ Promise.all([
 
 
             thanksMessage.value = "";
+
+
+            clearThanksActionError();
 
 
 
