@@ -66,6 +66,21 @@ function getCreatedAtMilliseconds(post) {
 }
 
 
+function formatPostDate(post) {
+
+  const milliseconds = getCreatedAtMilliseconds(post);
+
+  if (milliseconds === null) return "";
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  }).format(new Date(milliseconds));
+
+}
+
+
 function sortPostsByCreatedAt(posts) {
 
   return posts
@@ -192,19 +207,37 @@ function matchesTagFilters(post, selectedTags) {
 function createPostCard(post) {
 
   const card = document.createElement("article");
+  const media = document.createElement("div");
+  const content = document.createElement("div");
   const imageUrl = getFirstAttachmentImage(post);
   const authorName = post.authorName || post.author || "";
+  const postDate = formatPostDate(post);
   const tags = Array.isArray(post.aiTags)
     ? post.aiTags
     : (Array.isArray(post.tags) ? post.tags : []);
 
   card.className = "card";
+  media.className = "card-media";
+  content.className = "card-content";
 
   if (imageUrl) {
     const image = document.createElement("img");
     image.src = imageUrl;
     image.alt = post.title || "実践の添付画像";
-    card.appendChild(image);
+    image.loading = "lazy";
+    media.appendChild(image);
+  } else {
+    const placeholder = document.createElement("div");
+    const placeholderIcon = document.createElement("span");
+    const placeholderText = document.createElement("span");
+
+    placeholder.className = "card-image-placeholder";
+    placeholderIcon.className = "card-image-placeholder-icon";
+    placeholderIcon.setAttribute("aria-hidden", "true");
+    placeholderIcon.textContent = "📘";
+    placeholderText.textContent = "実践資料";
+    placeholder.append(placeholderIcon, placeholderText);
+    media.appendChild(placeholder);
   }
 
   const title = document.createElement("h2");
@@ -220,7 +253,7 @@ function createPostCard(post) {
 
   const summary = document.createElement("p");
   summary.className = "summary";
-  summary.textContent = post.aiSummary || "";
+  summary.textContent = post.purpose || post.aiSummary || "";
 
   const tagsArea = document.createElement("div");
   tagsArea.className = "tags";
@@ -236,7 +269,19 @@ function createPostCard(post) {
   detailLink.href = `detail.html?id=${encodeURIComponent(post.id)}`;
   detailLink.textContent = "▶ 詳細を見る";
 
-  card.append(title, division, author, summary, tagsArea, detailLink);
+  const cardMeta = document.createElement("div");
+  cardMeta.className = "card-meta";
+  cardMeta.appendChild(author);
+
+  if (postDate) {
+    const date = document.createElement("p");
+    date.className = "post-date";
+    date.textContent = `投稿日：${postDate}`;
+    cardMeta.appendChild(date);
+  }
+
+  content.append(title, division, summary, tagsArea, cardMeta, detailLink);
+  card.append(media, content);
 
   return card;
 

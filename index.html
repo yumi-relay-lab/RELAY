@@ -8,32 +8,50 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="top-page">
 
-<header>
-    <h1>RELAY</h1>
-    <p>福岡中央特別支援学校　教育実践ひろば</p>
-    <h2>
-        あなたの実践が<br>
-        わたしたちの力になる
-    </h2>
+<header class="top-header">
+    <div class="top-header-inner">
+        <div class="top-header-main">
+            <a class="top-brand top-brand-link" href="index.html" aria-label="RELAYトップページへ戻る">
+                <span class="top-brand-mark" aria-hidden="true">R</span>
+                <div>
+                    <h1>RELAY</h1>
+                    <p class="top-brand-description">福岡中央特別支援学校　教育実践ひろば</p>
+                </div>
+            </a>
+            <p class="top-tagline">あなたの実践が、わたしたちの力になる</p>
+        </div>
 
-    <section class="auth-controls" aria-label="ログイン">
-        <p id="authStatus" class="auth-status" aria-live="polite">
-            ログインしていません
-        </p>
-        <button id="googleSignInButton" class="auth-button" type="button">
-            Googleでサインイン
-        </button>
-        <button id="signOutButton" class="auth-button" type="button" hidden>
-            ログアウト
-        </button>
-    </section>
+        <section class="auth-controls" aria-label="ログイン">
+            <p id="authStatus" class="auth-status" aria-live="polite">
+                ログインしていません
+            </p>
+            <button id="googleSignInButton" class="auth-button" type="button">
+                Googleでサインイン
+            </button>
+            <button id="signOutButton" class="auth-button" type="button" hidden>
+                ログアウト
+            </button>
+        </section>
+    </div>
 </header>
 
-<main>
+<main class="top-main">
 
-<section class="search">
+<section class="search search-panel" aria-labelledby="searchPanelHeading">
+
+    <div class="search-panel-heading">
+        <div>
+            <p class="search-panel-label">実践を探す</p>
+            <h2 id="searchPanelHeading">必要な実践を見つける</h2>
+            <p class="search-panel-help">例：視覚支援、朝の支度、買い物学習、ICT</p>
+        </div>
+
+        <a class="post-primary-button" href="post.html">
+            ＋ 実践を投稿する
+        </a>
+    </div>
 
     <form id="searchForm" class="search-form" role="search">
         <label class="visually-hidden" for="postSearchInput">実践を検索</label>
@@ -52,32 +70,26 @@
         </button>
     </form>
 
-    <fieldset id="divisionFilter" class="division-filter">
-        <legend>学部で絞り込む</legend>
-        <div class="division-filter-options">
-            <button class="division-filter-button is-selected" type="button" data-division="" aria-pressed="true">すべて</button>
-            <button class="division-filter-button" type="button" data-division="小学部" aria-pressed="false">小学部</button>
-            <button class="division-filter-button" type="button" data-division="中学部" aria-pressed="false">中学部</button>
-            <button class="division-filter-button" type="button" data-division="高等部" aria-pressed="false">高等部</button>
-        </div>
-    </fieldset>
+    <div class="filter-area">
+        <fieldset id="divisionFilter" class="division-filter">
+            <legend>学部で絞り込む</legend>
+            <div class="division-filter-options">
+                <button class="division-filter-button is-selected" type="button" data-division="" aria-pressed="true">すべて</button>
+                <button class="division-filter-button" type="button" data-division="小学部" aria-pressed="false">小学部</button>
+                <button class="division-filter-button" type="button" data-division="中学部" aria-pressed="false">中学部</button>
+                <button class="division-filter-button" type="button" data-division="高等部" aria-pressed="false">高等部</button>
+            </div>
+        </fieldset>
 
-    <fieldset id="tagFilter" class="tag-filter">
-        <legend>タグで絞り込む（複数選択可）</legend>
-        <div id="tagFilterOptions" class="tag-filter-options"></div>
-    </fieldset>
+        <fieldset id="tagFilter" class="tag-filter">
+            <legend>タグで絞り込む（複数選択可）</legend>
+            <div id="tagFilterOptions" class="tag-filter-options"></div>
+        </fieldset>
+    </div>
 
     <p id="searchResultCount" class="search-result-count" aria-live="polite">
         投稿を読み込んでいます…
     </p>
-
-</section>
-
-<section class="post-button">
-
-    <a href="post.html">
-        ＋ 実践を投稿する
-    </a>
 
 </section>
 
