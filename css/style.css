@@ -378,6 +378,11 @@ textarea {
     cursor: pointer;
 }
 
+.owner-action-button:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
 .owner-edit-button {
     background: #1565C0;
 }
@@ -394,6 +399,24 @@ textarea {
 .owner-delete-button:hover,
 .owner-delete-button:focus-visible {
     background: #8E0000;
+}
+
+.owner-delete-button:disabled {
+    background: #8E0000;
+}
+
+.owner-action-status {
+    flex-basis: 100%;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #FFEBEE;
+    color: #B71C1C;
+    font-weight: bold;
+}
+
+.owner-action-status[hidden] {
+    display: none;
 }
 
 .edit-page {

@@ -3,16 +3,22 @@
 // 詳細表示 + リアクション + 🤝ありがとう機能
 // =========================
 
-import { auth, db } from "./firebase.js";
+import { auth, db, storage } from "./firebase.js";
 
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 import {
+    deleteDoc,
     doc,
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+import {
+    deleteObject,
+    ref
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 
 // =========================
@@ -95,20 +101,201 @@ function setupOwnerActions(post, isFirestorePost) {
     const ownerActions = document.getElementById("ownerActions");
     const editButton = document.getElementById("editPostButton");
     const deleteButton = document.getElementById("deletePostButton");
+    const actionStatus = document.getElementById("ownerActionStatus");
     const isOwner = isFirestorePost
         && auth.currentUser
         && post.authorId === auth.currentUser.uid;
+    const defaultDeleteButtonText = deleteButton ? deleteButton.textContent : "";
+    let isDeleting = false;
 
-    if (!ownerActions || !editButton || !deleteButton || !isOwner) {
+    if (!ownerActions || !editButton || !deleteButton || !actionStatus || !isOwner) {
         return;
+    }
+
+    function setActionError(message) {
+        actionStatus.textContent = message;
+        actionStatus.hidden = false;
+    }
+
+    function setDeletingState(deleting) {
+        isDeleting = deleting;
+        editButton.disabled = deleting;
+        deleteButton.disabled = deleting;
+        deleteButton.textContent = deleting ? "削除中…" : defaultDeleteButtonText;
+    }
+
+    function getOwnedStoragePaths(latestPost, currentUser) {
+
+        const expectedPrefix = `posts/${post.id}/${currentUser.uid}/`;
+        const attachments = Array.isArray(latestPost.attachments)
+            ? latestPost.attachments
+            : [];
+        const hasMissingPath = attachments.some(attachment => {
+            return !attachment
+                || typeof attachment !== "object"
+                || typeof attachment.storagePath !== "string"
+                || !attachment.storagePath.trim();
+        });
+        const storagePaths = attachments.map(attachment => {
+            return attachment && typeof attachment.storagePath === "string"
+                ? attachment.storagePath.trim()
+                : "";
+        }).filter(Boolean);
+
+        const hasInvalidPath = storagePaths.some(storagePath => {
+            const fileName = storagePath.slice(expectedPrefix.length);
+
+            return !storagePath.startsWith(expectedPrefix)
+                || !fileName
+                || fileName.includes("/");
+        });
+
+        if (hasMissingPath || hasInvalidPath) {
+            const error = new Error("invalid-storage-path");
+            error.relayStage = "validation";
+            throw error;
+        }
+
+        return [...new Set(storagePaths)];
+
+    }
+
+    async function deleteStorageFiles(storagePaths) {
+
+        const results = await Promise.allSettled(
+            storagePaths.map(async storagePath => {
+                try {
+                    await deleteObject(ref(storage, storagePath));
+                } catch (error) {
+                    if (error.code !== "storage/object-not-found") {
+                        throw error;
+                    }
+                }
+            })
+        );
+        const failedResult = results.find(result => result.status === "rejected");
+
+        if (failedResult) {
+            const error = new Error("storage-delete-failed");
+            error.relayStage = "storage";
+            error.cause = failedResult.reason;
+            throw error;
+        }
+
+    }
+
+    function removeLocalPostData() {
+
+        try {
+
+            const savedPosts = JSON.parse(localStorage.getItem("relayPosts")) || [];
+
+            if (Array.isArray(savedPosts)) {
+                const remainingPosts = savedPosts.filter(item => String(item.id) !== String(post.id));
+
+                if (remainingPosts.length !== savedPosts.length) {
+                    localStorage.setItem("relayPosts", JSON.stringify(remainingPosts));
+                }
+            }
+
+            localStorage.removeItem(`reaction_${post.id}`);
+            localStorage.removeItem(`thanksMessage_${post.id}`);
+
+        } catch (error) {
+
+            console.warn("localStorageの投稿関連データを整理できませんでした:", error);
+
+        }
+
     }
 
     editButton.addEventListener("click", () => {
         location.href = `edit.html?id=${encodeURIComponent(post.id)}`;
     });
 
-    deleteButton.addEventListener("click", () => {
-        alert("削除機能は次の段階で実装します");
+    deleteButton.addEventListener("click", async () => {
+
+        if (isDeleting) {
+            return;
+        }
+
+        const confirmed = confirm(
+            "この実践を削除します。添付ファイルも削除されます。この操作は元に戻せません。よろしいですか？"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        actionStatus.hidden = true;
+        actionStatus.textContent = "";
+        setDeletingState(true);
+
+        try {
+
+            const currentUser = auth.currentUser;
+
+            if (!currentUser) {
+                const error = new Error("not-authenticated");
+                error.relayStage = "authentication";
+                throw error;
+            }
+
+            const postReference = doc(db, "posts", post.id);
+            const latestSnapshot = await getDoc(postReference);
+
+            if (!latestSnapshot.exists()) {
+                const error = new Error("post-not-found");
+                error.relayStage = "validation";
+                throw error;
+            }
+
+            const latestPost = latestSnapshot.data();
+
+            if (!auth.currentUser || latestPost.authorId !== auth.currentUser.uid) {
+                const error = new Error("permission-denied");
+                error.relayStage = "authorization";
+                throw error;
+            }
+
+            const storagePaths = getOwnedStoragePaths(latestPost, auth.currentUser);
+
+            await deleteStorageFiles(storagePaths);
+
+            try {
+                await deleteDoc(postReference);
+            } catch (error) {
+                error.relayStage = "firestore";
+                throw error;
+            }
+
+            removeLocalPostData();
+            location.href = "index.html";
+
+        } catch (error) {
+
+            console.error("投稿の削除エラー:", error.cause || error);
+
+            if (error.message === "not-authenticated") {
+                setActionError("ログイン状態を確認できないため削除できません。トップページから再度サインインしてください。");
+            } else if (error.message === "post-not-found") {
+                setActionError("投稿が見つからないため削除できません。");
+            } else if (error.message === "permission-denied" || error.relayStage === "authorization") {
+                setActionError("この投稿を削除する権限がありません。");
+            } else if (error.message === "invalid-storage-path") {
+                setActionError("添付ファイルの保存先を安全に確認できないため、投稿は削除していません。");
+            } else if (error.relayStage === "storage") {
+                setActionError("添付ファイルを削除できなかったため、Firestoreの投稿は削除していません。時間をおいて再度お試しください。");
+            } else if (error.relayStage === "firestore") {
+                setActionError("添付ファイルは削除されましたが、Firestoreの投稿を削除できませんでした。再度削除をお試しください。");
+            } else {
+                setActionError("投稿を削除できませんでした。データは削除されていません。時間をおいて再度お試しください。");
+            }
+
+            setDeletingState(false);
+
+        }
+
     });
 
     ownerActions.hidden = false;
