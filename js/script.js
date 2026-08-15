@@ -7,6 +7,21 @@ import {
 
 let allPosts = [];
 let selectedSchoolDivision = "";
+const selectedTagFilters = new Set();
+const TAG_CANDIDATES = Object.freeze([
+  "視覚支援",
+  "自立活動",
+  "教材・教具",
+  "生活単元学習",
+  "作業学習",
+  "ICT活用",
+  "コミュニケーション",
+  "行動支援",
+  "環境調整",
+  "スケジュール",
+  "余暇活動",
+  "日常生活の指導"
+]);
 
 
 function getPostComparisonKey(post) {
@@ -174,6 +189,19 @@ function matchesSchoolDivision(post, schoolDivision) {
 }
 
 
+function matchesTagFilters(post, selectedTags) {
+
+  if (selectedTags.size === 0) return true;
+
+  const postTags = Array.isArray(post.aiTags) ? post.aiTags : [];
+
+  return Array.from(selectedTags).some(selectedTag =>
+    postTags.some(postTag => String(postTag).trim() === selectedTag)
+  );
+
+}
+
+
 function createPostCard(post) {
 
   const card = document.createElement("article");
@@ -239,7 +267,7 @@ function displayPosts(posts) {
     message.className = "posts-empty-message";
     message.textContent = allPosts.length === 0
       ? "まだ投稿はありません。最初の実践を投稿してみましょう。"
-      : "選択した条件に一致する実践は見つかりませんでした。検索キーワードや学部を変えてみてください。";
+      : "選択した条件に一致する実践は見つかりませんでした。検索キーワード・学部・タグを変えてみてください。";
     postsArea.appendChild(message);
     return;
   }
@@ -263,16 +291,34 @@ function applySearch() {
   const filteredPosts = allPosts.filter(post => {
     const matchesKeyword = matchesSearch(post, keyword);
     const matchesDivision = matchesSchoolDivision(post, selectedSchoolDivision);
+    const matchesTags = matchesTagFilters(post, selectedTagFilters);
 
-    return matchesKeyword && matchesDivision;
+    return matchesKeyword && matchesDivision && matchesTags;
   });
 
   if (clearButton) {
-    clearButton.hidden = !originalKeyword && !selectedSchoolDivision;
+    clearButton.hidden = !originalKeyword
+      && !selectedSchoolDivision
+      && selectedTagFilters.size === 0;
   }
 
   if (resultCount) {
-    if (originalKeyword && selectedSchoolDivision) {
+    const selectedTags = Array.from(selectedTagFilters);
+    const tagDescription = selectedTags.length > 0
+      ? `タグ「${selectedTags.join("、")}」`
+      : "";
+
+    if (tagDescription) {
+      const conditions = [
+        selectedSchoolDivision,
+        originalKeyword ? `“${originalKeyword}”` : "",
+        tagDescription
+      ].filter(Boolean);
+
+      resultCount.textContent = conditions.length === 1
+        ? `${tagDescription}：${filteredPosts.length}件`
+        : `${conditions.join("・")}の絞り込み結果：${filteredPosts.length}件`;
+    } else if (originalKeyword && selectedSchoolDivision) {
       resultCount.textContent = `${selectedSchoolDivision}で “${originalKeyword}” の検索結果：${filteredPosts.length}件`;
     } else if (originalKeyword) {
       resultCount.textContent = `“${originalKeyword}” の検索結果：${filteredPosts.length}件`;
@@ -284,6 +330,26 @@ function applySearch() {
   }
 
   displayPosts(filteredPosts);
+
+}
+
+
+function renderTagFilterOptions() {
+
+  const container = document.getElementById("tagFilterOptions");
+
+  if (!container) return;
+
+  TAG_CANDIDATES.forEach(tag => {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "tag-filter-button";
+    button.dataset.tag = tag;
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = tag;
+    container.appendChild(button);
+  });
 
 }
 
@@ -302,12 +368,29 @@ function updateDivisionFilterButtons() {
 }
 
 
+function updateTagFilterButtons() {
+
+  const buttons = document.querySelectorAll(".tag-filter-button");
+
+  buttons.forEach(button => {
+    const isSelected = selectedTagFilters.has(button.dataset.tag);
+
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
+  });
+
+}
+
+
 function setupSearch() {
+
+  renderTagFilterOptions();
 
   const form = document.getElementById("searchForm");
   const input = document.getElementById("postSearchInput");
   const clearButton = document.getElementById("clearSearchButton");
   const divisionButtons = document.querySelectorAll(".division-filter-button");
+  const tagButtons = document.querySelectorAll(".tag-filter-button");
 
   if (form) {
     form.addEventListener("submit", event => {
@@ -324,7 +407,9 @@ function setupSearch() {
     clearButton.addEventListener("click", () => {
       input.value = "";
       selectedSchoolDivision = "";
+      selectedTagFilters.clear();
       updateDivisionFilterButtons();
+      updateTagFilterButtons();
       applySearch();
       input.focus();
     });
@@ -334,6 +419,21 @@ function setupSearch() {
     button.addEventListener("click", () => {
       selectedSchoolDivision = button.dataset.division || "";
       updateDivisionFilterButtons();
+      applySearch();
+    });
+  });
+
+  tagButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const tag = button.dataset.tag;
+
+      if (selectedTagFilters.has(tag)) {
+        selectedTagFilters.delete(tag);
+      } else {
+        selectedTagFilters.add(tag);
+      }
+
+      updateTagFilterButtons();
       applySearch();
     });
   });

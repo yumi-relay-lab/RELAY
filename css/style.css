@@ -156,6 +156,46 @@ main {
     font-weight: bold;
 }
 
+.tag-filter {
+    margin-top: 16px;
+    padding: 0;
+    border: 0;
+}
+
+.tag-filter legend {
+    margin-bottom: 8px;
+    color: #455A64;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.tag-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.search .tag-filter-button {
+    padding: 7px 12px;
+    border: 1px solid #90CAF9;
+    border-radius: 999px;
+    background: white;
+    color: #1565C0;
+    font-size: 14px;
+}
+
+.search .tag-filter-button:hover,
+.search .tag-filter-button:focus-visible {
+    background: #E3F2FD;
+}
+
+.search .tag-filter-button.is-selected {
+    border-color: #1565C0;
+    background: #1565C0;
+    color: white;
+    font-weight: bold;
+}
+
 .search-result-count {
     margin-top: 10px;
     color: #546E7A;
