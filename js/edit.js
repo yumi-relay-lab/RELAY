@@ -1,4 +1,5 @@
 import { auth, db, storage } from "./firebase.js";
+import { TAG_CANDIDATES } from "./tags.js";
 
 import {
     onAuthStateChanged
@@ -24,20 +25,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_EXTENSIONS = new Set([
     "jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"
-]);
-const TAG_CANDIDATES = Object.freeze([
-    "視覚支援",
-    "自立活動",
-    "教材・教具",
-    "生活単元学習",
-    "作業学習",
-    "ICT活用",
-    "コミュニケーション",
-    "行動支援",
-    "環境調整",
-    "スケジュール",
-    "余暇活動",
-    "日常生活の指導"
 ]);
 const TAG_CANDIDATE_SET = new Set(TAG_CANDIDATES);
 const params = new URLSearchParams(window.location.search);

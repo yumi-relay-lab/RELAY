@@ -1,4 +1,5 @@
 import { db } from "./firebase.js";
+import { TAG_CANDIDATES } from "./tags.js";
 
 import {
   collection,
@@ -8,20 +9,6 @@ import {
 let allPosts = [];
 let selectedSchoolDivision = "";
 const selectedTagFilters = new Set();
-const TAG_CANDIDATES = Object.freeze([
-  "視覚支援",
-  "自立活動",
-  "教材・教具",
-  "生活単元学習",
-  "作業学習",
-  "ICT活用",
-  "コミュニケーション",
-  "行動支援",
-  "環境調整",
-  "スケジュール",
-  "余暇活動",
-  "日常生活の指導"
-]);
 
 
 function getPostComparisonKey(post) {
