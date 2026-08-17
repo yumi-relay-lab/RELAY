@@ -383,6 +383,38 @@ textarea {
     height:120px;
 }
 
+.post-encouragement {
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px solid #BBDEFB;
+    border-left: 5px solid #1565C0;
+    border-radius: 10px;
+    background: #F7FBFF;
+    color: #37474F;
+}
+
+.post-encouragement h3 {
+    color: #1565C0;
+    font-size: 18px;
+}
+
+.post-encouragement p {
+    margin-top: 6px;
+}
+
+.form-field-help,
+.attachment-help {
+    margin: 6px 0 0;
+    color: #607D8B;
+    font-size: 14px;
+}
+
+.optional-label {
+    color: #607D8B;
+    font-size: 14px;
+    font-weight: normal;
+}
+
 .test-publish-notice {
     margin-top: 18px;
     padding: 16px 18px;
