@@ -29,6 +29,13 @@
 
 <h2>＋ 実践を投稿する</h2>
 
+<aside class="post-encouragement" aria-labelledby="postEncouragementHeading">
+<h3 id="postEncouragementHeading">完璧な実践でなくて大丈夫です</h3>
+<p>
+ちょっとした工夫も、次の先生のヒントになります。書けるところから、気軽に教えてください。
+</p>
+</aside>
+
 <aside class="test-publish-notice" aria-labelledby="testPublishNoticeHeading">
 <h3 id="testPublishNoticeHeading">🧪 テスト公開中のお願い</h3>
 <p>
@@ -80,44 +87,51 @@
 
 
 <label for="purpose">
-🎯 ねらい・目的
+🎯 どんなことをねらいましたか？
 </label>
+
+<p id="purposeHelp" class="form-field-help">1〜2文で大丈夫です。</p>
 
 <textarea
     id="purpose"
     rows="5"
+    aria-describedby="purposeHelp"
     placeholder="例：活動の見通しをもち、自分で準備に取り組む。"
     required></textarea>
 
 
 <label for="howToUse">
-💡 実践方法
+💡 どんなふうにやりましたか？ <span class="optional-label">（任意）</span>
 </label>
+
+<p id="howToUseHelp" class="form-field-help">簡単な説明でOKです。書ける範囲で教えてください。</p>
 
 <textarea
     id="howToUse"
     rows="7"
-    placeholder="例：カードを順番に確認し、終わったら裏返す。"
-    required></textarea>
+    aria-describedby="howToUseHelp"
+    placeholder="例：カードを順番に確認し、終わったら裏返す。"></textarea>
 
 
 <label for="reflection">
-🌱 実践してみて
+🌱 やってみてどうでしたか？ <span class="optional-label">（任意）</span>
 </label>
+
+<p id="reflectionHelp" class="form-field-help">小さな気づきでも大丈夫です。まだ試していない場合は空欄でOKです。</p>
 
 <textarea
     id="reflection"
     rows="7"
-    placeholder="例：次にすることが分かりやすくなり、声かけが減った。"
-    required></textarea>
+    aria-describedby="reflectionHelp"
+    placeholder="例：次にすることが分かりやすくなり、声かけが減った。"></textarea>
 
 
 <fieldset class="tag-selector" aria-describedby="postTagHelp">
 
-<legend>🏷️ タグ</legend>
+<legend>🏷️ タグ <span class="optional-label">（任意）</span></legend>
 
 <p id="postTagHelp" class="tag-selector-help">
-この実践に近いタグを選んでください（複数選択可）
+あとで実践を見つけやすくするための項目です。近いものがあれば選んでください（複数選択可・選ばなくても投稿できます）。
 </p>
 
 <div id="postTagOptions" class="tag-options"></div>
@@ -127,7 +141,9 @@
 
 <section class="attachment-area" aria-labelledby="attachmentHeading">
 
-<h3 id="attachmentHeading">📎 資料を添付</h3>
+<h3 id="attachmentHeading">📎 資料を添付 <span class="optional-label">（任意）</span></h3>
+
+<p class="attachment-help">写真や資料がある場合だけ添付してください。添付なしでも投稿できます。</p>
 
 <p class="attachment-privacy-note">
 添付する画像・PDF・Word・Excelには、個人が特定できる情報が含まれていないことを確認してください。
