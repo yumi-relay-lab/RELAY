@@ -1091,6 +1091,326 @@ textarea {
     display: none;
 }
 
+/* 詳細ページ：読むためのレイアウト */
+.detail-page .detail-container {
+    width: calc(100% - 40px);
+    max-width: 880px;
+    margin: 36px auto 56px;
+}
+
+.detail-page .detail-content {
+    min-width: 0;
+}
+
+.detail-page .detail-title {
+    color: #263238;
+    font-size: clamp(28px, 4vw, 36px);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.detail-page .detail-meta {
+    margin-top: 14px;
+    color: #546E7A;
+    font-size: 15px;
+}
+
+.detail-page .detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.detail-page .detail-tags .tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #EAF4FF;
+    color: #0D47A1;
+    font-size: 14px;
+}
+
+.detail-page .detail-image {
+    display: block;
+    width: auto;
+    max-width: min(100%, 480px);
+    height: auto;
+    max-height: 360px;
+    margin: 24px auto 8px;
+    background: #F7F9FC;
+    object-fit: contain;
+}
+
+.detail-page .detail-reading-section {
+    margin-top: 42px;
+    padding-top: 30px;
+    border-top: 1px solid #DDE7F0;
+}
+
+.detail-page .detail-reading-section h2 {
+    margin-bottom: 14px;
+    color: #1565C0;
+    font-size: 22px;
+    line-height: 1.45;
+}
+
+.detail-page .detail-reading-section p {
+    color: #37474F;
+    font-size: 17px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.detail-page .detail-attachments,
+.detail-page .detail-interaction-section,
+.detail-page .thanks-area,
+.detail-page .share-area {
+    margin-top: 34px;
+    padding: 18px;
+    border: 1px solid #D9E5F2;
+    border-radius: 14px;
+    background: white;
+}
+
+.detail-page .detail-attachments h2,
+.detail-page .detail-interaction-section h2,
+.detail-page .thanks-area h3 {
+    margin-bottom: 16px;
+    color: #1565C0;
+    font-size: 21px;
+    line-height: 1.5;
+}
+
+.detail-page .detail-attachment-item {
+    min-width: 0;
+    padding: 12px;
+    background: #F7FBFF;
+}
+
+.detail-page .detail-attachment-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.detail-page .detail-attachment-item-file {
+    grid-column: 1 / -1;
+}
+
+.detail-page .detail-attachment-name {
+    overflow-wrap: anywhere;
+}
+
+.detail-page .detail-attachment-preview-link {
+    display: block;
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    line-height: 0;
+}
+
+.detail-page .detail-attachment-preview {
+    width: 100%;
+    max-width: 260px;
+    height: 150px;
+    max-height: 180px;
+    margin-top: 0;
+    object-fit: cover;
+}
+
+.detail-page .detail-attachment-preview-link:focus-visible {
+    outline: 3px solid rgba(21, 101, 192, .28);
+    outline-offset: 3px;
+}
+
+.detail-page .owner-actions {
+    gap: 8px;
+    margin: 24px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid #DDE7F0;
+}
+
+.detail-page .owner-action-button {
+    min-height: 40px;
+    padding: 7px 13px;
+    font-size: 14px;
+}
+
+.detail-page .owner-edit-button {
+    background: #2878BD;
+}
+
+.detail-page .owner-delete-button {
+    border: 1px solid #E7A7A7;
+    background: #FFFAFA;
+    color: #B42323;
+}
+
+.detail-page .owner-delete-button:hover,
+.detail-page .owner-delete-button:focus-visible {
+    background: #FFF0F0;
+}
+
+.detail-page .owner-delete-button:disabled {
+    border-color: #E5CACA;
+    background: #F7F2F2;
+    color: #9D7777;
+}
+
+.detail-page .reaction {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.detail-page .reaction button {
+    min-height: 44px;
+    padding: 9px 13px;
+    border: 1px solid #BBDEFB;
+    border-radius: 999px;
+    background: #F7FBFF;
+    color: #0D47A1;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.detail-page .reaction-count {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.detail-page .reaction button:hover,
+.detail-page .reaction button:focus-visible {
+    background: #E3F2FD;
+}
+
+.detail-page .thanks-area textarea {
+    line-height: 1.7;
+}
+
+.detail-page .thanks-area > button,
+.detail-page .share-area button {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #1565C0;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.detail-page .thanks-area > button:hover,
+.detail-page .thanks-area > button:focus-visible,
+.detail-page .share-area button:hover,
+.detail-page .share-area button:focus-visible {
+    background: #0D47A1;
+}
+
+.detail-page .dev-panel {
+    margin-top: 36px;
+}
+
+.detail-page .back {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.detail-page .back a {
+    color: #1565C0;
+    font-weight: bold;
+}
+
+@media (max-width: 640px) {
+    .detail-page .detail-container {
+        width: calc(100% - 32px);
+        margin: 24px auto 40px;
+    }
+
+    .detail-page .detail-title {
+        font-size: 27px;
+    }
+
+    .detail-page .detail-image {
+        max-width: 100%;
+        max-height: 280px;
+        margin-top: 20px;
+    }
+
+    .detail-page .detail-reading-section {
+        margin-top: 34px;
+        padding-top: 24px;
+    }
+
+    .detail-page .detail-reading-section h2 {
+        font-size: 20px;
+    }
+
+    .detail-page .detail-reading-section p {
+        font-size: 16px;
+        line-height: 1.75;
+    }
+
+    .detail-page .detail-attachments,
+    .detail-page .detail-interaction-section,
+    .detail-page .thanks-area,
+    .detail-page .share-area {
+        margin-top: 28px;
+        padding: 14px;
+    }
+
+    .detail-page .thanks-area > button,
+    .detail-page .share-area button {
+        width: 100%;
+        min-height: 46px;
+    }
+
+    .detail-page .owner-actions {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .detail-page .owner-action-button {
+        width: auto;
+        min-height: 42px;
+        padding: 8px 12px;
+    }
+
+    .detail-page .reaction {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .detail-page .reaction button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        padding: 8px 5px;
+        font-size: 16px;
+        line-height: 1.35;
+    }
+
+    .detail-page .detail-attachment-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-page .detail-attachment-preview {
+        max-width: 100%;
+        height: 130px;
+        max-height: 130px;
+    }
+}
+
+@media (max-width: 380px) {
+    .detail-page .detail-attachment-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* QRコード・スマホ・iPad向け開き方案内 */
 .start-page {
     min-height: 100vh;

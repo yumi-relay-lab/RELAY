@@ -564,17 +564,32 @@ function renderAttachments(post) {
         }
 
         if (attachment.category === "image") {
+            item.classList.add("detail-attachment-item-image");
+
+            const previewLink = document.createElement("a");
+            previewLink.className = "detail-attachment-preview-link";
+            previewLink.href = downloadUrl;
+            previewLink.target = "_blank";
+            previewLink.rel = "noopener noreferrer";
+            previewLink.setAttribute(
+                "aria-label",
+                `${attachment.name || "添付画像"}を拡大表示`
+            );
+
             const preview = document.createElement("img");
             preview.className = "detail-attachment-preview";
             preview.src = downloadUrl;
             preview.alt = attachment.name || "添付画像";
             preview.loading = "lazy";
             preview.addEventListener("error", () => {
-                preview.remove();
+                previewLink.remove();
                 item.appendChild(createUnavailableMessage());
             }, { once: true });
-            item.appendChild(preview);
+            previewLink.appendChild(preview);
+            item.appendChild(previewLink);
         } else {
+            item.classList.add("detail-attachment-item-file");
+
             const linkLabels = {
                 pdf: "PDFを開く",
                 word: "Wordをダウンロード",
