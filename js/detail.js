@@ -199,6 +199,7 @@ function setupOwnerActions(post, isFirestorePost) {
             }
 
             localStorage.removeItem(`reaction_${post.id}`);
+            localStorage.removeItem(`reactionSelection_${post.id}`);
             localStorage.removeItem(`thanksMessage_${post.id}`);
 
         } catch (error) {
@@ -794,6 +795,49 @@ Promise.all([
     }
 
 
+    // =========================
+    // 印刷用ページ
+    // =========================
+
+
+    const shareButton = document.getElementById("shareButton");
+
+    if (shareButton) {
+
+        shareButton.addEventListener("click", () => {
+
+            const attachments = Array.isArray(post.attachments)
+                ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+                : [];
+            const printablePost = {
+                id: post.id,
+                title: post.title || "",
+                schoolDivision: post.schoolDivision || "",
+                purpose: post.purpose || "",
+                howToUse: post.howToUse || "",
+                reflection: post.reflection || post.practice || "",
+                aiTags: Array.isArray(post.aiTags)
+                    ? post.aiTags
+                    : (Array.isArray(post.tags) ? post.tags : []),
+                attachments: attachments.map(attachment => ({
+                    name: attachment.name || "",
+                    category: attachment.category || "",
+                    downloadUrl: attachment.downloadUrl || ""
+                }))
+            };
+
+            sessionStorage.setItem(
+                `relayPrintPost_${post.id}`,
+                JSON.stringify(printablePost)
+            );
+
+            location.href = `share.html?id=${encodeURIComponent(post.id)}`;
+
+        });
+
+    }
+
+
 
 
 
@@ -805,6 +849,9 @@ Promise.all([
 
     const reactionKey =
     `reaction_${id}`;
+
+    const reactionSelectionKey =
+    `reactionSelection_${id}`;
 
 
 
@@ -821,6 +868,43 @@ Promise.all([
         question:0
 
     };
+
+    const storedReactionSelections =
+    JSON.parse(localStorage.getItem(reactionSelectionKey))
+    ||
+    {};
+
+    const reactionSelections = {
+        thanks: storedReactionSelections.thanks || reactions.thanks > 0,
+        reference: storedReactionSelections.reference || reactions.reference > 0,
+        try: storedReactionSelections.try || reactions.try > 0,
+        done: storedReactionSelections.done || reactions.done > 0,
+        idea: storedReactionSelections.idea || reactions.idea > 0,
+        question: storedReactionSelections.question || reactions.question > 0
+    };
+
+    function addReactionOnce(type) {
+
+        if (reactionSelections[type]) {
+            return false;
+        }
+
+        reactions[type] = (reactions[type] || 0) + 1;
+        reactionSelections[type] = true;
+
+        localStorage.setItem(
+            reactionKey,
+            JSON.stringify(reactions)
+        );
+
+        localStorage.setItem(
+            reactionSelectionKey,
+            JSON.stringify(reactionSelections)
+        );
+
+        return true;
+
+    }
 
 
 
@@ -851,12 +935,19 @@ Promise.all([
 
         }
 
+        if (reactionSelections[type]) {
+            button.disabled = true;
+            button.setAttribute("aria-pressed", "true");
+        }
+
 
 
         button.addEventListener("click",()=>{
 
 
-            reactions[type]++;
+            if (!addReactionOnce(type)) {
+                return;
+            }
 
 
             if(count){
@@ -868,13 +959,8 @@ Promise.all([
 
 
 
-            localStorage.setItem(
-
-                reactionKey,
-
-                JSON.stringify(reactions)
-
-            );
+            button.disabled = true;
+            button.setAttribute("aria-pressed", "true");
 
 
         });
@@ -1249,19 +1335,9 @@ Promise.all([
 
 
 
-            // 🤝ありがとう数も増加
+            // 🤝ありがとう数は同じブラウザでは1回だけ増加
 
-            reactions.thanks++;
-
-
-
-            localStorage.setItem(
-
-                reactionKey,
-
-                JSON.stringify(reactions)
-
-            );
+            const addedThanksReaction = addReactionOnce("thanks");
 
 
 
@@ -1276,11 +1352,18 @@ Promise.all([
 
 
 
-            if(thanksCount){
+            if(thanksCount && addedThanksReaction){
 
 
                 thanksCount.textContent =
                 reactions.thanks;
+
+                const thanksButton = thanksCount.closest("button");
+
+                if (thanksButton) {
+                    thanksButton.disabled = true;
+                    thanksButton.setAttribute("aria-pressed", "true");
+                }
 
 
             }

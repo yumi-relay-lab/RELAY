@@ -59,6 +59,301 @@ body {
     }
 }
 
+
+/* =========================
+   印刷用ページ
+========================= */
+
+.print-page {
+    background: #EEF3F7;
+}
+
+.print-page-main {
+    width: min(100% - 32px, 900px);
+    margin: 28px auto 48px;
+}
+
+.print-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.print-actions[hidden] {
+    display: none;
+}
+
+.print-back-link,
+.print-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.print-back-link {
+    border: 1px solid #B8C9D8;
+    background: white;
+    color: #28516F;
+}
+
+.print-button {
+    border: 0;
+    background: #1565C0;
+    color: white;
+    cursor: pointer;
+}
+
+.print-button:hover,
+.print-button:focus-visible {
+    background: #0D47A1;
+}
+
+.print-sheet {
+    padding: 38px 42px 30px;
+    border: 1px solid #D6E0E8;
+    background: white;
+    color: #243746;
+    box-shadow: 0 8px 30px rgba(38, 67, 88, .1);
+}
+
+.print-sheet-heading {
+    padding-bottom: 18px;
+    border-bottom: 2px solid #365E7D;
+}
+
+.print-kicker {
+    margin: 0 0 8px;
+    color: #365E7D;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.print-sheet h1 {
+    margin: 0;
+    color: #17384F;
+    font-size: clamp(26px, 4vw, 36px);
+    line-height: 1.3;
+}
+
+.print-meta {
+    margin: 10px 0 0;
+    font-size: 15px;
+}
+
+.print-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 32%);
+    gap: 24px;
+    align-items: start;
+}
+
+.print-section {
+    margin-top: 20px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.print-section h2 {
+    margin: 0 0 7px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #AEBECA;
+    color: #234D69;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.print-section p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.print-image-area {
+    margin: 20px 0 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.print-image-area img {
+    display: block;
+    width: 100%;
+    max-height: 260px;
+    border: 1px solid #D6E0E8;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.print-compact-section {
+    margin-top: 16px;
+}
+
+.print-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    color: #365E7D;
+    font-size: 14px;
+}
+
+.print-attachments {
+    margin: 0;
+    padding-left: 1.4em;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.print-sheet-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 22px;
+    padding-top: 10px;
+    border-top: 1px solid #AEBECA;
+    color: #536B7B;
+    font-size: 11px;
+}
+
+.print-sheet-footer p {
+    margin: 0;
+}
+
+@media (max-width: 700px) {
+    .print-page-main {
+        width: min(100% - 20px, 900px);
+        margin-top: 18px;
+    }
+
+    .print-actions,
+    .print-sheet-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .print-sheet {
+        padding: 26px 20px;
+    }
+
+    .print-overview {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .print-image-area img {
+        max-height: 240px;
+    }
+}
+
+@page {
+    size: A4 portrait;
+    margin: 12mm;
+}
+
+@media print {
+    html,
+    body.print-page {
+        background: white;
+    }
+
+    body.print-page {
+        margin: 0;
+        color: #111;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .print-page-header,
+    .print-actions,
+    .print-page #post-list {
+        display: none !important;
+    }
+
+    .print-page-main {
+        width: auto;
+        margin: 0;
+    }
+
+    .print-sheet {
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .print-sheet-heading {
+        padding-bottom: 4mm;
+    }
+
+    .print-kicker {
+        margin-bottom: 2mm;
+        font-size: 9pt;
+    }
+
+    .print-sheet h1 {
+        font-size: 20pt;
+    }
+
+    .print-meta,
+    .print-section p {
+        font-size: 10.5pt;
+    }
+
+    .print-overview {
+        grid-template-columns: minmax(0, 1fr) 52mm;
+        gap: 6mm;
+    }
+
+    .print-section {
+        margin-top: 4mm;
+    }
+
+    .print-section h2 {
+        margin-bottom: 1.5mm;
+        padding-bottom: 1mm;
+        color: #111;
+        font-size: 12pt;
+    }
+
+    .print-section p {
+        line-height: 1.55;
+    }
+
+    .print-image-area {
+        margin-top: 4mm;
+    }
+
+    .print-image-area img {
+        max-height: 58mm;
+        border-radius: 0;
+    }
+
+    .print-compact-section {
+        margin-top: 3mm;
+    }
+
+    .print-tags,
+    .print-attachments {
+        color: #111;
+        font-size: 9.5pt;
+    }
+
+    .print-sheet-footer {
+        margin-top: 5mm;
+        padding-top: 2mm;
+        color: #333;
+        font-size: 8pt;
+    }
+}
+
 /* ヘッダー */
 header {
     background: #1565C0;
@@ -1320,6 +1615,14 @@ textarea {
 .detail-page .reaction button:hover,
 .detail-page .reaction button:focus-visible {
     background: #E3F2FD;
+}
+
+.detail-page .reaction button:disabled {
+    border-color: #90CAF9;
+    background: #E3F2FD;
+    color: #496A84;
+    cursor: default;
+    opacity: .8;
 }
 
 .detail-page .thanks-area textarea {
