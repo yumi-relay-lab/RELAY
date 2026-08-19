@@ -14,13 +14,15 @@
     <div class="top-header-inner">
         <div class="top-header-main">
             <a class="top-brand top-brand-link" href="index.html" aria-label="RELAY Labトップページへ戻る">
-                <span class="top-brand-mark" aria-hidden="true">R</span>
-                <div>
-                    <h1>RELAY Lab</h1>
-                    <p class="top-brand-description">福岡中央特別支援学校　教育実践ひろば</p>
-                </div>
+                <img
+                    class="top-brand-logo"
+                    src="images/relay-logo.png"
+                    alt="RELAY Lab 明日の『やってみよう』がみつかる">
             </a>
-            <p class="top-tagline">あなたの実践が、わたしたちの力になる</p>
+            <p class="top-brand-description">福岡中央特別支援学校　教育実践ひろば</p>
+            <p class="top-introduction">
+                先生たちの小さな工夫や実践を、次の誰かのヒントにつなぐ場所です。
+            </p>
         </div>
 
         <section class="auth-controls" aria-label="ログイン">
@@ -44,13 +46,16 @@
     <div class="search-panel-heading">
         <div>
             <p class="search-panel-label">実践を探す</p>
-            <h2 id="searchPanelHeading">必要な実践を見つける</h2>
-            <p class="search-panel-help">例：視覚支援、朝の支度、買い物学習、ICT</p>
+            <h2 id="searchPanelHeading">明日に役立つ実践を探す</h2>
+            <p class="search-panel-help">教材名・活動・困りごとから検索できます。例：視覚支援、朝の支度、買い物学習、ICT</p>
         </div>
 
-        <a class="post-primary-button" href="post.html">
-            ＋ 実践を投稿する
-        </a>
+        <div class="post-entry">
+            <a class="post-primary-button" href="post.html">
+                ＋ 実践を投稿する
+            </a>
+            <p class="post-entry-help">短いメモや、小さな工夫でも大丈夫です</p>
+        </div>
     </div>
 
     <form id="searchForm" class="search-form" role="search">
@@ -105,6 +110,14 @@
     </p>
 
 </section>
+
+<div class="posts-heading">
+    <div>
+        <p class="posts-heading-label">NEW PRACTICES</p>
+        <h2>新着の実践</h2>
+    </div>
+    <p>新しい工夫から、気軽にヒントを探せます。</p>
+</div>
 
 <section id="posts">
 

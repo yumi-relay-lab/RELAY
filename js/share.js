@@ -18,6 +18,12 @@ fetch("./data/posts.json")
 
     postList.innerHTML = "";
 
+    if (!Array.isArray(posts) || posts.length === 0) {
+        postList.innerHTML =
+        '<p class="posts-empty-message">現在、共有できる実践はまだありません。トップページの新着実践をご覧ください。</p>';
+        return;
+    }
+
 
     posts.forEach(post => {
 
