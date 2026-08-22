@@ -1055,6 +1055,11 @@ textarea {
 }
 
 /* 実践タグガイド */
+.tag-guide-page .concept-hero {
+    width: 100%;
+    max-width: none;
+}
+
 .tag-guide-message,
 .structure-guide {
     margin-bottom: 34px;
@@ -1068,6 +1073,7 @@ textarea {
 .tag-guide-message {
     display: grid;
     grid-template-columns: minmax(220px, .8fr) minmax(0, 1.4fr);
+    align-items: start;
     gap: 20px 34px;
 }
 
@@ -1079,19 +1085,28 @@ textarea {
     line-height: 1.45;
 }
 
-.tag-guide-message > p,
+.tag-guide-copy p,
 .tag-guide-heading > p,
-.structure-guide > div > p:last-child {
+.structure-guide-intro > p:nth-of-type(2) {
     color: #455A64;
     line-height: 1.85;
 }
 
-.tag-guide-message > p:last-child {
-    grid-column: 2;
+.tag-guide-message h2 span {
+    display: block;
+}
+
+.tag-guide-copy {
+    min-width: 0;
+}
+
+.tag-guide-copy p + p {
+    margin-top: 14px;
 }
 
 .tag-guide-heading {
-    max-width: 760px;
+    width: 100%;
+    max-width: none;
     margin-bottom: 20px;
 }
 
@@ -1105,35 +1120,130 @@ textarea {
     gap: 16px;
 }
 
-.practice-tag-grid article {
-    padding: 22px;
+.practice-tag-card {
+    align-self: start;
     border: 1px solid #D7E3F1;
     border-radius: 14px;
     background: white;
+    box-shadow: 0 4px 14px rgba(30, 74, 112, .04);
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .2s, transform .2s;
 }
 
-.practice-tag-grid article > span {
+.practice-tag-card:hover,
+.practice-tag-card:focus-within {
+    border-color: #8CBAC8;
+    box-shadow: 0 8px 22px rgba(30, 74, 112, .1);
+    transform: translateY(-1px);
+}
+
+.practice-tag-card[open] {
+    grid-column: 1 / -1;
+    border-color: #16838A;
+    transform: none;
+}
+
+.practice-tag-card summary {
+    display: grid;
+    grid-template-columns: 42px auto minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.practice-tag-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.practice-tag-card summary:focus-visible {
+    outline: 3px solid #90CAF9;
+    outline-offset: -3px;
+}
+
+.practice-tag-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #EAF7F5;
+    font-size: 21px;
+}
+
+.practice-tag-number {
     color: #16838A;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: .1em;
 }
 
-.practice-tag-grid h3 {
-    margin-top: 6px;
+.practice-tag-title strong,
+.practice-tag-title small {
+    display: block;
+}
+
+.practice-tag-title strong {
     color: #123B63;
     font-size: 18px;
     line-height: 1.5;
 }
 
-.practice-tag-grid p {
-    margin-top: 8px;
+.practice-tag-title small {
+    margin-top: 3px;
     color: #546E7A;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.practice-tag-open {
+    color: #16838A;
+    font-size: 24px;
+    font-weight: 400;
+    text-align: center;
+    transition: transform .2s;
+}
+
+.practice-tag-card[open] .practice-tag-open {
+    transform: rotate(45deg);
+}
+
+.practice-tag-detail {
+    display: block;
+    padding: 22px 24px 25px;
+    border-top: 1px solid #DCE9EA;
+    background: #F8FBFC;
+}
+
+.practice-tag-detail h3 {
+    margin: 0;
+    color: #176B73;
+    font-size: 15px;
+}
+
+.practice-tag-detail h3:not(:first-child) {
+    margin-top: 18px;
+}
+
+.practice-tag-detail p,
+.practice-tag-detail ul {
+    margin: 7px 0 0;
+    color: #455A64;
     font-size: 14px;
     line-height: 1.75;
 }
 
-.practice-tag-grid .practice-tag-feature {
+.practice-tag-detail ul {
+    padding-left: 1.3em;
+}
+
+.practice-tag-detail li + li {
+    margin-top: 4px;
+}
+
+.practice-tag-feature {
     border-color: #8BC5B5;
     background: #F0FAF6;
 }
@@ -1141,40 +1251,169 @@ textarea {
 .structure-guide {
     display: grid;
     grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    align-items: start;
     gap: 28px;
     margin-top: 34px;
     border-top: 5px solid #16838A;
 }
 
-.structure-guide > div > p:last-child {
+.structure-guide-intro > p:nth-of-type(2) {
     margin-top: 10px;
 }
 
-.structure-guide ul {
+.structure-guide-hint {
+    margin-top: 18px;
+    padding: 11px 13px;
+    border-radius: 9px;
+    background: #EAF7F5;
+    color: #176B73;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.structure-accordion {
     display: grid;
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: 9px;
+}
+
+.structure-accordion details {
+    align-self: start;
+    border: 1px solid #DCE9EA;
+    border-radius: 9px;
+    background: #F4F8FA;
+    overflow: hidden;
+}
+
+.structure-accordion summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 14px;
+    cursor: pointer;
     list-style: none;
 }
 
-.structure-guide li {
-    padding: 12px 14px;
-    border-radius: 9px;
-    background: #F4F8FA;
+.structure-accordion summary::-webkit-details-marker {
+    display: none;
 }
 
-.structure-guide li strong,
-.structure-guide li span {
+.structure-accordion summary:focus-visible {
+    outline: 3px solid #90CAF9;
+    outline-offset: -3px;
+}
+
+.structure-accordion summary strong,
+.structure-accordion summary small {
     display: block;
 }
 
-.structure-guide li strong {
+.structure-accordion summary strong {
     color: #176B73;
 }
 
-.structure-guide li span {
+.structure-accordion summary small {
     margin-top: 2px;
     color: #607D8B;
     font-size: 13px;
+    line-height: 1.6;
+}
+
+.structure-open {
+    flex: 0 0 auto;
+    color: #16838A;
+    font-size: 22px;
+    transition: transform .2s;
+}
+
+.structure-accordion details[open] {
+    border-color: #8CBAC8;
+    background: white;
+}
+
+.structure-accordion details[open] .structure-open {
+    transform: rotate(45deg);
+}
+
+.structure-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(190px, .8fr);
+    grid-auto-rows: max-content;
+    align-items: start;
+    gap: 18px;
+    padding: 16px 16px 18px;
+    border-top: 1px solid #DCE9EA;
+}
+
+.structure-detail > section {
+    min-width: 0;
+    align-self: start;
+}
+
+.structure-detail h3 {
+    margin: 0;
+    color: #123B63;
+    font-size: 14px;
+}
+
+.structure-detail h3:not(:first-child) {
+    margin-top: 15px;
+}
+
+.structure-detail p,
+.structure-detail ul {
+    margin: 7px 0 0;
+    color: #455A64;
+    font-size: 13px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.structure-detail ul {
+    padding-left: 1.25em;
+}
+
+.structure-detail li + li {
+    margin-top: 4px;
+}
+
+.structure-photo-placeholder {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    width: 100%;
+    min-height: 180px;
+    margin: 0;
+    padding: 18px;
+    border: 2px dashed #9BC5C7;
+    border-radius: 10px;
+    background: #F3FAF8;
+    color: #547278;
+    text-align: center;
+}
+
+.structure-photo-section {
+    min-width: 0;
+}
+
+.structure-photo-section .structure-photo-placeholder {
+    margin-top: 7px;
+}
+
+.structure-photo-placeholder > span {
+    color: #16838A;
+    font-size: 32px;
+}
+
+.structure-photo-placeholder figcaption {
+    max-width: 100%;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
 }
 
 .tag-guide-closing {
@@ -1211,12 +1450,37 @@ textarea {
         padding: 22px 20px;
     }
 
-    .tag-guide-message > p:last-child {
-        grid-column: auto;
+    .structure-detail {
+        display: block;
+    }
+
+    .structure-photo-section {
+        margin-top: 22px;
+    }
+
+    .structure-photo-placeholder {
+        min-height: 150px;
     }
 
     .practice-tag-grid {
         grid-template-columns: 1fr;
+    }
+
+    .practice-tag-card summary {
+        grid-template-columns: 40px minmax(0, 1fr) 26px;
+        padding: 17px 16px;
+    }
+
+    .practice-tag-number {
+        display: none;
+    }
+
+    .practice-tag-detail {
+        padding: 18px 17px 21px;
+    }
+
+    .practice-tag-detail h3:not(:first-child) {
+        margin-top: 13px;
     }
 }
 
