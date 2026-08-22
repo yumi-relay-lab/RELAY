@@ -49,6 +49,36 @@ body {
     opacity: .8;
 }
 
+.top-guide-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: 13px;
+}
+
+.top-guide-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 3px 0;
+    color: #315B73;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color .2s, transform .2s;
+}
+
+.top-guide-links a:hover,
+.top-guide-links a:focus-visible {
+    color: #116B73;
+    transform: translateY(-1px);
+}
+
+.top-guide-links a span {
+    color: #16838A;
+}
+
 @media (max-width: 720px) {
     .form-page-header {
         padding: 18px 16px 16px;
@@ -783,6 +813,270 @@ textarea {
     margin-bottom: 12px;
     color: #455A64;
     font-size: 14px;
+}
+
+.tag-selector-help a {
+    color: #1565C0;
+    font-weight: 700;
+}
+
+.jiritsu-selector {
+    border-color: #B7D9CF;
+    background: #F4FBF8;
+}
+
+.jiritsu-selector legend,
+.jiritsu-selector .tag-option {
+    color: #176B5B;
+}
+
+.jiritsu-selector .tag-option span {
+    border-color: #8BC5B5;
+}
+
+.jiritsu-selector .tag-option input:checked + span {
+    border-color: #176B5B;
+    background: #176B5B;
+}
+
+.jiritsu-badges,
+.detail-jiritsu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.jiritsu-badges span,
+.detail-jiritsu span {
+    padding: 5px 10px;
+    border: 1px solid #8BC5B5;
+    border-radius: 999px;
+    background: #F0FAF6;
+    color: #176B5B;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.detail-jiritsu {
+    align-items: center;
+    margin: 16px 0;
+    padding: 14px;
+    border-radius: 10px;
+    background: #F4FBF8;
+}
+
+.detail-jiritsu[hidden] {
+    display: none;
+}
+
+.detail-jiritsu strong {
+    flex-basis: 100%;
+    color: #176B5B;
+}
+
+/* RELAYの思想・自立活動を学ぶ */
+.concept-main {
+    width: min(100% - 32px, 1080px);
+    max-width: none;
+    padding: 48px 0 64px;
+}
+
+.concept-hero {
+    max-width: 790px;
+    margin-bottom: 34px;
+}
+
+.concept-kicker {
+    margin: 0 0 8px;
+    color: #1565C0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .14em;
+}
+
+.concept-hero h1,
+.concept-closing h2 {
+    color: #123B63;
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.35;
+}
+
+.concept-hero > p:not(.concept-kicker) {
+    margin-top: 14px;
+    color: #455A64;
+    font-size: 17px;
+}
+
+.philosophy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.philosophy-card {
+    padding: 26px;
+    border: 1px solid #D7E3F1;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(30, 74, 112, .07);
+}
+
+.philosophy-card > span {
+    display: block;
+    margin-bottom: 8px;
+    color: #2C7A6A;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.philosophy-card h2 {
+    margin-bottom: 12px;
+    color: #123B63;
+    font-size: 21px;
+    line-height: 1.5;
+}
+
+.philosophy-card p {
+    color: #455A64;
+    line-height: 1.9;
+}
+
+.philosophy-card:nth-child(3n) {
+    border-top: 4px solid #2C7A6A;
+}
+
+.concept-closing {
+    margin-top: 34px;
+    padding: 36px;
+    border-radius: 18px;
+    background: #123B63;
+    color: white;
+}
+
+.concept-closing .concept-kicker,
+.concept-closing h2 {
+    color: white;
+}
+
+.concept-closing p:last-child {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.9;
+}
+
+.concept-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.concept-footer-nav a,
+.jiritsu-accordion a {
+    color: #1565C0;
+    font-weight: 700;
+}
+
+.source-note,
+.learn-guide {
+    padding: 18px 20px;
+    border-left: 4px solid #2C7A6A;
+    border-radius: 8px;
+    background: #F0FAF6;
+}
+
+.learn-guide {
+    margin-bottom: 22px;
+}
+
+.learn-guide h2 {
+    color: #176B5B;
+    font-size: 20px;
+}
+
+.learn-guide p {
+    margin-top: 6px;
+}
+
+.jiritsu-accordion {
+    display: grid;
+    gap: 12px;
+}
+
+.jiritsu-accordion details {
+    border: 1px solid #D4E3DE;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+}
+
+.jiritsu-accordion summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    color: #123B63;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.jiritsu-accordion summary span {
+    color: #2C7A6A;
+    font-size: 13px;
+}
+
+.jiritsu-accordion summary small {
+    margin-left: auto;
+    color: #607D8B;
+    font-size: 13px;
+}
+
+.jiritsu-accordion details > div {
+    padding: 0 22px 22px 58px;
+    border-top: 1px solid #E4ECE9;
+}
+
+.jiritsu-accordion ol {
+    margin: 18px 0;
+    padding-left: 1.4em;
+}
+
+.jiritsu-accordion li + li {
+    margin-top: 8px;
+}
+
+.learn-reference {
+    margin-top: 22px;
+    color: #607D8B;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+    .concept-main {
+        width: min(100% - 24px, 1080px);
+        padding-top: 30px;
+    }
+
+    .philosophy-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .philosophy-card,
+    .concept-closing {
+        padding: 22px 20px;
+    }
+
+    .concept-footer-nav {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .jiritsu-accordion details > div {
+        padding: 0 18px 20px 38px;
+    }
 }
 
 .tag-options {
@@ -1972,10 +2266,29 @@ textarea {
 
 .top-header .top-introduction {
     max-width: 620px;
-    margin-top: 3px;
-    font-size: 14px;
-    line-height: 1.65;
-    opacity: .9;
+    margin-top: 10px;
+    color: #31536B;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.top-header .top-introduction strong,
+.top-header .top-introduction span {
+    display: block;
+}
+
+.top-header .top-introduction strong {
+    color: #123B63;
+    font-size: 18px;
+    line-height: 1.55;
+}
+
+.top-post-entry {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 16px;
 }
 
 .top-header .auth-controls {
@@ -2046,16 +2359,16 @@ textarea {
     min-height: 46px;
     padding: 11px 18px;
     border-radius: 10px;
-    background: #EF6C00;
+    background: #0A8899;
     color: white;
     font-weight: bold;
     text-decoration: none;
-    box-shadow: 0 4px 10px rgba(239, 108, 0, .2);
+    box-shadow: 0 5px 14px rgba(10, 136, 153, .22);
 }
 
 .post-primary-button:hover,
 .post-primary-button:focus-visible {
-    background: #E65100;
+    background: #076E7B;
 }
 
 .post-entry {
@@ -2065,7 +2378,6 @@ textarea {
 }
 
 .post-entry-help {
-    margin-top: 7px;
     color: #607D8B;
     font-size: 12px;
     line-height: 1.5;
@@ -2304,9 +2616,20 @@ textarea {
         width: 100%;
     }
 
-    .post-entry {
+    .top-post-entry {
+        align-items: flex-start;
+        flex-direction: column;
         width: 100%;
-        max-width: none;
+    }
+
+    .top-guide-links {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .top-guide-links a {
+        justify-content: space-between;
+        width: 100%;
     }
 
     .top-brand-logo {
@@ -2344,5 +2667,213 @@ textarea {
         width: 100%;
         min-height: 46px;
         text-align: center;
+    }
+}
+
+/* トップページ：ヒーローと検索・絞り込みの統一 */
+.top-header {
+    padding: 18px 24px 17px;
+}
+
+.top-header-inner {
+    position: relative;
+    display: grid;
+    justify-content: center;
+}
+
+.top-header-main {
+    width: min(100%, 720px);
+    text-align: center;
+}
+
+.top-brand {
+    justify-content: center;
+}
+
+.top-brand-logo {
+    width: min(390px, 100%);
+}
+
+.top-header .top-brand-description,
+.top-header .top-introduction {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.top-header .top-introduction {
+    margin-top: 8px;
+}
+
+.top-header .top-introduction strong {
+    font-size: 19px;
+}
+
+.top-post-entry {
+    justify-content: center;
+    margin-top: 13px;
+}
+
+.top-guide-links {
+    justify-content: center;
+}
+
+.top-header .auth-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.top-main {
+    max-width: 980px;
+    padding-top: 18px;
+}
+
+.search-panel {
+    padding: 22px 24px;
+}
+
+.search-panel-heading {
+    margin-bottom: 15px;
+}
+
+.search-panel .search-form input,
+.search-panel .search-form button {
+    min-height: 46px;
+}
+
+.search-panel .search-form button {
+    border-radius: 9px;
+    font-size: 15px;
+}
+
+.filter-area {
+    margin-top: 16px;
+    padding: 15px 16px 16px;
+    border-top: 1px solid #ECEFF1;
+    border-radius: 10px;
+    background: #F7FAFC;
+}
+
+.filter-area h3 {
+    margin-bottom: 11px;
+    color: #123B63;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.filter-area .division-filter,
+.filter-area .tag-filter {
+    margin-top: 0;
+}
+
+.filter-area .tag-filter {
+    margin-top: 12px;
+}
+
+.filter-area legend {
+    margin-bottom: 6px;
+    color: #455A64;
+    font-size: 13px;
+}
+
+.filter-area .tag-filter-heading {
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 7px 10px;
+}
+
+.filter-area .tag-filter-summary {
+    color: #78909C;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.search-panel .tag-filter-toggle {
+    min-width: 190px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border-color: #8CBAC8;
+    border-radius: 9px;
+    color: #176B73;
+    font-size: 14px;
+    text-align: left;
+}
+
+@media (max-width: 720px) {
+    .top-header {
+        padding: 14px 16px 15px;
+    }
+
+    .top-brand-logo {
+        width: min(100%, 330px);
+    }
+
+    .top-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-header .auth-controls {
+        position: static;
+        width: 100%;
+        padding-top: 10px;
+        text-align: center;
+    }
+
+    .top-header .top-introduction {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .top-header .top-introduction strong {
+        font-size: 17px;
+    }
+
+    .top-guide-links {
+        align-items: center;
+        flex-direction: row;
+    }
+
+    .top-guide-links a {
+        justify-content: flex-start;
+        width: auto;
+        font-size: 12px;
+    }
+
+    .search-panel {
+        padding: 18px 16px;
+    }
+
+    .search-panel .search-form {
+        flex-wrap: wrap;
+    }
+
+    .search-panel .search-form input {
+        flex-basis: calc(100% - 94px);
+        min-width: 0;
+    }
+
+    .search-panel .search-clear-button {
+        flex-basis: 100%;
+    }
+
+    .filter-area {
+        padding: 14px;
+    }
+
+    .search-panel .tag-filter-toggle {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .filter-area .division-filter-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .filter-area .division-filter-button {
+        width: 100%;
     }
 }

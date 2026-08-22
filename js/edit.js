@@ -1,5 +1,10 @@
 import { auth, db, storage } from "./firebase.js";
 import { TAG_CANDIDATES } from "./tags.js";
+import {
+    getSelectedJiritsuCategories,
+    renderJiritsuOptions,
+    sanitizeJiritsuCategories
+} from "./jiritsu.js";
 
 import {
     onAuthStateChanged
@@ -47,6 +52,7 @@ const selectedNewFiles = [];
 let displayedAttachments = [];
 let isSaving = false;
 let isAddingFiles = false;
+let initialJiritsuCategories = [];
 
 
 function renderTagCandidates() {
@@ -74,6 +80,7 @@ function renderTagCandidates() {
 
 
 renderTagCandidates();
+renderJiritsuOptions("editJiritsuOptions");
 
 
 function setStatus(message, isError = false) {
@@ -285,6 +292,12 @@ function setFormValues(post) {
     document.getElementById("otherTags").value = existingTags
         .filter(tag => !TAG_CANDIDATE_SET.has(tag))
         .join(", ");
+    const existingJiritsuCategories = sanitizeJiritsuCategories(post.jiritsuCategories);
+    initialJiritsuCategories = existingJiritsuCategories;
+
+    document.querySelectorAll('#editJiritsuOptions input[name="jiritsuCategories"]').forEach(checkbox => {
+        checkbox.checked = existingJiritsuCategories.includes(checkbox.value);
+    });
 
     displayedAttachments = Array.isArray(post.attachments)
         ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
@@ -559,6 +572,9 @@ function setSavingState(saving) {
         button.disabled = saving;
     });
     document.querySelectorAll('#editTagOptions input[name="aiTags"]').forEach(checkbox => {
+        checkbox.disabled = saving;
+    });
+    document.querySelectorAll('#editJiritsuOptions input[name="jiritsuCategories"]').forEach(checkbox => {
         checkbox.disabled = saving;
     });
     document.getElementById("otherTags").disabled = saving;
@@ -899,6 +915,11 @@ form.addEventListener("submit", async event => {
             aiTags: getTags(),
             updatedAt: serverTimestamp()
         };
+        const selectedJiritsuCategories = getSelectedJiritsuCategories("editJiritsuOptions");
+
+        if (JSON.stringify(selectedJiritsuCategories) !== JSON.stringify(initialJiritsuCategories)) {
+            updates.jiritsuCategories = selectedJiritsuCategories;
+        }
 
         if (requestedDeletionPaths.length > 0 || uploadResult.attachments.length > 0) {
             updates.attachments = updatedAttachments;

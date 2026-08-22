@@ -4,6 +4,7 @@
 // =========================
 
 import { auth, db, storage } from "./firebase.js";
+import { sanitizeJiritsuCategories } from "./jiritsu.js";
 
 import {
     onAuthStateChanged
@@ -794,6 +795,21 @@ Promise.all([
 
     }
 
+    const jiritsuArea = document.getElementById("jiritsuCategories");
+    const jiritsuCategories = sanitizeJiritsuCategories(post.jiritsuCategories);
+
+    if (jiritsuArea && jiritsuCategories.length > 0) {
+        const label = document.createElement("strong");
+        label.textContent = "自立活動との関連";
+        jiritsuArea.replaceChildren(label);
+        jiritsuCategories.forEach(category => {
+            const span = document.createElement("span");
+            span.textContent = category;
+            jiritsuArea.appendChild(span);
+        });
+        jiritsuArea.hidden = false;
+    }
+
 
     // =========================
     // 印刷用ページ
@@ -819,6 +835,7 @@ Promise.all([
                 aiTags: Array.isArray(post.aiTags)
                     ? post.aiTags
                     : (Array.isArray(post.tags) ? post.tags : []),
+                jiritsuCategories,
                 attachments: attachments.map(attachment => ({
                     name: attachment.name || "",
                     category: attachment.category || "",

@@ -1,5 +1,9 @@
 import { db } from "./firebase.js";
 import { TAG_CANDIDATES } from "./tags.js";
+import {
+  JIRITSU_CATEGORIES,
+  sanitizeJiritsuCategories
+} from "./jiritsu.js";
 
 import {
   collection,
@@ -9,6 +13,7 @@ import {
 let allPosts = [];
 let selectedSchoolDivision = "";
 const selectedTagFilters = new Set();
+const selectedJiritsuFilters = new Set();
 const POSTS_PER_PAGE = 10;
 let visiblePostCount = POSTS_PER_PAGE;
 let currentFilteredPosts = [];
@@ -207,6 +212,17 @@ function matchesTagFilters(post, selectedTags) {
 }
 
 
+function matchesJiritsuFilters(post, selectedCategories) {
+
+  if (selectedCategories.size === 0) return true;
+
+  const postCategories = sanitizeJiritsuCategories(post.jiritsuCategories);
+
+  return Array.from(selectedCategories).some(category => postCategories.includes(category));
+
+}
+
+
 function createPostCard(post) {
 
   const card = document.createElement("article");
@@ -218,6 +234,7 @@ function createPostCard(post) {
   const tags = Array.isArray(post.aiTags)
     ? post.aiTags
     : (Array.isArray(post.tags) ? post.tags : []);
+  const jiritsuCategories = sanitizeJiritsuCategories(post.jiritsuCategories);
 
   card.className = "card";
   media.className = "card-media";
@@ -267,6 +284,14 @@ function createPostCard(post) {
     tagsArea.appendChild(tagElement);
   });
 
+  const jiritsuArea = document.createElement("div");
+  jiritsuArea.className = "jiritsu-badges";
+  jiritsuCategories.forEach(category => {
+    const badge = document.createElement("span");
+    badge.textContent = category;
+    jiritsuArea.appendChild(badge);
+  });
+
   const detailLink = document.createElement("a");
   detailLink.className = "detail-button";
   detailLink.href = `detail.html?id=${encodeURIComponent(post.id)}`;
@@ -283,7 +308,7 @@ function createPostCard(post) {
     cardMeta.appendChild(date);
   }
 
-  content.append(title, division, summary, tagsArea, cardMeta, detailLink);
+  content.append(title, division, summary, tagsArea, jiritsuArea, cardMeta, detailLink);
   card.append(media, content);
 
   return card;
@@ -341,8 +366,9 @@ function applySearch() {
     const matchesKeyword = matchesSearch(post, keyword);
     const matchesDivision = matchesSchoolDivision(post, selectedSchoolDivision);
     const matchesTags = matchesTagFilters(post, selectedTagFilters);
+    const matchesJiritsu = matchesJiritsuFilters(post, selectedJiritsuFilters);
 
-    return matchesKeyword && matchesDivision && matchesTags;
+    return matchesKeyword && matchesDivision && matchesTags && matchesJiritsu;
   });
 
   visiblePostCount = POSTS_PER_PAGE;
@@ -350,7 +376,8 @@ function applySearch() {
   if (clearButton) {
     clearButton.hidden = !originalKeyword
       && !selectedSchoolDivision
-      && selectedTagFilters.size === 0;
+      && selectedTagFilters.size === 0
+      && selectedJiritsuFilters.size === 0;
   }
 
   if (resultCount) {
@@ -358,17 +385,19 @@ function applySearch() {
     const tagDescription = selectedTags.length > 0
       ? `タグ「${selectedTags.join("、")}」`
       : "";
+    const jiritsuDescription = selectedJiritsuFilters.size > 0
+      ? `自立活動「${Array.from(selectedJiritsuFilters).join("、")}」`
+      : "";
 
-    if (tagDescription) {
+    if (tagDescription || jiritsuDescription) {
       const conditions = [
         selectedSchoolDivision,
         originalKeyword ? `“${originalKeyword}”` : "",
-        tagDescription
+        tagDescription,
+        jiritsuDescription
       ].filter(Boolean);
 
-      resultCount.textContent = conditions.length === 1
-        ? `${tagDescription}：${currentFilteredPosts.length}件`
-        : `${conditions.join("・")}の絞り込み結果：${currentFilteredPosts.length}件`;
+      resultCount.textContent = `${conditions.join("・")}の絞り込み結果：${currentFilteredPosts.length}件`;
     } else if (originalKeyword && selectedSchoolDivision) {
       resultCount.textContent = `${selectedSchoolDivision}で “${originalKeyword}” の検索結果：${currentFilteredPosts.length}件`;
     } else if (originalKeyword) {
@@ -382,6 +411,39 @@ function applySearch() {
 
   renderVisiblePosts();
 
+}
+
+
+function renderJiritsuFilterOptions() {
+  const container = document.getElementById("jiritsuFilterOptions");
+
+  if (!container) return;
+
+  JIRITSU_CATEGORIES.forEach(category => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tag-filter-button jiritsu-filter-button";
+    button.dataset.jiritsu = category;
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = category;
+    container.appendChild(button);
+  });
+}
+
+
+function updateJiritsuFilterButtons() {
+  document.querySelectorAll(".jiritsu-filter-button").forEach(button => {
+    const isSelected = selectedJiritsuFilters.has(button.dataset.jiritsu);
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", String(isSelected));
+  });
+
+  const summary = document.getElementById("jiritsuFilterSummary");
+  if (summary) {
+    summary.textContent = selectedJiritsuFilters.size > 0
+      ? `${selectedJiritsuFilters.size}件選択中`
+      : "未選択";
+  }
 }
 
 
@@ -421,7 +483,7 @@ function updateDivisionFilterButtons() {
 
 function updateTagFilterButtons() {
 
-  const buttons = document.querySelectorAll(".tag-filter-button");
+  const buttons = document.querySelectorAll("#tagFilter .tag-filter-button");
   const summary = document.getElementById("tagFilterSummary");
 
   buttons.forEach(button => {
@@ -433,8 +495,8 @@ function updateTagFilterButtons() {
 
   if (summary) {
     summary.textContent = selectedTagFilters.size > 0
-      ? `タグで絞り込む（${selectedTagFilters.size}件選択中）`
-      : "タグで絞り込む";
+      ? `${selectedTagFilters.size}件選択中`
+      : "未選択";
   }
 
 }
@@ -443,6 +505,7 @@ function updateTagFilterButtons() {
 function setupSearch() {
 
   renderTagFilterOptions();
+  renderJiritsuFilterOptions();
 
   const form = document.getElementById("searchForm");
   const input = document.getElementById("postSearchInput");
@@ -450,8 +513,17 @@ function setupSearch() {
   const loadMoreButton = document.getElementById("loadMoreButton");
   const tagFilterToggle = document.getElementById("tagFilterToggle");
   const tagFilterOptions = document.getElementById("tagFilterOptions");
+  const jiritsuFilterToggle = document.getElementById("jiritsuFilterToggle");
+  const jiritsuFilterOptions = document.getElementById("jiritsuFilterOptions");
   const divisionButtons = document.querySelectorAll(".division-filter-button");
   const tagButtons = document.querySelectorAll(".tag-filter-button");
+  const jiritsuButtons = document.querySelectorAll(".jiritsu-filter-button");
+
+  const requestedJiritsuCategory = new URLSearchParams(location.search).get("jiritsu");
+  if (JIRITSU_CATEGORIES.includes(requestedJiritsuCategory)) {
+    selectedJiritsuFilters.add(requestedJiritsuCategory);
+    updateJiritsuFilterButtons();
+  }
 
   if (tagFilterToggle && tagFilterOptions) {
     tagFilterToggle.addEventListener("click", () => {
@@ -459,7 +531,16 @@ function setupSearch() {
 
       tagFilterOptions.hidden = !willOpen;
       tagFilterToggle.setAttribute("aria-expanded", String(willOpen));
-      tagFilterToggle.textContent = willOpen ? "タグを閉じる ▴" : "タグを表示 ▾";
+      tagFilterToggle.textContent = willOpen ? "タグを閉じる ▴" : "タグから選ぶ ▾";
+    });
+  }
+
+  if (jiritsuFilterToggle && jiritsuFilterOptions) {
+    jiritsuFilterToggle.addEventListener("click", () => {
+      const willOpen = jiritsuFilterOptions.hidden;
+      jiritsuFilterOptions.hidden = !willOpen;
+      jiritsuFilterToggle.setAttribute("aria-expanded", String(willOpen));
+      jiritsuFilterToggle.textContent = willOpen ? "6区分を閉じる ▴" : "6区分から選ぶ ▾";
     });
   }
 
@@ -479,8 +560,10 @@ function setupSearch() {
       input.value = "";
       selectedSchoolDivision = "";
       selectedTagFilters.clear();
+      selectedJiritsuFilters.clear();
       updateDivisionFilterButtons();
       updateTagFilterButtons();
+      updateJiritsuFilterButtons();
       applySearch();
       input.focus();
     });
@@ -495,6 +578,7 @@ function setupSearch() {
   });
 
   tagButtons.forEach(button => {
+    if (button.classList.contains("jiritsu-filter-button")) return;
     button.addEventListener("click", () => {
       const tag = button.dataset.tag;
 
@@ -505,6 +589,19 @@ function setupSearch() {
       }
 
       updateTagFilterButtons();
+      applySearch();
+    });
+  });
+
+  jiritsuButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const category = button.dataset.jiritsu;
+      if (selectedJiritsuFilters.has(category)) {
+        selectedJiritsuFilters.delete(category);
+      } else {
+        selectedJiritsuFilters.add(category);
+      }
+      updateJiritsuFilterButtons();
       applySearch();
     });
   });

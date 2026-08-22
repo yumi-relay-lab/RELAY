@@ -1,5 +1,9 @@
 import { auth, db, storage } from "./firebase.js";
 import { TAG_CANDIDATES } from "./tags.js";
+import {
+    getSelectedJiritsuCategories,
+    renderJiritsuOptions
+} from "./jiritsu.js";
 
 import {
     addDoc,
@@ -68,6 +72,7 @@ function getSelectedTags() {
 
 
 renderTagCandidates();
+renderJiritsuOptions("postJiritsuOptions");
 
 
 function getExtension(fileName) {
@@ -511,7 +516,10 @@ form.addEventListener("submit", async function (event) {
         "先生の実践投稿です。",
 
         aiTags:
-        selectedTags.length > 0 ? selectedTags : ["実践共有"]
+        selectedTags.length > 0 ? selectedTags : ["実践共有"],
+
+        jiritsuCategories:
+        getSelectedJiritsuCategories("postJiritsuOptions")
 
     };
 
@@ -526,6 +534,7 @@ form.addEventListener("submit", async function (event) {
         reflection: newPost.reflection,
         aiSummary: newPost.aiSummary,
         aiTags: newPost.aiTags,
+        jiritsuCategories: newPost.jiritsuCategories,
         reactionCounts: {
             thanks: 0,
             reference: 0,
