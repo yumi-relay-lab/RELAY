@@ -1054,6 +1054,133 @@ textarea {
     font-size: 13px;
 }
 
+/* 実践タグガイド */
+.tag-guide-message,
+.structure-guide {
+    margin-bottom: 34px;
+    padding: 28px;
+    border: 1px solid #D4E5E7;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(30, 74, 112, .06);
+}
+
+.tag-guide-message {
+    display: grid;
+    grid-template-columns: minmax(220px, .8fr) minmax(0, 1.4fr);
+    gap: 20px 34px;
+}
+
+.tag-guide-message h2,
+.tag-guide-heading h2,
+.structure-guide h2 {
+    color: #123B63;
+    font-size: clamp(23px, 3vw, 30px);
+    line-height: 1.45;
+}
+
+.tag-guide-message > p,
+.tag-guide-heading > p,
+.structure-guide > div > p:last-child {
+    color: #455A64;
+    line-height: 1.85;
+}
+
+.tag-guide-message > p:last-child {
+    grid-column: 2;
+}
+
+.tag-guide-heading {
+    max-width: 760px;
+    margin-bottom: 20px;
+}
+
+.tag-guide-heading > p:last-child {
+    margin-top: 8px;
+}
+
+.practice-tag-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.practice-tag-grid article {
+    padding: 22px;
+    border: 1px solid #D7E3F1;
+    border-radius: 14px;
+    background: white;
+}
+
+.practice-tag-grid article > span {
+    color: #16838A;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.practice-tag-grid h3 {
+    margin-top: 6px;
+    color: #123B63;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.practice-tag-grid p {
+    margin-top: 8px;
+    color: #546E7A;
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.practice-tag-grid .practice-tag-feature {
+    border-color: #8BC5B5;
+    background: #F0FAF6;
+}
+
+.structure-guide {
+    display: grid;
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    gap: 28px;
+    margin-top: 34px;
+    border-top: 5px solid #16838A;
+}
+
+.structure-guide > div > p:last-child {
+    margin-top: 10px;
+}
+
+.structure-guide ul {
+    display: grid;
+    gap: 9px;
+    list-style: none;
+}
+
+.structure-guide li {
+    padding: 12px 14px;
+    border-radius: 9px;
+    background: #F4F8FA;
+}
+
+.structure-guide li strong,
+.structure-guide li span {
+    display: block;
+}
+
+.structure-guide li strong {
+    color: #176B73;
+}
+
+.structure-guide li span {
+    margin-top: 2px;
+    color: #607D8B;
+    font-size: 13px;
+}
+
+.tag-guide-closing {
+    background: linear-gradient(135deg, #123B63, #176B73);
+}
+
 @media (max-width: 700px) {
     .concept-main {
         width: min(100% - 24px, 1080px);
@@ -1076,6 +1203,26 @@ textarea {
 
     .jiritsu-accordion details > div {
         padding: 0 18px 20px 38px;
+    }
+
+    .tag-guide-message,
+    .structure-guide {
+        grid-template-columns: 1fr;
+        padding: 22px 20px;
+    }
+
+    .tag-guide-message > p:last-child {
+        grid-column: auto;
+    }
+
+    .practice-tag-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 701px) and (max-width: 920px) {
+    .practice-tag-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

@@ -765,7 +765,9 @@ Promise.all([
         tagArea.innerHTML = "";
 
 
-        const tags = post.aiTags || post.tags || [];
+        const tags = Array.isArray(post.aiTags)
+            ? post.aiTags
+            : (Array.isArray(post.tags) ? post.tags : []);
 
         if(tags.length){
 

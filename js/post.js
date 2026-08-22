@@ -516,7 +516,7 @@ form.addEventListener("submit", async function (event) {
         "先生の実践投稿です。",
 
         aiTags:
-        selectedTags.length > 0 ? selectedTags : ["実践共有"],
+        selectedTags,
 
         jiritsuCategories:
         getSelectedJiritsuCategories("postJiritsuOptions")
