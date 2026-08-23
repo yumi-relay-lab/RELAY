@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 body {
     font-family: "Yu Gothic UI", "Meiryo", sans-serif;
     background: #f5f7fb;
