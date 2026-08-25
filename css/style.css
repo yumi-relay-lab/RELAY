@@ -1114,8 +1114,15 @@ textarea {
     line-height: 1.9;
 }
 
-.philosophy-card:nth-child(3n) {
-    border-top: 4px solid #2C7A6A;
+.philosophy-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 60%;
+}
+
+.philosophy-page .learn-guide {
+    max-width: none;
+    margin: 34px 0 0;
 }
 
 .concept-closing {
@@ -1795,6 +1802,11 @@ textarea {
     .philosophy-card,
     .concept-closing {
         padding: 22px 20px;
+    }
+
+    .philosophy-card:last-child:nth-child(odd) {
+        grid-column: auto;
+        width: 100%;
     }
 
     .concept-footer-nav {
