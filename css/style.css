@@ -1120,6 +1120,10 @@ textarea {
     width: 60%;
 }
 
+.philosophy-page .concept-hero {
+    max-width: 900px;
+}
+
 .philosophy-page .learn-guide {
     max-width: none;
     margin: 34px 0 0;
