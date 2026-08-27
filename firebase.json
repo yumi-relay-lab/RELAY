@@ -10,10 +10,18 @@
     "ignore": [
       "firebase.json",
       "**/.*",
+      ".git",
+      ".git/**",
+      ".firebase",
+      ".firebase/**",
+      ".vscode",
+      ".vscode/**",
       "**/node_modules/**",
       "firestore.rules",
       "storage.rules",
       "DEVELOPMENT.md",
+      "*.log",
+      ".DS_Store",
       "firebase-debug.log",
       "firebase-debug.*.log",
       "firepit-log.txt"
