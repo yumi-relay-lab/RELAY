@@ -53,6 +53,23 @@
 </label>
 <textarea id="reflection" rows="7" required></textarea>
 
+<section class="resource-link-field" aria-labelledby="editResourceUrlLabel">
+<label id="editResourceUrlLabel" for="resourceUrl">
+🔗 教材・アプリリンク <span class="optional-label">（任意）</span>
+</label>
+<p id="editResourceUrlHelp" class="form-field-help">
+Canva、Googleスライド、Geminiで作成したアプリ、Web教材などの閲覧用リンクを貼れます。児童生徒の個人情報が含まれていないこと、閲覧用リンクであることを確認し、編集可能リンクの共有は避けてください。
+</p>
+<input
+    type="url"
+    id="resourceUrl"
+    inputmode="url"
+    autocomplete="url"
+    maxlength="2048"
+    aria-describedby="editResourceUrlHelp"
+    placeholder="https://...">
+</section>
+
 <fieldset class="tag-selector" aria-describedby="editTagHelp">
 <legend>🏷️ タグ</legend>
 <p id="editTagHelp" class="tag-selector-help">

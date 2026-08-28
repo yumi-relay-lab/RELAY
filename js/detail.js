@@ -5,6 +5,7 @@
 
 import { auth, db, storage } from "./firebase.js";
 import { sanitizeJiritsuCategories } from "./jiritsu.js";
+import { getSafeResourceUrl } from "./resource-url.js";
 
 import {
     onAuthStateChanged
@@ -627,6 +628,22 @@ function renderAttachments(post) {
 }
 
 
+function renderResourceLink(post) {
+
+    const section = document.getElementById("detailResourceLink");
+    const link = document.getElementById("detailResourceLinkAnchor");
+    const resourceUrl = getSafeResourceUrl(post.resourceUrl);
+
+    if (!section || !link || !resourceUrl) {
+        return;
+    }
+
+    link.href = resourceUrl;
+    section.hidden = false;
+
+}
+
+
 Promise.all([
     loadPost(),
     waitForInitialAuthState()
@@ -689,6 +706,8 @@ Promise.all([
 
 
     renderAttachments(post);
+
+    renderResourceLink(post);
 
     setupOwnerActions(post, isFirestorePost);
 

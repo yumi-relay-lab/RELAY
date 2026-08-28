@@ -15,6 +15,7 @@ service cloud.firestore {
           'purpose',
           'howToUse',
           'reflection',
+          'resourceUrl',
           'aiTags',
           'updatedAt'
         ]);
@@ -77,6 +78,7 @@ service cloud.firestore {
                  'purpose',
                  'howToUse',
                  'reflection',
+                 'resourceUrl',
                  'aiTags',
                  'attachments',
                  'updatedAt'
@@ -92,6 +94,7 @@ service cloud.firestore {
                  'purpose',
                  'howToUse',
                  'reflection',
+                 'resourceUrl',
                  'aiTags',
                  'attachments',
                  'updatedAt'

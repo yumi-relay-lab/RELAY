@@ -231,6 +231,15 @@ RELAY/
 - 投稿者本人の編集画面で、既存添付の削除と新規添付の追加ができる
 - 編集時も新規投稿時と同じ形式・容量・最大件数・個人情報確認の制限を適用する
 
+### 教材・Webアプリリンク Ver.1
+
+- Canva、Googleスライド、Web教材、Webアプリなどの閲覧用リンクを、任意の `resourceUrl` として1件保存できる
+- `resourceUrl` は `http` または `https` の文字列URLとし、入力時と表示時に検証する
+- `resourceUrl` は添付ファイルの `attachments` 配列やCloud Storage処理に含めず、添付3件制限の対象外とする
+- 投稿者本人は編集画面でリンクの修正・削除ができる
+- `resourceUrl` がない既存投稿は従来どおり表示し、不正なURLは詳細画面にリンクとして表示しない
+- 閲覧用リンクであること、個人情報を含まないこと、編集可能リンクの共有を避けることを投稿画面と編集画面で案内する
+
 ### リアクション・ありがとう
 
 - 詳細画面には6種類のリアクションがある
@@ -282,6 +291,7 @@ posts/{postId}
 ├─ purpose
 ├─ howToUse
 ├─ reflection
+├─ resourceUrl     教材・Webアプリ等の任意の閲覧用URL
 ├─ attachments     StorageのダウンロードURLを含む添付ファイル情報
 ├─ aiSummary       現在は固定文言
 ├─ aiTags          実践のねらい・支援の視点を表すタグ配列
@@ -293,6 +303,7 @@ posts/{postId}
 - `authorName` は画面表示用のニックネームであり、所有者識別には使わない
 - `authorId` はFirebase UIDであり、将来の投稿編集・削除の権限判定に使う
 - `authorId` にメールアドレスを入れない
+- `resourceUrl` は `attachments` やCloud Storageとは分離し、未設定時は空文字を保存できる
 - `attachments` の各要素は `id`, `name`, `storagePath`, `downloadUrl`, `contentType`, `size`, `category` を持つ
 - 初期サンプル投稿3件はFirestoreへ移行せず、Ver.1運用では表示しない
 
@@ -369,6 +380,7 @@ Storage Rulesは `storage.rules` で管理する。リポジトリ内のRulesは
 - 投稿者本人の投稿削除: 実装済み
 - 投稿者本人の既存添付削除: 実装済み
 - 投稿者本人の新規添付追加: 実装済み
+- 教材・Webアプリリンクの新規投稿・詳細表示・本人編集: 実装済み
 
 次の主要タスクは、**localStorageで管理しているリアクション・ありがとうメッセージのFirestore移行設計** とする。匿名表示を維持しながら、認証済み送信と送信者本人の削除をRulesで保護する。
 

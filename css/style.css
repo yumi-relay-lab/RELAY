@@ -941,6 +941,22 @@ textarea {
     font-size: 14px;
 }
 
+.resource-link-field {
+    margin-top: 24px;
+    padding: 16px 18px;
+    border: 1px solid #C8DDEC;
+    border-radius: 10px;
+    background: #F7FBFF;
+}
+
+.resource-link-field label {
+    margin-top: 0;
+}
+
+.resource-link-field input {
+    background: white;
+}
+
 .optional-label {
     color: #607D8B;
     font-size: 14px;
@@ -2816,6 +2832,7 @@ textarea {
     overflow-wrap: anywhere;
 }
 
+.detail-page .detail-resource-link,
 .detail-page .detail-attachments,
 .detail-page .detail-interaction-section,
 .detail-page .thanks-area,
@@ -2827,6 +2844,7 @@ textarea {
     background: white;
 }
 
+.detail-page .detail-resource-link h2,
 .detail-page .detail-attachments h2,
 .detail-page .detail-interaction-section h2,
 .detail-page .thanks-area h3 {
@@ -2834,6 +2852,24 @@ textarea {
     color: #1565C0;
     font-size: 21px;
     line-height: 1.5;
+}
+
+.detail-page .detail-resource-link a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #1565C0;
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.detail-page .detail-resource-link a:hover,
+.detail-page .detail-resource-link a:focus-visible {
+    background: #0D47A1;
 }
 
 .detail-page .detail-attachment-item {
@@ -3016,12 +3052,17 @@ textarea {
         line-height: 1.75;
     }
 
+    .detail-page .detail-resource-link,
     .detail-page .detail-attachments,
     .detail-page .detail-interaction-section,
     .detail-page .thanks-area,
     .detail-page .share-area {
         margin-top: 28px;
         padding: 14px;
+    }
+
+    .detail-page .detail-resource-link a {
+        width: 100%;
     }
 
     .detail-page .thanks-area > button,

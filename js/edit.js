@@ -1,6 +1,12 @@
 import { auth, db, storage } from "./firebase.js";
 import { TAG_CANDIDATES } from "./tags.js";
 import {
+    configureResourceUrlInput,
+    normalizeResourceUrl,
+    RESOURCE_URL_LENGTH_MESSAGE,
+    RESOURCE_URL_VALIDATION_MESSAGE
+} from "./resource-url.js";
+import {
     getSelectedJiritsuCategories,
     renderJiritsuOptions,
     sanitizeJiritsuCategories
@@ -46,6 +52,7 @@ const newAttachmentList = document.getElementById("editNewAttachmentList");
 const attachmentStatus = document.getElementById("editAttachmentStatus");
 const privacyConfirmation = document.getElementById("editPrivacyConfirmation");
 const privacyCheckbox = document.getElementById("editPrivacyConfirmed");
+const resourceUrlInput = document.getElementById("resourceUrl");
 const defaultSaveButtonText = saveButton.textContent;
 const pendingDeletionPaths = new Set();
 const selectedNewFiles = [];
@@ -53,6 +60,8 @@ let displayedAttachments = [];
 let isSaving = false;
 let isAddingFiles = false;
 let initialJiritsuCategories = [];
+
+configureResourceUrlInput(resourceUrlInput);
 
 
 function renderTagCandidates() {
@@ -282,6 +291,7 @@ function setFormValues(post) {
     document.getElementById("purpose").value = post.purpose || "";
     document.getElementById("howToUse").value = post.howToUse || "";
     document.getElementById("reflection").value = post.reflection || "";
+    document.getElementById("resourceUrl").value = post.resourceUrl || "";
     const existingTags = Array.isArray(post.aiTags)
         ? post.aiTags.map(tag => String(tag).trim()).filter(Boolean)
         : [];
@@ -709,7 +719,7 @@ function getTags() {
 }
 
 
-function removeLocalStorageCopy() {
+function updateLocalStorageCopy(localUpdates) {
 
     try {
 
@@ -719,15 +729,19 @@ function removeLocalStorageCopy() {
             return;
         }
 
-        const remainingPosts = posts.filter(post => String(post.id) !== postId);
+        const postIndex = posts.findIndex(post => String(post.id) === postId);
 
-        if (remainingPosts.length !== posts.length) {
-            localStorage.setItem("relayPosts", JSON.stringify(remainingPosts));
+        if (postIndex >= 0) {
+            posts[postIndex] = {
+                ...posts[postIndex],
+                ...localUpdates
+            };
+            localStorage.setItem("relayPosts", JSON.stringify(posts));
         }
 
     } catch (error) {
 
-        console.warn("localStorageの互換データを整理できませんでした:", error);
+        console.warn("localStorageの互換データを更新できませんでした:", error);
 
     }
 
@@ -844,6 +858,20 @@ form.addEventListener("submit", async event => {
         return;
     }
 
+    let resourceUrl;
+
+    try {
+        resourceUrl = normalizeResourceUrl(resourceUrlInput.value);
+    } catch (error) {
+        const message = error.message === "resource-url-too-long"
+            ? RESOURCE_URL_LENGTH_MESSAGE
+            : RESOURCE_URL_VALIDATION_MESSAGE;
+
+        setStatus(message, true);
+        resourceUrlInput.focus();
+        return;
+    }
+
     setSavingState(true);
     setStatus("");
     setAttachmentStatus("");
@@ -912,6 +940,7 @@ form.addEventListener("submit", async event => {
             purpose: document.getElementById("purpose").value.trim(),
             howToUse: document.getElementById("howToUse").value.trim(),
             reflection: document.getElementById("reflection").value.trim(),
+            resourceUrl,
             aiTags: getTags(),
             updatedAt: serverTimestamp()
         };
@@ -938,7 +967,25 @@ form.addEventListener("submit", async event => {
             throw error;
         }
 
-        removeLocalStorageCopy();
+        const localUpdates = {
+            schoolDivision: updates.schoolDivision,
+            title: updates.title,
+            purpose: updates.purpose,
+            howToUse: updates.howToUse,
+            reflection: updates.reflection,
+            resourceUrl: updates.resourceUrl,
+            aiTags: updates.aiTags
+        };
+
+        if ("jiritsuCategories" in updates) {
+            localUpdates.jiritsuCategories = updates.jiritsuCategories;
+        }
+
+        if ("attachments" in updates) {
+            localUpdates.attachments = updates.attachments;
+        }
+
+        updateLocalStorageCopy(localUpdates);
         location.href = `detail.html?id=${encodeURIComponent(postId)}`;
 
     } catch (error) {
