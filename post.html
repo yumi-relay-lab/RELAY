@@ -14,25 +14,25 @@
 </head>
 
 
-<body>
+<body class="post-page">
 
-<header>
-
-<h1><a class="header-home-link" href="index.html" aria-label="RELAY Labトップページへ戻る">🏫 RELAY Lab</a></h1>
-
-<p>教育実践ひろば</p>
-
-</header>
+<header class="site-header"><div class="site-header-inner"><div class="site-header-brand"><a href="index.html" aria-label="RELAY Labトップページへ戻る"><img src="images/relay-logo.png" alt="RELAY Lab 明日の『やってみよう』がみつかる"></a><p>福岡中央特別支援学校　教育実践ひろば</p></div><nav class="site-nav" aria-label="主要ナビゲーション"><a href="index.html#searchPanelHeading">実践を探す</a><a href="philosophy.html">RELAYについて</a><a href="tags.html">実践タグについて</a><a href="jiritsu.html">自立活動について</a><a href="post.html" aria-current="page">実践を投稿する</a><a class="site-nav-login" href="index.html#login">ログイン</a></nav></div></header>
 
 
 <main>
 
-<h2>＋ 実践を投稿する</h2>
+<section class="concept-hero post-page-intro" aria-labelledby="postPageHeading">
+<p class="concept-kicker">SHARE &amp; CONNECT</p>
+<h1 id="postPageHeading">実践を投稿する</h1>
+<p>先生方の実践を、次の先生へ。<br>小さな工夫も、磨き上げた実践も、RELAYでつないでいきます。</p>
+</section>
 
 <aside class="post-encouragement" aria-labelledby="postEncouragementHeading">
-<h3 id="postEncouragementHeading">完璧な実践でなくて大丈夫です</h3>
+<h3 id="postEncouragementHeading">小さな工夫も、磨き上げた実践も</h3>
 <p>
-ちょっとした工夫も、次の先生のヒントになります。書けるところから、気軽に教えてください。
+ふと生まれた支援の工夫も、試行錯誤を重ねてつくった教材も、どちらも次の先生につながる大切な実践です。<br>
+デジタル教材やWebアプリとして形にしたアイデアも、実践の一つとして共有できます。<br>
+RELAYは、実践の種類や規模、完成度で価値を決めず、それぞれの実践と、そこに込められた先生方の思いを大切にします。
 </p>
 </aside>
 
@@ -43,12 +43,25 @@
 </p>
 </aside>
 
+<aside class="ai-draft-guide" aria-labelledby="aiDraftGuideHeading">
+<div>
+<p class="ai-draft-guide-kicker">書き始めをお手伝い</p>
+<h2 id="aiDraftGuideHeading">AIで投稿文の下書きを作る</h2>
+<p>写真やメモから、RELAYの入力項目に沿った短い下書きを作れます。<br>AIに自動送信したり、投稿フォームへ自動入力したりすることはありません。</p>
+</div>
+<a class="ai-draft-guide-link" href="ai-draft.html">下書きの作り方を見る</a>
+</aside>
+
 
 <form id="postForm">
 
+<aside class="form-requirement-guide" aria-label="入力項目について">
+<p><strong>まずは必須項目だけでも投稿できます。</strong><br>任意項目は、分かる範囲で入力してください。実践の様子がより伝わりやすくなります。</p>
+</aside>
+
 
 <label for="author">
-👤 実践者（ニックネーム）
+👤 実践者（ニックネーム） <span class="field-status field-status-required">必須</span>
 </label>
 
 <input
@@ -59,7 +72,7 @@
 
 
 <label for="schoolDivision">
-🏫 学部
+🏫 学部 <span class="field-status field-status-required">必須</span>
 </label>
 
 <select id="schoolDivision" required>
@@ -76,7 +89,7 @@
 
 
 <label for="title">
-📝 実践タイトル
+📝 実践タイトル <span class="field-status field-status-required">必須</span>
 </label>
 
 <input
@@ -87,7 +100,7 @@
 
 
 <label for="purpose">
-🎯 どんなことをねらいましたか？
+🎯 どんなことをねらいましたか？ <span class="field-status field-status-required">必須</span>
 </label>
 
 <p id="purposeHelp" class="form-field-help">1〜2文で大丈夫です。</p>
@@ -101,10 +114,10 @@
 
 
 <label for="howToUse">
-💡 どんなふうにやりましたか？ <span class="optional-label">（任意）</span>
+💡 どんなふうにやりましたか？ <span class="field-status field-status-optional">任意</span>
 </label>
 
-<p id="howToUseHelp" class="form-field-help">簡単な説明でOKです。書ける範囲で教えてください。</p>
+<p id="howToUseHelp" class="form-field-help">授業や活動の流れの中で、どの場面で、どのように取り入れたかを書ける範囲で教えてください。</p>
 
 <textarea
     id="howToUse"
@@ -114,7 +127,7 @@
 
 
 <label for="reflection">
-🌱 やってみてどうでしたか？ <span class="optional-label">（任意）</span>
+🌱 やってみてどうでしたか？ <span class="field-status field-status-optional">任意</span>
 </label>
 
 <p id="reflectionHelp" class="form-field-help">小さな気づきでも大丈夫です。まだ試していない場合は空欄でOKです。</p>
@@ -125,28 +138,52 @@
     aria-describedby="reflectionHelp"
     placeholder="例：次にすることが分かりやすくなり、声かけが減った。"></textarea>
 
+<section class="resource-link-field" aria-labelledby="resourceUrlLabel">
+<label id="resourceUrlLabel" for="resourceUrl">
+🔗 教材・アプリリンク <span class="field-status field-status-optional">任意</span>
+</label>
+<p id="resourceUrlHelp" class="form-field-help">
+CanvaやAIで作成した教材、スライド教材、アプリ、Web教材などの閲覧用リンクを貼れます。<br>
+児童生徒の個人情報が含まれていないこと、閲覧用リンクであることを確認してください。編集可能リンクや動画リンクは共有しないでください。
+</p>
+<input
+    type="url"
+    id="resourceUrl"
+    inputmode="url"
+    autocomplete="url"
+    maxlength="2048"
+    aria-describedby="resourceUrlHelp"
+    placeholder="https://...">
+</section>
+
 
 <fieldset class="tag-selector" aria-describedby="postTagHelp">
 
-<legend>🏷️ タグ <span class="optional-label">（任意）</span></legend>
+<legend>🏷️ 9つの実践タグ <span class="field-status field-status-optional">任意</span></legend>
 
 <p id="postTagHelp" class="tag-selector-help">
-あとで実践を見つけやすくするための項目です。近いものがあれば選んでください（複数選択可・選ばなくても投稿できます）。
+選ぶと、似た支援を探している先生に届きやすくなります。<a href="tags.html">実践タグについて</a>
 </p>
 
 <div id="postTagOptions" class="tag-options"></div>
 
 </fieldset>
 
+<fieldset class="tag-selector jiritsu-selector" aria-describedby="postJiritsuHelp">
+<legend>🌿 自立活動6区分 <span class="field-status field-status-optional">任意</span></legend>
+<p id="postJiritsuHelp" class="tag-selector-help">選ぶと、自立活動の視点から実践を見つけやすくなります。<a href="jiritsu.html">6区分について学ぶ</a></p>
+<div id="postJiritsuOptions" class="tag-options"></div>
+</fieldset>
+
 
 <section class="attachment-area" aria-labelledby="attachmentHeading">
 
-<h3 id="attachmentHeading">📎 資料を添付 <span class="optional-label">（任意）</span></h3>
+<h3 id="attachmentHeading">📎 添付ファイル <span class="field-status field-status-optional">任意</span></h3>
 
 <p class="attachment-help">写真や資料がある場合だけ添付してください。添付なしでも投稿できます。</p>
 
 <p class="attachment-privacy-note">
-添付する画像・PDF・Word・Excelには、個人が特定できる情報が含まれていないことを確認してください。
+添付する画像・PDF・Word・Excelには、児童生徒の氏名・顔写真などの個人情報や、許可なく使えない画像・教材・文章など著作権に関わるものが含まれていないことを確認してください。
 </p>
 
 <label class="attachment-drop-zone" id="attachmentDropZone" for="attachments">

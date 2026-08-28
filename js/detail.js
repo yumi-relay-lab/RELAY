@@ -4,6 +4,8 @@
 // =========================
 
 import { auth, db, storage } from "./firebase.js";
+import { sanitizeJiritsuCategories } from "./jiritsu.js";
+import { getSafeResourceUrl } from "./resource-url.js";
 
 import {
     onAuthStateChanged
@@ -199,6 +201,7 @@ function setupOwnerActions(post, isFirestorePost) {
             }
 
             localStorage.removeItem(`reaction_${post.id}`);
+            localStorage.removeItem(`reactionSelection_${post.id}`);
             localStorage.removeItem(`thanksMessage_${post.id}`);
 
         } catch (error) {
@@ -564,17 +567,32 @@ function renderAttachments(post) {
         }
 
         if (attachment.category === "image") {
+            item.classList.add("detail-attachment-item-image");
+
+            const previewLink = document.createElement("a");
+            previewLink.className = "detail-attachment-preview-link";
+            previewLink.href = downloadUrl;
+            previewLink.target = "_blank";
+            previewLink.rel = "noopener noreferrer";
+            previewLink.setAttribute(
+                "aria-label",
+                `${attachment.name || "添付画像"}を拡大表示`
+            );
+
             const preview = document.createElement("img");
             preview.className = "detail-attachment-preview";
             preview.src = downloadUrl;
             preview.alt = attachment.name || "添付画像";
             preview.loading = "lazy";
             preview.addEventListener("error", () => {
-                preview.remove();
+                previewLink.remove();
                 item.appendChild(createUnavailableMessage());
             }, { once: true });
-            item.appendChild(preview);
+            previewLink.appendChild(preview);
+            item.appendChild(previewLink);
         } else {
+            item.classList.add("detail-attachment-item-file");
+
             const linkLabels = {
                 pdf: "PDFを開く",
                 word: "Wordをダウンロード",
@@ -606,6 +624,22 @@ function renderAttachments(post) {
     });
 
     attachmentSection.hidden = false;
+
+}
+
+
+function renderResourceLink(post) {
+
+    const section = document.getElementById("detailResourceLink");
+    const link = document.getElementById("detailResourceLinkAnchor");
+    const resourceUrl = getSafeResourceUrl(post.resourceUrl);
+
+    if (!section || !link || !resourceUrl) {
+        return;
+    }
+
+    link.href = resourceUrl;
+    section.hidden = false;
 
 }
 
@@ -672,6 +706,8 @@ Promise.all([
 
 
     renderAttachments(post);
+
+    renderResourceLink(post);
 
     setupOwnerActions(post, isFirestorePost);
 
@@ -748,7 +784,9 @@ Promise.all([
         tagArea.innerHTML = "";
 
 
-        const tags = post.aiTags || post.tags || [];
+        const tags = Array.isArray(post.aiTags)
+            ? post.aiTags
+            : (Array.isArray(post.tags) ? post.tags : []);
 
         if(tags.length){
 
@@ -778,6 +816,65 @@ Promise.all([
 
     }
 
+    const jiritsuArea = document.getElementById("jiritsuCategories");
+    const jiritsuCategories = sanitizeJiritsuCategories(post.jiritsuCategories);
+
+    if (jiritsuArea && jiritsuCategories.length > 0) {
+        const label = document.createElement("strong");
+        label.textContent = "自立活動との関連";
+        jiritsuArea.replaceChildren(label);
+        jiritsuCategories.forEach(category => {
+            const span = document.createElement("span");
+            span.textContent = category;
+            jiritsuArea.appendChild(span);
+        });
+        jiritsuArea.hidden = false;
+    }
+
+
+    // =========================
+    // 印刷用ページ
+    // =========================
+
+
+    const shareButton = document.getElementById("shareButton");
+
+    if (shareButton) {
+
+        shareButton.addEventListener("click", () => {
+
+            const attachments = Array.isArray(post.attachments)
+                ? post.attachments.filter(attachment => attachment && typeof attachment === "object")
+                : [];
+            const printablePost = {
+                id: post.id,
+                title: post.title || "",
+                schoolDivision: post.schoolDivision || "",
+                purpose: post.purpose || "",
+                howToUse: post.howToUse || "",
+                reflection: post.reflection || post.practice || "",
+                aiTags: Array.isArray(post.aiTags)
+                    ? post.aiTags
+                    : (Array.isArray(post.tags) ? post.tags : []),
+                jiritsuCategories,
+                attachments: attachments.map(attachment => ({
+                    name: attachment.name || "",
+                    category: attachment.category || "",
+                    downloadUrl: attachment.downloadUrl || ""
+                }))
+            };
+
+            sessionStorage.setItem(
+                `relayPrintPost_${post.id}`,
+                JSON.stringify(printablePost)
+            );
+
+            location.href = `share.html?id=${encodeURIComponent(post.id)}`;
+
+        });
+
+    }
+
 
 
 
@@ -790,6 +887,9 @@ Promise.all([
 
     const reactionKey =
     `reaction_${id}`;
+
+    const reactionSelectionKey =
+    `reactionSelection_${id}`;
 
 
 
@@ -806,6 +906,43 @@ Promise.all([
         question:0
 
     };
+
+    const storedReactionSelections =
+    JSON.parse(localStorage.getItem(reactionSelectionKey))
+    ||
+    {};
+
+    const reactionSelections = {
+        thanks: storedReactionSelections.thanks || reactions.thanks > 0,
+        reference: storedReactionSelections.reference || reactions.reference > 0,
+        try: storedReactionSelections.try || reactions.try > 0,
+        done: storedReactionSelections.done || reactions.done > 0,
+        idea: storedReactionSelections.idea || reactions.idea > 0,
+        question: storedReactionSelections.question || reactions.question > 0
+    };
+
+    function addReactionOnce(type) {
+
+        if (reactionSelections[type]) {
+            return false;
+        }
+
+        reactions[type] = (reactions[type] || 0) + 1;
+        reactionSelections[type] = true;
+
+        localStorage.setItem(
+            reactionKey,
+            JSON.stringify(reactions)
+        );
+
+        localStorage.setItem(
+            reactionSelectionKey,
+            JSON.stringify(reactionSelections)
+        );
+
+        return true;
+
+    }
 
 
 
@@ -836,12 +973,19 @@ Promise.all([
 
         }
 
+        if (reactionSelections[type]) {
+            button.disabled = true;
+            button.setAttribute("aria-pressed", "true");
+        }
+
 
 
         button.addEventListener("click",()=>{
 
 
-            reactions[type]++;
+            if (!addReactionOnce(type)) {
+                return;
+            }
 
 
             if(count){
@@ -853,13 +997,8 @@ Promise.all([
 
 
 
-            localStorage.setItem(
-
-                reactionKey,
-
-                JSON.stringify(reactions)
-
-            );
+            button.disabled = true;
+            button.setAttribute("aria-pressed", "true");
 
 
         });
@@ -1234,19 +1373,9 @@ Promise.all([
 
 
 
-            // 🤝ありがとう数も増加
+            // 🤝ありがとう数は同じブラウザでは1回だけ増加
 
-            reactions.thanks++;
-
-
-
-            localStorage.setItem(
-
-                reactionKey,
-
-                JSON.stringify(reactions)
-
-            );
+            const addedThanksReaction = addReactionOnce("thanks");
 
 
 
@@ -1261,11 +1390,18 @@ Promise.all([
 
 
 
-            if(thanksCount){
+            if(thanksCount && addedThanksReaction){
 
 
                 thanksCount.textContent =
                 reactions.thanks;
+
+                const thanksButton = thanksCount.closest("button");
+
+                if (thanksButton) {
+                    thanksButton.disabled = true;
+                    thanksButton.setAttribute("aria-pressed", "true");
+                }
 
 
             }

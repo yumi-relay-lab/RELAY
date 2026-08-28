@@ -8,12 +8,9 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="edit-page-body">
 
-<header>
-<h1><a class="header-home-link" href="index.html" aria-label="RELAY Labトップページへ戻る">🏫 RELAY Lab</a></h1>
-<p>教育実践ひろば</p>
-</header>
+<header class="site-header"><div class="site-header-inner"><div class="site-header-brand"><a href="index.html" aria-label="RELAY Labトップページへ戻る"><img src="images/relay-logo.png" alt="RELAY Lab 明日の『やってみよう』がみつかる"></a><p>福岡中央特別支援学校　教育実践ひろば</p></div><nav class="site-nav" aria-label="主要ナビゲーション"><a href="index.html#searchPanelHeading">実践を探す</a><a href="philosophy.html">RELAYについて</a><a href="tags.html">実践タグについて</a><a href="jiritsu.html">自立活動について</a><a href="post.html">実践を投稿する</a><a class="site-nav-login" href="index.html#login">ログイン</a></nav></div></header>
 
 <main>
 
@@ -56,21 +53,45 @@
 </label>
 <textarea id="reflection" rows="7" required></textarea>
 
+<section class="resource-link-field" aria-labelledby="editResourceUrlLabel">
+<label id="editResourceUrlLabel" for="resourceUrl">
+🔗 教材・アプリリンク <span class="optional-label">（任意）</span>
+</label>
+<p id="editResourceUrlHelp" class="form-field-help">
+CanvaやAIで作成した教材、スライド教材、アプリ、Web教材などの閲覧用リンクを貼れます。<br>
+児童生徒の個人情報が含まれていないこと、閲覧用リンクであることを確認してください。編集可能リンクや動画リンクは共有しないでください。
+</p>
+<input
+    type="url"
+    id="resourceUrl"
+    inputmode="url"
+    autocomplete="url"
+    maxlength="2048"
+    aria-describedby="editResourceUrlHelp"
+    placeholder="https://...">
+</section>
+
 <fieldset class="tag-selector" aria-describedby="editTagHelp">
 <legend>🏷️ タグ</legend>
 <p id="editTagHelp" class="tag-selector-help">
-この実践に近いタグを選んでください（複数選択可）
+任意ですが、選ぶと、この実践を必要としている先生に届きやすくなります。<a href="tags.html">実践タグについて</a>
 </p>
 <div id="editTagOptions" class="tag-options"></div>
 </fieldset>
 
+<fieldset class="tag-selector jiritsu-selector" aria-describedby="editJiritsuHelp">
+<legend>🌿 自立活動との関連 <span class="optional-label">（任意）</span></legend>
+<p id="editJiritsuHelp" class="tag-selector-help">任意ですが、選ぶと、この実践を必要としている先生に届きやすくなります。<a href="jiritsu.html">6区分について学ぶ</a></p>
+<div id="editJiritsuOptions" class="tag-options"></div>
+</fieldset>
+
 <label for="otherTags">
-その他のタグ（候補にない既存タグ）
+その他のタグ（候補にない既存タグ・任意）
 </label>
 <input
     type="text"
     id="otherTags"
-    placeholder="候補にないタグがある場合のみ、カンマ区切りで入力">
+    placeholder="過去のタグはここに保持されます。追加する場合はカンマ区切りで入力">
 
 <section class="edit-attachments" aria-labelledby="editAttachmentsHeading">
 <h3 id="editAttachmentsHeading">📎 現在の添付ファイル</h3>

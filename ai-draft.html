@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RELAY Lab | AIで投稿文の下書きを作る</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="ai-draft-page">
+
+<header class="site-header"><div class="site-header-inner"><div class="site-header-brand"><a href="index.html" aria-label="RELAY Labトップページへ戻る"><img src="images/relay-logo.png" alt="RELAY Lab 明日の『やってみよう』がみつかる"></a><p>福岡中央特別支援学校　教育実践ひろば</p></div><nav class="site-nav" aria-label="主要ナビゲーション"><a href="index.html#searchPanelHeading">実践を探す</a><a href="philosophy.html">RELAYについて</a><a href="tags.html">実践タグについて</a><a href="jiritsu.html">自立活動について</a><a href="post.html" aria-current="page">実践を投稿する</a><a class="site-nav-login" href="index.html#login">ログイン</a></nav></div></header>
+
+<main class="ai-draft-main">
+
+<section class="concept-hero ai-draft-hero" aria-labelledby="aiDraftHeading">
+<p class="concept-kicker">AI DRAFT SUPPORT</p>
+<h1 id="aiDraftHeading">AIで投稿文の下書きを作る</h1>
+<p>写真、スクリーンショット、簡単なメモ、デジタル教材やWebアプリのリンクをもとに、RELAYへ貼り付けやすい投稿文の下書きをAIと一緒に整理できます。</p>
+<p>リンクだけでなく、画面の様子や「ねらい」「使い方」「工夫したところ」が分かるメモも一緒に用意すると、より伝わりやすくなります。</p>
+</section>
+
+<section class="ai-draft-section" aria-labelledby="aiDraftStepsHeading">
+<h2 id="aiDraftStepsHeading">下書きを作る手順</h2>
+<ol class="ai-draft-steps">
+<li><strong>材料を用意する</strong><span>個人情報を除いた写真・スクリーンショット、デジタル教材やWebアプリのリンク、画面の様子が分かる画像、または簡単なメモを用意します。メモには、「ねらい」「使い方」「工夫したところ」「やってみて気づいたこと」などを書いておくと、下書きが作りやすくなります。</span></li>
+<li><strong>プロンプトをコピーする</strong><span>下のボタンで、RELAYの項目に合わせたお願い文をコピーします。</span></li>
+<li><strong>利用するAIを開く</strong><span>ChatGPTまたはGeminiを新しいタブで開きます。</span></li>
+<li><strong>AIに材料を貼り付ける</strong><span>プロンプトを貼り付け、必要に応じて写真・スクリーンショット・リンク・メモを一緒に追加します。画面の表示やボタン名は、使うAIや端末によって異なることがあります。</span></li>
+<li><strong>内容を確認してRELAYへ貼り付ける</strong><span>出力を先生自身で読み、必要な修正をしてから投稿フォームの各欄へ貼り付けます。</span></li>
+</ol>
+
+<aside class="ai-material-examples" aria-labelledby="aiMaterialExamplesHeading">
+<h3 id="aiMaterialExamplesHeading">AIに渡せる材料の例</h3>
+<ul>
+<li>教材や活動の写真</li>
+<li>画面のスクリーンショット</li>
+<li>Canva、Googleスライド、Web教材、Webアプリなどのリンク</li>
+<li>「ねらい」「使い方」「工夫したところ」などの短いメモ</li>
+</ul>
+<p>リンクだけではAIが内容を読み取れないことがあります。その場合は、画面のスクリーンショットや簡単な説明メモも一緒に貼り付けてください。</p>
+</aside>
+
+<div class="ai-service-links" aria-label="AIサービスを開く">
+<a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPTを開く <span aria-hidden="true">↗</span></a>
+<a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Geminiを開く <span aria-hidden="true">↗</span></a>
+</div>
+</section>
+
+<section class="ai-draft-section ai-prompt-section" aria-labelledby="aiPromptHeading">
+<h2 id="aiPromptHeading">コピーしてAIに貼り付ける文章</h2>
+<p>下の文章をコピーして、ChatGPTやGeminiに貼り付けてください。<br>そのあと、写真・スクリーンショット・リンク・メモを追加します。</p>
+<textarea id="aiDraftPrompt" class="ai-prompt-text" rows="24" readonly>以下の写真・スクリーンショット・メモ・デジタル教材やWebアプリのリンクをもとに、教育実践共有サイト「RELAY」へ投稿する文章の下書きを作ってください。
+
+リンクだけでは内容を読み取れない場合があります。
+その場合は、分からない点を推測せず、確認が必要なこととして示してください。
+
+次の見出しに分けて書いてください。
+
+・タイトル
+・ねらい
+・実践のしかた
+・やってみて
+・関連しそうなRELAYの9つの実践タグ
+・関連しそうな自立活動の6区分
+・検索で見つかりやすくするために入れるとよい言葉
+・投稿前に先生が確認するとよい点
+
+「ねらい」では、教材そのものの目的ではなく、この実践で育てたい力や、できるようになってほしいことが伝わるように書いてください。
+
+「実践のしかた」では、教材や活動を単独で紹介するだけでなく、授業や活動の流れの中で、どの場面で、どのように取り入れたかが伝わるように書いてください。単元、題材、生活場面、作業の流れなどが分かる場合は、そのつながりも書いてください。
+
+「やってみて」では、児童生徒の様子、先生の気づき、次に試したいことがあれば書いてください。
+
+「関連しそうなRELAYの9つの実践タグ」は、次の中から内容に合うものだけを選んでください。複数選んでも構いません。
+
+・見通しをもつ
+・思いや希望を伝える
+・気持ちを整える
+・選ぶ・決める
+・やりとりする
+・手順を身につける
+・手先を使う
+・身体を使う
+・分かりやすく、取り組みやすい環境づくり
+
+「関連しそうな自立活動の6区分」は、次の中から内容に合うものだけを選んでください。複数選んでも構いません。
+
+・健康の保持
+・心理的な安定
+・人間関係の形成
+・環境の把握
+・身体の動き
+・コミュニケーション
+
+RELAYでは、タイトル、ねらい、実践のしかた、やってみて、タグなどから検索されることを想定しています。
+検索で見つかりやすくなるように、教材名、活動名、場面、育てたい力、支援の工夫、困りごとに近い言葉を、文章の中に自然に含めてください。
+ただし、写真やメモから分からない内容を検索用に勝手に足さないでください。
+検索に引っかけるためだけの不自然な言葉の羅列にしないでください。
+
+次の点を守ってください。
+
+・児童生徒の氏名、顔、学校名、連絡先など、個人を特定できる情報は文章に入れない
+・子どもを評価・診断する書き方にしない
+・教材やアプリそのものの紹介だけでなく、どんな力を育てたい実践なのかが伝わるようにする
+・写真やリンクから分からない事実を推測して補わない
+・不明な点は「確認が必要」と示す
+・先生がそのままRELAYの各欄へ貼り付けやすい、短めの文章にする
+・断定しすぎず、実践の工夫としてやわらかく書く
+
+タグと自立活動の区分も、写真・メモ・説明から判断できる範囲で選び、判断できない場合は「確認が必要」と示してください。
+最後に「投稿前に先生が確認するとよい点」を短く挙げてください。</textarea>
+<button type="button" id="copyAiPrompt" class="ai-prompt-copy-button">プロンプトをコピー</button>
+<p id="copyAiPromptStatus" class="ai-prompt-copy-status" role="status" aria-live="polite"></p>
+</section>
+
+<section class="ai-draft-section ai-safety-section" aria-labelledby="aiSafetyHeading">
+<h2 id="aiSafetyHeading">AIへ渡す前と、投稿する前の確認</h2>
+<ul class="ai-safety-list">
+<li><strong>個人情報を入れない</strong>氏名、顔、学校名、住所、連絡先など、児童生徒や関係者を特定できる情報はAIへ渡さないでください。</li>
+<li><strong>著作権を確認する</strong>教材・画像・文書をAIへ渡したりRELAYへ投稿したりしてよいか、権利や利用条件を確認してください。</li>
+<li><strong>先生が内容を確かめる</strong>AIの出力はあくまで下書きです。事実、表現、児童生徒の実態、教育的な意図にずれがないか、先生自身が確認・修正してください。</li>
+</ul>
+<p class="ai-manual-note"><strong>このページから、写真・メモ・リンクが自動でAIに送られることはありません。</strong>AIが勝手に投稿文を作ったり、RELAYの投稿フォームへ自動入力したりすることもありません。先生自身が、使うAIを開き、内容を確認しながら進めます。</p>
+</section>
+
+<nav class="ai-draft-footer-nav" aria-label="投稿画面へ戻る">
+<a href="post.html">← 投稿フォームへ戻る</a>
+</nav>
+
+</main>
+
+<script src="js/ai-draft.js" defer></script>
+
+</body>
+</html>

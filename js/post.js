@@ -1,5 +1,15 @@
 import { auth, db, storage } from "./firebase.js";
 import { TAG_CANDIDATES } from "./tags.js";
+import {
+    configureResourceUrlInput,
+    normalizeResourceUrl,
+    RESOURCE_URL_LENGTH_MESSAGE,
+    RESOURCE_URL_VALIDATION_MESSAGE
+} from "./resource-url.js";
+import {
+    getSelectedJiritsuCategories,
+    renderJiritsuOptions
+} from "./jiritsu.js";
 
 import {
     addDoc,
@@ -30,7 +40,10 @@ const attachmentList = document.getElementById("attachmentList");
 const attachmentStatus = document.getElementById("attachmentStatus");
 const privacyConfirmation = document.getElementById("privacyConfirmation");
 const privacyCheckbox = document.getElementById("privacyConfirmed");
+const resourceUrlInput = document.getElementById("resourceUrl");
 const selectedFiles = [];
+
+configureResourceUrlInput(resourceUrlInput);
 
 
 function renderTagCandidates() {
@@ -68,6 +81,7 @@ function getSelectedTags() {
 
 
 renderTagCandidates();
+renderJiritsuOptions("postJiritsuOptions");
 
 
 function getExtension(fileName) {
@@ -461,6 +475,20 @@ form.addEventListener("submit", async function (event) {
         return;
     }
 
+    let resourceUrl;
+
+    try {
+        resourceUrl = normalizeResourceUrl(resourceUrlInput.value);
+    } catch (error) {
+        const message = error.message === "resource-url-too-long"
+            ? RESOURCE_URL_LENGTH_MESSAGE
+            : RESOURCE_URL_VALIDATION_MESSAGE;
+
+        alert(message);
+        resourceUrlInput.focus();
+        return;
+    }
+
     if (selectedFiles.length > 0 && !privacyCheckbox.checked) {
 
         setAttachmentStatus("添付資料に個人情報が含まれていないことを確認し、チェックを入れてください。", true);
@@ -507,11 +535,16 @@ form.addEventListener("submit", async function (event) {
         reflection:
         document.getElementById("reflection").value,
 
+        resourceUrl,
+
         aiSummary:
         "先生の実践投稿です。",
 
         aiTags:
-        selectedTags.length > 0 ? selectedTags : ["実践共有"]
+        selectedTags,
+
+        jiritsuCategories:
+        getSelectedJiritsuCategories("postJiritsuOptions")
 
     };
 
@@ -524,8 +557,10 @@ form.addEventListener("submit", async function (event) {
         purpose: newPost.purpose,
         howToUse: newPost.howToUse,
         reflection: newPost.reflection,
+        resourceUrl: newPost.resourceUrl,
         aiSummary: newPost.aiSummary,
         aiTags: newPost.aiTags,
+        jiritsuCategories: newPost.jiritsuCategories,
         reactionCounts: {
             thanks: 0,
             reference: 0,

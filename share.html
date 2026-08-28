@@ -2,49 +2,75 @@
 <html lang="ja">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>RELAY | 教育実践ひろば</title>
-
+<title>RELAY Lab | 印刷用ページ</title>
 <link rel="stylesheet" href="css/style.css">
-
 </head>
 
+<body class="share-page print-page">
 
-<body>
+<header class="site-header print-page-header"><div class="site-header-inner"><div class="site-header-brand"><a href="index.html" aria-label="RELAY Labトップページへ戻る"><img src="images/relay-logo.png" alt="RELAY Lab 明日の『やってみよう』がみつかる"></a><p>福岡中央特別支援学校　教育実践ひろば</p></div><nav class="site-nav" aria-label="主要ナビゲーション"><a href="index.html#searchPanelHeading" aria-current="page">実践を探す</a><a href="philosophy.html">RELAYについて</a><a href="tags.html">実践タグについて</a><a href="jiritsu.html">自立活動について</a><a href="post.html">実践を投稿する</a><a class="site-nav-login" href="index.html#login">ログイン</a></nav></div></header>
 
+<main class="print-page-main">
 
-<header>
-
-<h1>🤝 RELAY</h1>
-
-<p>教育実践ひろば</p>
-
-</header>
-
-
-
-<main>
-
-<h2>実践共有</h2>
-
-
-<div id="post-list">
-
-<p>投稿を読み込み中...</p>
-
+<div id="printActions" class="print-actions" hidden>
+<a id="printBackLink" class="print-back-link" href="index.html">← 詳細ページへ戻る</a>
+<button id="printButton" class="print-button" type="button">🖨️ このページを印刷する</button>
 </div>
 
+<article id="printSheet" class="print-sheet" hidden>
+<div class="print-sheet-heading">
+<p class="print-kicker">RELAY Lab｜教育実践共有シート</p>
+<h1 id="printTitle"></h1>
+<p class="print-meta"><strong>学部：</strong><span id="printDepartment"></span></p>
+</div>
+
+<div class="print-overview">
+<div class="print-copy">
+<section class="print-section">
+<h2>ねらい</h2>
+<p id="printPurpose"></p>
+</section>
+
+<section class="print-section">
+<h2>使い方</h2>
+<p id="printMethod"></p>
+</section>
+</div>
+
+<figure id="printImageArea" class="print-image-area" hidden>
+<img id="printImage" alt="実践の代表画像">
+</figure>
+</div>
+
+<section class="print-section print-reflection">
+<h2>実践してみて</h2>
+<p id="printReflection"></p>
+</section>
+
+<section id="printTagsSection" class="print-section print-compact-section" hidden>
+<h2>キーワード</h2>
+<div id="printTags" class="print-tags"></div>
+</section>
+
+<section id="printAttachmentsSection" class="print-section print-compact-section" hidden>
+<h2>添付資料</h2>
+<ul id="printAttachments" class="print-attachments"></ul>
+</section>
+
+<footer class="print-sheet-footer">
+<p>先生たちの小さな工夫や実践を、次の誰かのヒントにつなぐ RELAY Lab</p>
+<p>印刷日：<span id="printDate"></span></p>
+</footer>
+</article>
+
+<div id="post-list">
+<p>投稿を読み込み中...</p>
+</div>
 
 </main>
 
-
-
-<script type="module" src="js/share.js"></script>
-
-
+<script type="module" src="js/share.js?v=20260820-print"></script>
 </body>
-
 </html>

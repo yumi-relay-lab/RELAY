@@ -13,19 +13,16 @@
 </head>
 
 
-<body>
+<body class="detail-page">
 
-<header>
-<h1><a class="header-home-link" href="index.html" aria-label="RELAY Labトップページへ戻る">RELAY Lab</a></h1>
-<p>教育実践ひろば</p>
-</header>
+<header class="site-header"><div class="site-header-inner"><div class="site-header-brand"><a href="index.html" aria-label="RELAY Labトップページへ戻る"><img src="images/relay-logo.png" alt="RELAY Lab 明日の『やってみよう』がみつかる"></a><p>福岡中央特別支援学校　教育実践ひろば</p></div><nav class="site-nav" aria-label="主要ナビゲーション"><a href="index.html#searchPanelHeading" aria-current="page">実践を探す</a><a href="philosophy.html">RELAYについて</a><a href="tags.html">実践タグについて</a><a href="jiritsu.html">自立活動について</a><a href="post.html">実践を投稿する</a><a class="site-nav-login" href="index.html#login">ログイン</a></nav></div></header>
 
 
-<div class="container">
+<div class="container detail-container">
 
-<div class="card">
+<main class="card detail-content">
 
-<h2 id="title">
+<h2 id="title" class="detail-title">
 読み込み中...
 </h2>
 
@@ -33,55 +30,65 @@
 <img id="image" class="detail-image" alt="実践写真">
 
 
-<p>
+<p class="detail-meta">
 <strong>学部：</strong>
 <span id="department"></span>
 </p>
 
 
-<div id="tags"></div>
+<div id="tags" class="detail-tags"></div>
+<div id="jiritsuCategories" class="detail-jiritsu" hidden></div>
 
 
-<div class="section">
-<h2>教材のねらい</h2>
+<section class="section detail-reading-section">
+<h2>🎯 ねらい</h2>
 <p id="purpose"></p>
-</div>
+</section>
 
 
-<div class="section">
-<h2>学習方法（使い方）</h2>
+<section class="section detail-reading-section">
+<h2>💡 実践のしかた</h2>
 <p id="method"></p>
-</div>
+</section>
 
 
-<div class="section">
-<h2>実践してみて</h2>
+<section class="section detail-reading-section">
+<h2>🌱 やってみて</h2>
 <p id="practice"></p>
-</div>
+</section>
+
+<section id="detailResourceLink" class="section detail-resource-link" hidden>
+<h2>🔗 教材・アプリリンク</h2>
+<p class="detail-resource-description">共有された教材やWebアプリを開いて確認できます。</p>
+<a id="detailResourceLinkAnchor" href="#" target="_blank" rel="noopener noreferrer">
+教材・アプリを見る
+</a>
+<p class="detail-resource-note">別のタブで開きます</p>
+</section>
 
 
-<div id="detailAttachments" class="section detail-attachments" hidden>
-<h2>添付資料</h2>
+<section id="detailAttachments" class="section detail-attachments" hidden>
+<h2>📎 添付資料</h2>
 <div id="detailAttachmentList" class="detail-attachment-list"></div>
-</div>
+</section>
 
 
 <div id="ownerActions" class="owner-actions" hidden>
 <button id="editPostButton" class="owner-action-button owner-edit-button" type="button">
-✏️ 編集する
+✏️ 編集
 </button>
 <button id="deletePostButton" class="owner-action-button owner-delete-button" type="button">
-🗑️ 削除する
+🗑️ 削除
 </button>
 <p id="ownerActionStatus" class="owner-action-status" role="status" aria-live="polite" hidden></p>
 </div>
 
 
 
-<div class="section">
+<section class="section detail-interaction-section">
 
 <h2>
-この実践を受け取った先生のリアクション
+この実践へのリアクション
 </h2>
 
 
@@ -89,44 +96,25 @@
 
 
 <button data-reaction="thanks">
-🤝ありがとう
+🤝 ありがとう
 <span class="reaction-count">0</span>
 </button>
-
-
-<button data-reaction="reference">
-💡参考になりました
-<span class="reaction-count">0</span>
-</button>
-
 
 <button data-reaction="try">
-🌱やってみます
+🌱 やってみたい
 <span class="reaction-count">0</span>
 </button>
 
 
 <button data-reaction="done">
-🔄実践しました
-<span class="reaction-count">0</span>
-</button>
-
-
-<button data-reaction="idea">
-✨工夫を加えてみました
-<span class="reaction-count">0</span>
-</button>
-
-
-<button data-reaction="question">
-💬詳しく知りたいです
+🔄 実践しました
 <span class="reaction-count">0</span>
 </button>
 
 
 </div>
 
-</div>
+</section>
 
 
 
@@ -164,7 +152,7 @@ placeholder="感謝・気づき・質問を入力してください">
 
 <button id="shareButton">
 
-📄校内共有資料を作成
+🖨️ 印刷用ページを開く
 
 </button>
 
@@ -172,7 +160,7 @@ placeholder="感謝・気づき・質問を入力してください">
 
 
 
-<aside class="dev-panel dev-info" aria-label="開発用確認パネル">
+<aside class="dev-panel dev-info" aria-label="開発用確認パネル" hidden>
 
 <p class="dev-panel-title">開発用確認パネル</p>
 
@@ -194,7 +182,7 @@ placeholder="感謝・気づき・質問を入力してください">
 
 
 
-</div>
+</main>
 
 </div>
 
