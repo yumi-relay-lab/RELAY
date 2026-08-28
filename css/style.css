@@ -966,6 +966,246 @@ textarea {
     margin-top: 6px;
 }
 
+.ai-draft-guide {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 18px 0 26px;
+    padding: 20px;
+    border: 1px solid #B7D9CF;
+    border-radius: 12px;
+    background: #F0FAF6;
+    color: #37474F;
+}
+
+.ai-draft-guide-kicker {
+    color: #176B5B;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.ai-draft-guide h2 {
+    margin-top: 2px;
+    color: #176B5B;
+    font-size: 20px;
+}
+
+.ai-draft-guide div > p:last-child {
+    margin-top: 5px;
+}
+
+.ai-draft-guide-link,
+.ai-service-links a,
+.ai-prompt-copy-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #176B5B;
+    color: white;
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ai-draft-guide-link {
+    flex: 0 0 auto;
+}
+
+.ai-draft-guide-link:hover,
+.ai-draft-guide-link:focus-visible,
+.ai-service-links a:hover,
+.ai-service-links a:focus-visible,
+.ai-prompt-copy-button:hover,
+.ai-prompt-copy-button:focus-visible {
+    background: #105448;
+}
+
+.ai-draft-main {
+    width: min(100% - 32px, 920px);
+    margin: 0 auto;
+    padding: 48px 0 64px;
+}
+
+.ai-draft-hero {
+    max-width: 820px;
+}
+
+.ai-draft-section {
+    margin-top: 22px;
+    padding: 26px;
+    border: 1px solid #D7E3F1;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(30, 74, 112, .06);
+}
+
+.ai-draft-section h2 {
+    color: #123B63;
+    font-size: 22px;
+}
+
+.ai-draft-section > p {
+    margin-top: 8px;
+}
+
+.ai-draft-steps {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0 0 22px;
+}
+
+.ai-draft-steps li {
+    padding-left: 4px;
+}
+
+.ai-draft-steps strong,
+.ai-draft-steps span {
+    display: block;
+}
+
+.ai-draft-steps strong {
+    color: #176B5B;
+}
+
+.ai-service-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.ai-material-examples {
+    margin-top: 22px;
+    padding: 18px 20px;
+    border: 1px solid #B7D9CF;
+    border-radius: 10px;
+    background: #F0FAF6;
+}
+
+.ai-material-examples h3 {
+    color: #176B5B;
+    font-size: 18px;
+}
+
+.ai-material-examples ul {
+    margin: 10px 0 0 22px;
+}
+
+.ai-material-examples p {
+    margin-top: 12px;
+}
+
+.ai-service-links a {
+    min-width: 180px;
+}
+
+.ai-prompt-section {
+    border-color: #A9C9E5;
+    background: #F4F9FF;
+}
+
+.ai-prompt-section h2 {
+    color: #155A8A;
+}
+
+.ai-prompt-section > p {
+    color: #40596B;
+}
+
+.ai-prompt-text {
+    min-height: 390px;
+    margin-top: 16px;
+    border: 2px solid #82AED1;
+    background: #EAF4FF;
+    color: #193B55;
+    line-height: 1.75;
+    resize: vertical;
+}
+
+.ai-prompt-copy-button {
+    margin-top: 14px;
+    background: #1565C0;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, .2);
+}
+
+.ai-prompt-copy-button:hover,
+.ai-prompt-copy-button:focus-visible {
+    background: #0D47A1;
+}
+
+.ai-prompt-copy-status {
+    min-height: 1.6em;
+    color: #176B5B;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ai-safety-section {
+    border-color: #F2CF91;
+    background: #FFFCF5;
+}
+
+.ai-safety-list {
+    display: grid;
+    gap: 13px;
+    margin: 18px 0 0 22px;
+}
+
+.ai-safety-list strong {
+    display: block;
+    color: #8A4B08;
+}
+
+.ai-safety-section .ai-manual-note {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-left: 4px solid #FB8C00;
+    border-radius: 6px;
+    background: #FFF3E0;
+}
+
+.ai-draft-footer-nav {
+    margin-top: 24px;
+}
+
+.ai-draft-footer-nav a {
+    color: #1565C0;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .ai-draft-guide {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ai-draft-guide-link,
+    .ai-service-links a,
+    .ai-prompt-copy-button {
+        width: 100%;
+    }
+
+    .ai-draft-main {
+        padding-top: 34px;
+    }
+
+    .ai-draft-section {
+        padding: 20px;
+    }
+
+    .ai-prompt-text {
+        padding: 14px;
+    }
+}
+
 .tag-selector {
     margin-top: 24px;
     padding: 16px;
