@@ -941,6 +941,46 @@ textarea {
     font-size: 14px;
 }
 
+.form-requirement-guide {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    border: 1px solid #B7D8D6;
+    border-radius: 10px;
+    background: #F2FAF9;
+    color: #315B73;
+}
+
+.form-requirement-guide p {
+    margin: 0;
+    line-height: 1.75;
+}
+
+.form-requirement-guide strong {
+    color: #116B73;
+}
+
+.field-status {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    vertical-align: .1em;
+    white-space: nowrap;
+}
+
+.field-status-required {
+    background: #E3F2FD;
+    color: #0D5A9E;
+}
+
+.field-status-optional {
+    background: #EEF3F5;
+    color: #546E7A;
+}
+
 .resource-link-field {
     margin-top: 24px;
     padding: 16px 18px;
@@ -2854,6 +2894,12 @@ textarea {
     line-height: 1.5;
 }
 
+.detail-page .detail-resource-description {
+    margin: 0 0 14px;
+    color: #455A64;
+    line-height: 1.7;
+}
+
 .detail-page .detail-resource-link a {
     display: inline-flex;
     align-items: center;
@@ -2870,6 +2916,12 @@ textarea {
 .detail-page .detail-resource-link a:hover,
 .detail-page .detail-resource-link a:focus-visible {
     background: #0D47A1;
+}
+
+.detail-page .detail-resource-note {
+    margin: 8px 0 0;
+    color: #607D8B;
+    font-size: 13px;
 }
 
 .detail-page .detail-attachment-item {

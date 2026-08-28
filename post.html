@@ -55,9 +55,13 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 <form id="postForm">
 
+<aside class="form-requirement-guide" aria-label="入力項目について">
+<p><strong>まずは必須項目だけでも投稿できます。</strong><br>任意項目は、分かる範囲で入力してください。実践の様子がより伝わりやすくなります。</p>
+</aside>
+
 
 <label for="author">
-👤 実践者（ニックネーム）
+👤 実践者（ニックネーム） <span class="field-status field-status-required">必須</span>
 </label>
 
 <input
@@ -68,7 +72,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 
 <label for="schoolDivision">
-🏫 学部
+🏫 学部 <span class="field-status field-status-required">必須</span>
 </label>
 
 <select id="schoolDivision" required>
@@ -85,7 +89,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 
 <label for="title">
-📝 実践タイトル
+📝 実践タイトル <span class="field-status field-status-required">必須</span>
 </label>
 
 <input
@@ -96,7 +100,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 
 <label for="purpose">
-🎯 どんなことをねらいましたか？
+🎯 どんなことをねらいましたか？ <span class="field-status field-status-required">必須</span>
 </label>
 
 <p id="purposeHelp" class="form-field-help">1〜2文で大丈夫です。</p>
@@ -110,7 +114,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 
 <label for="howToUse">
-💡 どんなふうにやりましたか？ <span class="optional-label">（任意）</span>
+💡 どんなふうにやりましたか？ <span class="field-status field-status-optional">任意</span>
 </label>
 
 <p id="howToUseHelp" class="form-field-help">簡単な説明でOKです。書ける範囲で教えてください。</p>
@@ -123,7 +127,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 
 <label for="reflection">
-🌱 やってみてどうでしたか？ <span class="optional-label">（任意）</span>
+🌱 やってみてどうでしたか？ <span class="field-status field-status-optional">任意</span>
 </label>
 
 <p id="reflectionHelp" class="form-field-help">小さな気づきでも大丈夫です。まだ試していない場合は空欄でOKです。</p>
@@ -136,7 +140,7 @@ RELAYは、実践の種類や規模、完成度で価値を決めず、それぞ
 
 <section class="resource-link-field" aria-labelledby="resourceUrlLabel">
 <label id="resourceUrlLabel" for="resourceUrl">
-🔗 教材・アプリリンク <span class="optional-label">（任意）</span>
+🔗 教材・アプリリンク <span class="field-status field-status-optional">任意</span>
 </label>
 <p id="resourceUrlHelp" class="form-field-help">
 CanvaやAIで作成した教材、スライド教材、アプリ、Web教材などの閲覧用リンクを貼れます。<br>
@@ -155,7 +159,7 @@ CanvaやAIで作成した教材、スライド教材、アプリ、Web教材な�
 
 <fieldset class="tag-selector" aria-describedby="postTagHelp">
 
-<legend>🏷️ タグ <span class="optional-label">（任意）</span></legend>
+<legend>🏷️ 9つの実践タグ <span class="field-status field-status-optional">任意</span></legend>
 
 <p id="postTagHelp" class="tag-selector-help">
 任意ですが、選ぶと、この実践を必要としている先生に届きやすくなります。<a href="tags.html">実践タグについて</a>
@@ -166,7 +170,7 @@ CanvaやAIで作成した教材、スライド教材、アプリ、Web教材な�
 </fieldset>
 
 <fieldset class="tag-selector jiritsu-selector" aria-describedby="postJiritsuHelp">
-<legend>🌿 自立活動との関連 <span class="optional-label">（任意）</span></legend>
+<legend>🌿 自立活動6区分 <span class="field-status field-status-optional">任意</span></legend>
 <p id="postJiritsuHelp" class="tag-selector-help">任意ですが、選ぶと、この実践を必要としている先生に届きやすくなります。<a href="jiritsu.html">6区分について学ぶ</a></p>
 <div id="postJiritsuOptions" class="tag-options"></div>
 </fieldset>
@@ -174,7 +178,7 @@ CanvaやAIで作成した教材、スライド教材、アプリ、Web教材な�
 
 <section class="attachment-area" aria-labelledby="attachmentHeading">
 
-<h3 id="attachmentHeading">📎 資料を添付 <span class="optional-label">（任意）</span></h3>
+<h3 id="attachmentHeading">📎 添付ファイル <span class="field-status field-status-optional">任意</span></h3>
 
 <p class="attachment-help">写真や資料がある場合だけ添付してください。添付なしでも投稿できます。</p>
 
