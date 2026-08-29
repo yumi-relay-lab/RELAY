@@ -934,6 +934,202 @@ textarea {
     margin-top: 6px;
 }
 
+.post-success-dialog {
+    width: min(calc(100% - 32px), 860px);
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 20px;
+    background: transparent;
+    color: #29434E;
+    overflow: auto;
+}
+
+.post-success-dialog::backdrop {
+    background: rgba(29, 65, 68, .28);
+    backdrop-filter: blur(2px);
+}
+
+.post-success-card {
+    position: relative;
+    min-height: 570px;
+    padding: 34px 32px 28px;
+    border: 1px solid #E2EEE9;
+    border-radius: 32px;
+    background-color: #FFFFFF;
+    background-image:
+        radial-gradient(circle at 7% 31%, #FCA5A5 0 4px, transparent 5px),
+        radial-gradient(circle at 14% 47%, #65CDBE 0 4px, transparent 5px),
+        radial-gradient(circle at 24% 20%, #FDE68A 0 4px, transparent 5px),
+        radial-gradient(circle at 34% 34%, #F7AD8E 0 3px, transparent 4px),
+        radial-gradient(circle at 68% 24%, #FDE68A 0 4px, transparent 5px),
+        radial-gradient(circle at 84% 42%, #63C5B5 0 4px, transparent 5px),
+        radial-gradient(circle at 94% 28%, #FCA5A5 0 4px, transparent 5px);
+    box-shadow: 0 20px 55px rgba(35, 76, 73, .16);
+    text-align: center;
+    overflow: hidden;
+}
+
+.post-success-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.post-success-sprout {
+    position: relative;
+    width: 116px;
+    height: 116px;
+    margin: 0 auto 4px;
+    border-radius: 50%;
+    background: #FBFAF3;
+}
+
+.post-success-sprout svg { width: 100%; height: 100%; overflow: visible; }
+.post-success-sprout .sprout-ray { fill: none; stroke: #149F98; stroke-width: 2.4; stroke-linecap: round; }
+.post-success-sprout .sprout-leaf-left { fill: #91CD32; }
+.post-success-sprout .sprout-leaf-right { fill: #1CB6AC; }
+.post-success-sprout .sprout-stem { fill: #079991; }
+
+.post-success-garland { position: absolute; top: 48px; width: 215px; height: 70px; border-top: 1px solid #B6C4C0; transform: rotate(8deg); }
+.post-success-garland-left { left: 40px; }
+.post-success-garland-right { right: 40px; transform: scaleX(-1) rotate(8deg); }
+.post-success-garland i { position: absolute; top: -1px; width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 34px solid #A7CF38; }
+.post-success-garland i:nth-child(1) { left: 18px; }
+.post-success-garland i:nth-child(2) { left: 64px; border-top-color: #55C8B9; }
+.post-success-garland i:nth-child(3) { left: 110px; border-top-color: #FDE68A; }
+.post-success-garland i:nth-child(4) { left: 156px; border-top-color: #FCA5A5; }
+
+.post-success-kicker {
+    color: #16838A;
+    margin-top: 2px;
+    font-size: clamp(44px, 6vw, 60px);
+    font-weight: 900;
+    letter-spacing: .08em;
+    line-height: 1;
+    text-shadow: 0 3px 0 rgba(139, 197, 181, .22);
+}
+
+.post-success-card h2 {
+    margin-top: 10px;
+    color: #49A934;
+    font-size: clamp(24px, 3.5vw, 32px);
+    line-height: 1.4;
+}
+
+.post-success-message {
+    margin-top: 20px;
+    color: #344844;
+    font-size: clamp(15px, 2vw, 18px);
+    line-height: 1.9;
+}
+
+.post-success-landscape { position: relative; height: 62px; margin: 18px -32px 0; background: linear-gradient(175deg, transparent 0 42%, #EDF8CF 43% 66%, #E2F3C2 67% 100%); }
+.landscape-tree, .landscape-seedling { position: absolute; bottom: 16px; width: 3px; height: 34px; background: #86B952; }
+.landscape-tree::before { position: absolute; top: -22px; left: -11px; width: 25px; height: 34px; border-radius: 50%; background: #B9DA68; content: ""; }
+.landscape-tree-left { left: 7%; }
+.landscape-tree-right { right: 7%; }
+.landscape-seedling { bottom: 11px; height: 20px; }
+.landscape-seedling::before, .landscape-seedling::after { position: absolute; top: -6px; width: 13px; height: 9px; border-radius: 80% 15%; background: #A9D564; content: ""; }
+.landscape-seedling::before { right: 1px; transform: rotate(28deg); }
+.landscape-seedling::after { left: 2px; transform: scaleX(-1) rotate(28deg); }
+.landscape-seedling-left { left: 18%; }
+.landscape-seedling-center { left: 62%; }
+.landscape-seedling-right { right: 17%; }
+
+.post-success-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 11px;
+    margin-top: 28px;
+}
+
+.post-success-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 220px;
+    min-height: 56px;
+    padding: 10px 16px;
+    border: 1px solid #8CBAC8;
+    border-radius: 12px;
+    background: white;
+    color: #176B73;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.post-success-actions a:hover,
+.post-success-actions a:focus-visible {
+    background: #EAF7F5;
+}
+
+.post-success-actions .post-success-primary {
+    border-color: #16838A;
+    background: #16838A;
+    color: white;
+    box-shadow: 0 5px 14px rgba(22, 131, 138, .2);
+}
+
+.post-success-actions .post-success-primary:hover,
+.post-success-actions .post-success-primary:focus-visible {
+    background: #116B73;
+}
+
+.post-success-philosophy { display: inline-flex; gap: 7px; align-items: center; margin-top: 24px; color: #168B87; font-size: 14px; text-decoration: none; }
+.post-success-philosophy svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.post-success-philosophy:hover, .post-success-philosophy:focus-visible { text-decoration: underline; }
+
+.delete-post-dialog { width: min(calc(100% - 32px), 550px); max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 0; outline: none; border-radius: 24px; background: transparent; color: #3E342E; overflow: auto; }
+.delete-post-dialog::backdrop { background: rgba(35, 54, 54, .30); backdrop-filter: blur(2px); }
+.delete-post-card { padding: 32px 34px 30px; border: 1px solid #F7F1EE; border-radius: 24px; background-color: #FFF; background-image: radial-gradient(circle at 10% 20%, #FDE68A 0 3px, transparent 4px), radial-gradient(circle at 88% 18%, #F6C1A9 0 3px, transparent 4px), radial-gradient(circle at 94% 39%, #A9D87B 0 3px, transparent 4px); box-shadow: 0 18px 42px rgba(45, 65, 62, .15); text-align: center; }
+.delete-post-decoration { display: flex; justify-content: center; align-items: center; gap: 34px; margin-bottom: 20px; }
+.delete-icon { position: relative; width: 92px; height: 92px; border-radius: 50%; background: #FDE9E7; }
+.delete-icon svg { width: 58px; height: 58px; margin-top: 17px; fill: none; stroke: #ED7771; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.delete-leaf { width: 27px; height: 14px; border-radius: 100% 8%; background: #8FCB63; transform: rotate(28deg); }
+.delete-leaf-right { transform: scaleX(-1) rotate(28deg); }
+.delete-post-card h2 { color: #3D332D; font-size: clamp(21px, 3.5vw, 27px); font-weight: 700; line-height: 1.4; }
+.delete-post-card h2::after { display: block; width: 76px; margin: 14px auto 20px; border-bottom: 6px dotted #F5B1AE; content: ""; }
+.delete-post-message { color: #504640; font-size: 16px; line-height: 1.8; }
+.delete-post-message p + p { margin-top: 2px; }
+.delete-post-warning { color: #E16F68; font-weight: 800; }
+.delete-post-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 26px; }
+.delete-post-actions button { min-height: 50px; padding: 9px 18px; border: 1px solid #159B95; border-radius: 13px; background: #FFF; color: #12837E; font: inherit; font-weight: 800; cursor: pointer; }
+.delete-post-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+.delete-post-actions button svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.delete-post-actions button:hover, .delete-post-actions button:focus-visible { background: #F0FAF8; }
+.delete-post-actions .delete-post-confirm { border-color: #F3A09A; background: #F3A09A; color: #FFF; box-shadow: 0 5px 14px rgba(226, 111, 104, .16); }
+.delete-post-actions .delete-post-confirm:hover, .delete-post-actions .delete-post-confirm:focus-visible { background: #EC918B; }
+.delete-post-actions button:disabled { opacity: .65; cursor: wait; }
+
+@media (max-width: 520px) {
+    .post-success-card {
+        min-height: 0;
+        padding: 32px 18px 26px;
+    }
+
+    .post-success-garland { top: 34px; width: 100px; transform: scale(.72) rotate(8deg); transform-origin: top left; }
+    .post-success-garland-left { left: 5px; }
+    .post-success-garland-right { right: 5px; transform: scaleX(-1) scale(.72) rotate(8deg); transform-origin: top right; }
+    .post-success-sprout { width: 92px; height: 92px; }
+    .post-success-message br { display: none; }
+    .post-success-landscape { height: 56px; margin-right: -18px; margin-left: -18px; }
+
+    .post-success-actions {
+        display: grid;
+        margin-top: 28px;
+    }
+
+    .post-success-actions a {
+        width: 100%;
+    }
+
+    .delete-post-card { padding: 28px 20px 24px; }
+    .delete-post-decoration { gap: 22px; }
+    .delete-post-actions { grid-template-columns: 1fr; gap: 12px; }
+}
+
 .form-field-help,
 .attachment-help {
     margin: 6px 0 0;

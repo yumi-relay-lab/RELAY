@@ -103,6 +103,10 @@ function setupOwnerActions(post, isFirestorePost) {
     const ownerActions = document.getElementById("ownerActions");
     const editButton = document.getElementById("editPostButton");
     const deleteButton = document.getElementById("deletePostButton");
+    const deleteDialog = document.getElementById("deletePostDialog");
+    const deleteDialogHeading = document.getElementById("deletePostDialogHeading");
+    const cancelDeleteButton = document.getElementById("cancelDeletePostButton");
+    const confirmDeleteButton = document.getElementById("confirmDeletePostButton");
     const actionStatus = document.getElementById("ownerActionStatus");
     const isOwner = isFirestorePost
         && auth.currentUser
@@ -124,6 +128,9 @@ function setupOwnerActions(post, isFirestorePost) {
         editButton.disabled = deleting;
         deleteButton.disabled = deleting;
         deleteButton.textContent = deleting ? "削除中…" : defaultDeleteButtonText;
+        cancelDeleteButton.disabled = deleting;
+        confirmDeleteButton.disabled = deleting;
+        confirmDeleteButton.querySelector("span").textContent = deleting ? "削除中…" : "削除する";
     }
 
     function getOwnedStoragePaths(latestPost, currentUser) {
@@ -216,17 +223,23 @@ function setupOwnerActions(post, isFirestorePost) {
         location.href = `edit.html?id=${encodeURIComponent(post.id)}`;
     });
 
-    deleteButton.addEventListener("click", async () => {
+    deleteButton.addEventListener("click", () => {
 
         if (isDeleting) {
             return;
         }
 
-        const confirmed = confirm(
-            "この実践を削除します。添付ファイルも削除されます。この操作は元に戻せません。よろしいですか？"
-        );
+        deleteDialog.showModal();
+        deleteDialogHeading.focus({ preventScroll: true });
+    });
 
-        if (!confirmed) {
+    cancelDeleteButton.addEventListener("click", () => {
+        deleteDialog.close();
+    });
+
+    confirmDeleteButton.addEventListener("click", async () => {
+
+        if (isDeleting) {
             return;
         }
 

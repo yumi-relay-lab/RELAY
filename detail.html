@@ -186,6 +186,22 @@ placeholder="感謝・気づき・質問を入力してください">
 
 </div>
 
+<dialog id="deletePostDialog" class="delete-post-dialog" aria-labelledby="deletePostDialogHeading" aria-describedby="deletePostDialogDescription">
+<div class="delete-post-card">
+<div class="delete-post-decoration" aria-hidden="true"><span class="delete-leaf delete-leaf-left"></span><span class="delete-icon"><svg viewBox="0 0 64 64" role="presentation"><path d="M22 19v-5h20v5M16 21h32M20 23l3 29h18l3-29M28 29v16M36 29v16" /></svg></span><span class="delete-leaf delete-leaf-right"></span></div>
+<h2 id="deletePostDialogHeading" tabindex="-1">この実践を削除しますか？</h2>
+<div id="deletePostDialogDescription" class="delete-post-message">
+<p>削除すると、本文や添付ファイルも削除されます。</p>
+<p class="delete-post-warning">この操作は元に戻せません。</p>
+<p>残しておく場合は「キャンセル」を選んでください。</p>
+</div>
+<div class="delete-post-actions">
+<button id="cancelDeletePostButton" type="button">キャンセル</button>
+<button id="confirmDeletePostButton" class="delete-post-confirm" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7V5h8v2M5 8h14M7 9l1 10h8l1-10M10 11v6M14 11v6" /></svg><span>削除する</span></button>
+</div>
+</div>
+</dialog>
+
 
 
 <script type="module" src="js/detail.js"></script>

@@ -464,8 +464,22 @@ dropZone.addEventListener("drop", event => {
 
 const form = document.getElementById("postForm");
 const submitButton = form.querySelector(".submit-button");
+const postSuccessDialog = document.getElementById("postSuccessDialog");
+const postSuccessDetailLink = document.getElementById("postSuccessDetailLink");
 const defaultSubmitButtonText = submitButton.textContent;
 let isSubmitting = false;
+
+function showPostSuccess(postId) {
+    postSuccessDetailLink.href = `detail.html?id=${encodeURIComponent(postId)}`;
+
+    if (typeof postSuccessDialog.showModal === "function") {
+        postSuccessDialog.showModal();
+        return;
+    }
+
+    alert("RELAY!\n実践がつながりました。\n\n投稿ありがとうございました。\nあなたの実践が、次の先生の「やってみよう」につながります。");
+    location.href = postSuccessDetailLink.href;
+}
 
 form.addEventListener("submit", async function (event) {
 
@@ -608,8 +622,7 @@ form.addEventListener("submit", async function (event) {
 
         }
 
-        alert("実践を投稿しました！");
-        location.href = "index.html";
+        showPostSuccess(postReference.id);
 
     } catch (error) {
 
