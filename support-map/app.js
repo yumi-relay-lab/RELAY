@@ -1,203 +1,49 @@
 (() => {
-  const D = window.SUPPORT_MAP_DATA;
-  const app = document.querySelector('#app');
-  const state = { step: 0, selected: {}, other: '', deepOpen: false };
-  const groups = Object.fromEntries([...D.steps, ...D.deepDive].map(group => [group.key, group]));
-  const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-  const picked = key => groups[key].options.filter(option => state.selected[option.id]);
-  const labels = key => picked(key).map(option => option.label === 'その他' && state.other.trim() ? `その他（${state.other.trim()}）` : option.label);
-  const useful = key => labels(key).filter(label => !/(まだ|思い当たらない|変化は見られない)/.test(label));
-  const hasDeepData = () => D.deepDive.some(group => picked(group.key).length > 0);
+  const D=window.SUPPORT_MAP_DATA,app=document.querySelector('#app');
+  const state={step:0,selected:{},other:'',deepOpen:false,deepened:false};
+  const groups=Object.fromEntries([...D.steps.flatMap(s=>s.groups),D.resourceGroup].map(g=>[g.key,g]));
+  const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const picked=key=>groups[key].options.filter(o=>state.selected[o.id]);
+  const labels=key=>picked(key).map(o=>o.label==='その他'&&state.other?`その他（${state.other}）`:o.label);
+  const useful=key=>labels(key).filter(x=>!/(まだ|思い当たらない|変化は見られない)/.test(x));
+  const quote=(items,max=2)=>items.slice(0,max).map(x=>`「${x}」`).join('、');
 
-  function intro() {
-    return `<section class="intro"><span class="eyebrow">RELAY MINI TOOL</span><h1>支援の手がかりマップ</h1><p>このツールは、支援の正解を出すものではありません。児童生徒の姿を、前後の状況と合わせて整理し、先生同士で支援の方向を話し合うための整理ツールです。まずは4つの視点から、支援につながりそうな流れを見ていきます。必要に応じて、本人の強みや力を発揮しやすい条件まで詳しく整理できます。</p><aside class="value-note"><b>経験にかかわらず、話し合いの共通言語に</b><span>支援を考える順番を確かめたいときにも、ケース会議で見立てを共有したいときにも使えます。</span></aside><aside class="prototype-notice"><b>試作版について</b><span>これは試作版です。診断や正解を出すものではなく、支援を考えるための整理ツールです。入力内容は保存されません。児童生徒の氏名など、個人が特定される情報は入力しないでください。</span></aside></section>`;
+  function intro(){return `<section class="intro"><span class="eyebrow">RELAY MINI TOOL</span><h1>支援の手がかりマップ</h1><p>4つの項目から今見えている流れを整理し、明日まず試せそうな一手につなげます。必要なときだけ、強みや条件を追加して詳しく整理できます。</p><aside class="prototype-notice"><b>試作版について</b><span>診断や正解を出すものではなく、支援を考えるための整理ツールです。入力内容は保存されません。児童生徒の氏名など、個人が特定される情報は入力しないでください。</span></aside></section>`}
+  function stepper(active){const items=[...D.steps.map(s=>({name:s.short,icon:s.icon})),{name:'かんたん整理',icon:'🔎'}];return `<nav class="stepper" aria-label="3段階の進み具合">${items.map((item,i)=>`<div class="step-item ${i===active?'active':''} ${i<active?'done':''}" ${i===active?'aria-current="step"':''}><span>${i<active?'✓':i+1}</span><b>${item.name}</b>${i===active?'<em>現在</em>':''}</div>`).join('')}</nav>`}
+  function progress(n){return `<div class="progress-meta"><span>${n===2?'4項目の整理ができました':`ステップ ${n+1} / 3`}</span><span>${n===2?'かんたん整理':D.steps[n].short}</span></div>`}
+  function choices(options){return `<div class="choices">${options.map(o=>`<div class="choice ${o.special?'special':''} ${o.description?'has-description':''}"><input type="checkbox" id="${o.id}" data-id="${o.id}" ${state.selected[o.id]?'checked':''}><label for="${o.id}"><span class="check"></span><span><b class="choice-label">${esc(o.label)}</b>${o.description?`<small class="choice-description">${esc(o.description)}</small>`:''}</span></label>${o.label==='その他'?`<div class="other-field"><label for="otherText">その他の姿を入力してください</label><textarea class="other-input" id="otherText" rows="3">${esc(state.other)}</textarea></div>`:''}</div>`).join('')}</div>`}
+  function groupBlock(g){const optionArea=g.sections?g.sections.map(s=>`<div class="choice-category"><h4>${esc(s.title)}</h4>${choices(g.options.slice(s.start,s.start+s.count))}</div>`).join(''):choices(g.options);return `<section class="section-block" data-group="${g.key}">${g.title?`<div class="question-head"><span class="substep">${g.icon||g.number||'＋'}</span><div><h3>${esc(g.title)}</h3><p class="question">${esc(g.question)}</p>${g.helper?`<p class="group-helper">${esc(g.helper)}</p>`:''}</div></div>`:''}${optionArea}<div class="group-warning" data-warning="${g.key}" aria-live="polite"></div></section>`}
+  function scrollTo(id){requestAnimationFrame(()=>document.querySelector(id)?.scrollIntoView({behavior:'smooth',block:'start'}))}
+  function renderStep(shouldScroll=true){const s=D.steps[state.step],previous=state.step?D.steps[state.step-1].short:'';app.innerHTML=intro()+stepper(state.step)+progress(state.step)+`<section class="card step-card step-theme-${state.step+1}" id="current-step"><div class="step-heading"><span class="step-icon">${s.icon}</span><div><span class="step-kicker">STEP ${state.step+1}</span><h2>${esc(s.title)}</h2></div></div><p class="now-doing">${esc(s.instruction)}</p><p class="lead">${esc(s.lead)}</p>${s.groups.map(groupBlock).join('')}<div class="action-status">ステップ ${state.step+1} / 3</div><div class="actions">${state.step?`<button class="btn btn-secondary" id="prev">前へ：${esc(previous)}に戻る</button>`:''}<span class="hint">当てはまるものを複数選べます。</span><button class="btn btn-primary" id="next">次へ：${esc(s.nextLabel)}</button></div></section>`;bindStep();if(shouldScroll)scrollTo('#current-step')}
+  function bindStep(){document.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('change',e=>{state.selected[e.target.dataset.id]=e.target.checked;e.target.closest('.section-block').querySelector('.group-warning').textContent=''}));document.querySelector('#otherText')?.addEventListener('input',e=>state.other=e.target.value);document.querySelector('#prev')?.addEventListener('click',()=>{state.step--;renderStep(true)});document.querySelector('#next').addEventListener('click',()=>{const missing=D.steps[state.step].groups.filter(g=>!g.options.some(o=>state.selected[o.id]));if(missing.length){missing.forEach(g=>document.querySelector(`[data-warning="${g.key}"]`).textContent='この問いで当てはまるものを1つ以上選んでください。');scrollTo(`[data-group="${missing[0].key}"]`);return}state.step++;state.step===2?renderResult():renderStep(true)})}
+
+  function resultData(){
+    const scores={},weights={entrance:2,visible:3,before:4,after:3,resources:3};
+    Object.entries(groups).forEach(([key,g])=>g.options.filter(o=>state.selected[o.id]).forEach(o=>o.categories.forEach((c,i)=>{scores[c]=(scores[c]||0)+((weights[key]||1)-i*.6)*(o.categoryWeights?.[c]||1)})));
+    const top=Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+    const safeTop=top.length?top:['outlook','communication'];
+    return{top:safeTop,relay:[...new Set(safeTop.flatMap(k=>D.categories[k].relay))],jiritsu:[...new Set(safeTop.flatMap(k=>D.categories[k].jiritsu))],memo:buildMemo(safeTop),firstTry:buildFirstTry(safeTop),detail:buildDetail()};
   }
-
-  function stepper(active) {
-    const items = ['支援の入口', '今見えている姿', 'きっかけ', 'その後', '結果'];
-    return `<nav class="stepper simple-stepper" aria-label="かんたん整理の進み具合">${items.map((name, index) => `<div class="step-item ${index === active ? 'active' : ''} ${index < active ? 'done' : ''}" ${index === active ? 'aria-current="step"' : ''}><span>${index < active ? '✓' : index + 1}</span><b>${esc(name)}</b>${index === active ? '<em>現在</em>' : ''}</div>`).join('')}</nav>`;
+  function functionHint(){const funcs=[...new Set(picked('after').map(o=>o.behaviorFunction).filter(x=>x&&x!=='unknown'))];const hints={avoidance:'その後に負担から離れたり待ってもらえたりする流れから、休憩や助けを早めに選べることが手がかりになりそうです。',attention:'その後に人との関わりが増える流れから、落ち着いた場面で関わりを求められる方法が手がかりになりそうです。',access:'その後に希望するものや助けにつながる流れから、要求や「分からない」を早めに伝えられる方法が手がかりになりそうです。',sensory:'その姿が刺激や気持ちを整えることにつながっている可能性もあり、環境や休み方を見るとよさそうです。'};return funcs.slice(0,1).map(f=>hints[f]).join('')}
+  function situationHint(){return [state.selected.a12?'伝えたいことがうまく伝わらない負担が関係している可能性があります。':'',state.selected.a7?'待つ時間の長さや見通しのもちにくさが、気持ちの高まりにつながっている可能性があります。':'',state.selected.a5?'課題の量や難しさ、始め方の分かりにくさが関係しているかもしれません。':'',state.selected.a14?'周囲の刺激の多さが負担になっていた可能性があります。':''].filter(Boolean).join(' ')}
+  function buildMemo(top){const entrance=useful('entrance'),visible=useful('visible'),before=useful('before'),after=useful('after');const start=entrance.length?`${quote(entrance,1)}を入口に整理しました。`:'現時点で見えていることから整理しました。';const flow=before.length&&visible.length?`${quote(before)}あとに、${quote(visible)}という姿が見られ${after.length?`、その後に${quote(after)}という`:''}流れが見えています。`:`${quote(visible)}について、前後の状況をもう少し見ると流れが見えやすくなりそうです。`;const view=[situationHint(),functionHint(),D.categories[top[0]].interpretation].filter(Boolean).join(' ');const direction='気持ちや負担が高まってから対応するだけでなく、早めに使える伝え方や、取り組みやすい環境を一つ用意することが手がかりになりそうです。';return[start,flow,view,direction]}
+  function isSafety(){return ['b23','b24','b25','b26','b27','b28'].some(id=>state.selected[id])||state.selected.s1_9}
+  function buildFirstTry(top){
+    if(isSafety())return{suggestions:['気持ちが高まる前に、「離れる」「休む」「伝える」から選べる短い合図を用意する。','人や物との距離を確保できる場所と、そこへ移る合図をあらかじめ決めておく。','要求や拒否を、カード・指さし・短い言葉など本人が使いやすい方法で伝えられるようにする。'],observe:'安全を確保しながら、合図や伝え方を使えた場面と、支援の前後で本人の姿にどんな違いがあったかを見てみましょう。'};
+    const suggestions=[...new Set(top.flatMap(k=>D.categories[k].supports))].slice(0,3).map(x=>`${x}。`);
+    return{suggestions,observe:'うまくできたかだけでなく、支援を入れた前後で本人の姿にどんな違いがあったかを見てみましょう。'}
   }
-
-  function choices(options) {
-    return `<div class="choices">${options.map(option => `<div class="choice ${option.special ? 'special' : ''} ${option.description ? 'has-description' : ''}"><input type="checkbox" id="${option.id}" data-id="${option.id}" ${state.selected[option.id] ? 'checked' : ''}><label for="${option.id}"><span class="check"></span><span><b class="choice-label">${esc(option.label)}</b>${option.description ? `<small class="choice-description">${esc(option.description)}</small>` : ''}</span></label>${option.label === 'その他' ? `<div class="other-field"><label for="otherText">その他の姿を入力してください</label><textarea class="other-input" id="otherText" rows="3" placeholder="個人が特定される情報は入力しないでください">${esc(state.other)}</textarea></div>` : ''}</div>`).join('')}</div>`;
+  function buildDetail(){const resources=useful('resources');if(!resources.length)return[];const selected=`${quote(resources,3)}が選ばれています。`;let concrete=`${quote(resources,1)}を活動の入口に取り入れ、本人が使いやすい形で始め方や伝え方を示すと、取り組む負担を小さくできそうです。`;if(resources.some(x=>/安心できる人|手本/.test(x)))concrete='活動に入る前に、安心できる人と短く確認したり、手本を見て始めたりすると、取りかかる負担を小さくできそうです。';else if(resources.some(x=>/好きな/.test(x)))concrete='好きなこと・得意なこと・役割を活動の入口に取り入れると、取り組むきっかけになりそうです。';else if(resources.some(x=>/手順|見通し/.test(x)))concrete='始まりと終わり、次の手順を本人に分かりやすい形で先に示すと、見通しをもって取り組みやすくなりそうです。';else if(resources.some(x=>/伝える方法|選択肢/.test(x)))concrete='カード、指さし、短い言葉などから本人が使いやすい伝え方を選べるようにすると、早めに希望や拒否を表しやすくなりそうです。';else if(resources.some(x=>/環境|休憩/.test(x)))concrete='刺激を減らせる場所や短い休憩を選べるようにすると、力を出しやすい状態へ戻る手がかりになりそうです。';return[selected,concrete,'本人が力を出しやすい条件を先に整えることで、参加や気持ちの安定につながる可能性があります。']}
+  const resultUsage='この結果は、選択内容をもとにした整理メモです。診断や決めつけではありません。校内で話し合うときや、明日試す支援を考えるときに使ってください。';
+  function flowHtml(){const rows=[['その前のきっかけ・状況',labels('before')],['今見えている姿',labels('visible')],['その後に起きていること',labels('after')]];return rows.map((x,i)=>`${i?'<div class="flow-arrow" aria-hidden="true">↓</div>':''}<div class="flow-row"><b>${x[0]}</b><p>${x[1].map(esc).map(v=>`「${v}」`).join(' ')}</p></div>`).join('')}
+  function detailHtml(r){if(!state.deepened)return'';return `<section class="detail-results" id="detailed-results"><div class="detail-heading"><div><span class="step-kicker">任意の深掘り結果</span><h3>詳しく整理して見えたこと</h3></div><button class="btn btn-secondary" id="editDeep">強みや条件を編集する</button></div><section class="result-section detail-support"><h3><span>🌱</span>強みや条件を生かした支援</h3><div class="memo-paragraphs">${r.detail.map(p=>`<p>${esc(p)}</p>`).join('')}</div></section><section class="result-section"><h3><span>🏷</span>関連するRELAY実践タグ</h3><div class="tags">${r.relay.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></section><section class="result-section"><h3><span>📘</span>関連しやすい自立活動6区分</h3><div class="tags">${r.jiritsu.map(x=>`<span class="tag jiritsu">${esc(x)}</span>`).join('')}</div></section></section>`}
+  function deepHtml(){return `<section class="result-section deepen-section"><h3><span>＋</span>もっと詳しく整理する</h3><p>強みや条件も整理すると、支援の方向をもう少し具体的にできます。<br>必要なときだけ追加できます。</p>${state.deepOpen?`<div class="deep-form">${groupBlock(D.resourceGroup)}<button class="btn btn-primary" id="applyDeep">詳しい結果に更新する</button></div>`:`<button class="btn btn-secondary" id="openDeep">強みや条件を追加する</button>`}</section>`}
+  function copyText(r){const lines=['【支援の手がかりマップ】','','【この結果の使い方】',resultUsage,'','【今回見えている流れ】',`その前のきっかけ・状況：${labels('before').join('、')}`,`今見えている姿：${labels('visible').join('、')}`,`その後に起きていること：${labels('after').join('、')}`,'','【見立てメモ】',r.memo.join('\n\n'),'','【まず試すなら】','明日試せそうなことを3つに絞りました。この中から、場面に合いそうなものを1つ選んで試してみてください。','',...r.firstTry.suggestions.map((x,i)=>`${i+1}. ${x}`),'','見ること：',r.firstTry.observe];if(state.deepened)lines.push('','【詳しく整理して見えたこと】',`選んだ強みや条件：${labels('resources').join('、')}`,'','【強みや条件を生かした支援】',r.detail.join('\n\n'),'','【関連するRELAY実践タグ】',...r.relay.map(x=>'・'+x),'','【関連しやすい自立活動6区分】',...r.jiritsu.map(x=>'・'+x));return lines.join('\n')}
+  function renderResult(scrollTarget='#current-step'){
+    const r=resultData();
+    app.innerHTML=intro()+stepper(2)+progress(2)+`<section class="card result-card step-card step-theme-5" id="current-step"><div class="step-heading"><span class="step-icon">🔎</span><div><span class="step-kicker">STEP 3</span><h2>かんたん整理の結果</h2></div></div><p class="now-doing">見えている流れと、明日試せそうなことを確認します。</p><div class="results-grid"><aside class="usage-note result-block"><h3>この結果の使い方</h3><p>${esc(resultUsage)}</p></aside><section class="result-section flow-section"><h3><span>↘</span>今回見えている流れ</h3><div class="flow-map">${flowHtml()}</div></section><section class="result-section memo-section"><h3><span>📝</span>見立てメモ</h3><div class="memo-paragraphs">${r.memo.map(p=>`<p>${esc(p)}</p>`).join('')}</div></section><section class="result-section tomorrow-section"><div class="goal-label">結果の中心</div><h3><span>🌱</span>まず試すなら</h3><div class="first-try"><p class="try-intro">明日試せそうなことを3つに絞りました。<br>この中から、場面に合いそうなものを1つ選んで試してみてください。</p><ol class="try-list">${r.firstTry.suggestions.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="try-observe"><b>見ること</b><p>${esc(r.firstTry.observe)}</p></div></div></section>${deepHtml()}${detailHtml(r)}</div><div class="copy-panel"><div><b>校内の記録や共有に</b><small>画面と同じ新しい構成でコピーします。</small></div><button class="btn btn-copy" id="copy">結果をコピー</button></div><div class="copy-status" id="copyStatus" aria-live="polite"></div><div class="actions"><button class="btn btn-secondary" id="back">前へ：姿と背景に戻る</button><button class="btn btn-secondary" id="restart">はじめから整理する</button></div></section>`;
+    bindResult(r);scrollTo(scrollTarget);
   }
-
-  function optionArea(group) {
-    return group.sections
-      ? group.sections.map(section => `<div class="choice-category"><h4>${esc(section.title)}</h4>${choices(group.options.slice(section.start, section.start + section.count))}</div>`).join('')
-      : choices(group.options);
-  }
-
-  function scrollToCurrentStep() {
-    requestAnimationFrame(() => document.querySelector('#current-step')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  }
-
-  function renderStep(shouldScroll = true) {
-    const step = D.steps[state.step];
-    const previous = state.step ? D.steps[state.step - 1].short : '';
-    const next = state.step === D.steps.length - 1 ? '結果を見る' : `次へ：${D.steps[state.step + 1].short}`;
-    app.innerHTML = intro() + stepper(state.step) + `<section class="card step-card step-theme-${state.step + 1}" id="current-step"><div class="step-heading"><span class="step-icon" aria-hidden="true">${step.icon}</span><div><span class="step-kicker">かんたん整理 ${state.step + 1} / 4</span><h2>${esc(step.title)}</h2></div></div><p class="now-doing">${esc(step.lead)}</p>${optionArea(step)}<div class="group-warning" id="stepWarning" aria-live="polite"></div><div class="action-status">かんたん整理 ${state.step + 1} / 4</div><div class="actions">${state.step ? `<button class="btn btn-secondary" id="prev">前へ：${esc(previous)}</button>` : ''}<span class="hint">当てはまるものを複数選べます。</span><button class="btn btn-primary" id="next">${esc(next)}</button></div></section>`;
-    bindStep();
-    if (shouldScroll) scrollToCurrentStep();
-  }
-
-  function bindChoices(root = document) {
-    root.querySelectorAll('[data-id]').forEach(input => input.addEventListener('change', event => {
-      state.selected[event.target.dataset.id] = event.target.checked;
-      document.querySelector('#stepWarning')?.replaceChildren();
-    }));
-    root.querySelector('#otherText')?.addEventListener('input', event => { state.other = event.target.value; });
-  }
-
-  function bindStep() {
-    bindChoices();
-    document.querySelector('#prev')?.addEventListener('click', () => { state.step -= 1; renderStep(true); });
-    document.querySelector('#next').addEventListener('click', () => {
-      const step = D.steps[state.step];
-      if (!picked(step.key).length) {
-        const warning = document.querySelector('#stepWarning');
-        warning.textContent = '当てはまるものを1つ以上選んでください。';
-        warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      if (state.step === D.steps.length - 1) renderResult();
-      else { state.step += 1; renderStep(true); }
-    });
-  }
-
-  function resultData() {
-    const scores = {};
-    const weights = { entrance: 2, visible: 3, before: 4, after: 3, strengths: 2, conditions: 3 };
-    Object.entries(groups).forEach(([key]) => picked(key).forEach(option => option.categories.forEach((category, index) => {
-      const multiplier = option.categoryWeights?.[category] || 1;
-      scores[category] = (scores[category] || 0) + ((weights[key] - index * .55) * multiplier);
-    })));
-    const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    const topCount = ranked[2] && ranked[2][1] >= ranked[0][1] * .62 ? 3 : 2;
-    const top = ranked.slice(0, Math.min(4, topCount)).map(([key]) => key);
-    const safeTop = top.length ? top : ['outlook', 'communication'];
-    const reasons = Object.fromEntries(safeTop.map(key => [key, reasonFor(key)]));
-    const primary = buildPrimarySupport(safeTop);
-    return { top: safeTop, reasons, primary, relay: [...new Set(safeTop.flatMap(key => D.categories[key].relay))], jiritsu: [...new Set(safeTop.flatMap(key => D.categories[key].jiritsu))] };
-  }
-
-  function evidenceFor(category) {
-    return ['before', 'visible', 'after', 'entrance'].flatMap(key => picked(key).filter(option => option.categories.includes(category)).map(option => ({ key, label: option.label })));
-  }
-
-  function reasonFor(category) {
-    const evidence = evidenceFor(category);
-    const before = evidence.find(item => item.key === 'before');
-    const visible = evidence.find(item => item.key === 'visible');
-    const after = evidence.find(item => item.key === 'after');
-    if (before) return `「${before.label}」が、その前のきっかけ・状況として選ばれているため。`;
-    if (visible) return `「${visible.label}」という姿から、この方向を確かめる価値がありそうなため。`;
-    if (after) return `その後に「${after.label}」が起きる流れが選ばれているため。`;
-    return `入口として選んだ「${labels('entrance')[0]}」と関係が深い方向のため。`;
-  }
-
-  function selectedSupport(category) {
-    const specific = [
-      [state.selected.a12 && category === 'communication', '困ったときに使える伝え方カードを1つ用意する。'],
-      [state.selected.a14 && category === 'environment', '刺激が少ない場所を一つ決め、活動前に本人と確認する。'],
-      [(state.selected.a0 || state.selected.a2 || state.selected.a3) && category === 'outlook', '「今すること」と「次にすること」を、一枚のカードで見えるようにする。'],
-      [(state.selected.a5 || state.selected.a6) && category === 'difficulty', '課題をまず終えられる一まとまりに減らし、終わりを見えるようにする。'],
-      [state.selected.b0 && category === 'relation', '慣れた人と活動場所の入口まで行き、参加の最初の一歩を一緒に決める。'],
-      [state.selected.b1 && category === 'difficulty', '最初の一つだけ手本を示し、取りかかれたら支援を減らす。'],
-      [state.selected.b23 && category === 'communication', '距離を取りたいときや「やめたい」ときに使える伝え方を一つ決める。'],
-      [state.selected.b24 && category === 'safety', '投げても安全な物と、活動から離れる合図をあらかじめ決める。']
-    ];
-    return specific.find(([match]) => match)?.[1] || `${D.categories[category].supports[0]}。`;
-  }
-
-  function buildPrimarySupport(top) {
-    const category = top[0];
-    const action = selectedSupport(category).replace('。。', '。');
-    const before = useful('before')[0];
-    const visible = useful('visible')[0];
-    const after = useful('after')[0];
-    const parts = [];
-    if (before) parts.push(`「${before}」のあとに`);
-    if (visible) parts.push(`「${visible}」が見られ`);
-    if (after) parts.push(`その後「${after}」という流れがあるため`);
-    return { category, action, reason: `${parts.join('、')}、${D.categories[category].label}を一つの場面で試すことが手がかりになりそうです。` };
-  }
-
-  function flowHtml() {
-    const blocks = [['その前のきっかけ・状況', useful('before')], ['今見えている姿', useful('visible')], ['その後に起きていること', useful('after')]];
-    return blocks.map(([title, items], index) => `${index ? '<div class="flow-arrow" aria-hidden="true">↓</div>' : ''}<div class="flow-block"><b>${title}</b><p>${items.length ? items.map(item => `「${esc(item)}」`).join('、') : 'まだよく分からない'}</p></div>`).join('');
-  }
-
-  function observationPoints(result) {
-    const points = ['どの場面で試したか', '支援の前後で本人の姿にどんな変化があったか'];
-    if (result.primary.category === 'communication') points.push('気持ちが高まる前に、本人なりの方法で伝えられる場面があったか');
-    else if (result.primary.category === 'outlook') points.push('次にすることを自分で確認して動ける場面が増えたか');
-    else if (result.primary.category === 'environment') points.push('刺激や場所を変えたとき、参加や落ち着き方に違いがあったか');
-    else if (result.primary.category === 'difficulty') points.push('量や始め方を変えたとき、取りかかりや続き方に違いがあったか');
-    else points.push('支援を入れた場面と入れない場面で、本人の姿にどんな違いがあったか');
-    points.push('うまくいった場面があれば、困りやすい場面と何が違っていたか');
-    return points;
-  }
-
-  function deepDiveHtml(result) {
-    const strengths = useful('strengths'), conditions = useful('conditions');
-    if (!hasDeepData()) return '';
-    return `<section class="result-section detailed-result"><h3><span>🌿</span>詳しく整理して見えたこと</h3>${strengths.length ? `<div class="detail-item"><b>本人の強みを生かした支援</b><p>${strengths.map(item => `「${esc(item)}」`).join('、')}を、活動の入口や伝え方に生かせそうです。</p></div>` : ''}${conditions.length ? `<div class="detail-item"><b>力を発揮しやすい条件を取り入れた支援</b><p>まず「${esc(conditions[0])}」を一つの場面で整え、姿の変化を比べます。</p></div>` : ''}</section><section class="result-section"><h3><span>🏷</span>関連するRELAY実践タグ</h3><div class="tags">${result.relay.map(item => `<span class="tag">${esc(item)}</span>`).join('')}</div></section><section class="result-section"><h3><span>📘</span>関連しやすい自立活動6区分</h3><div class="tags">${result.jiritsu.map(item => `<span class="tag jiritsu">${esc(item)}</span>`).join('')}</div></section>`;
-  }
-
-  function needsBodyNote(result) {
-    return state.selected.s1_10 || state.selected.b31 || state.selected.b32 || state.selected.b33 || result.top.includes('body');
-  }
-
-  function deepDiveForm() {
-    return `<section class="deep-dive ${state.deepOpen ? 'is-open' : ''}" id="deepDive"><div class="deep-dive-intro"><span class="deep-kicker">もっと詳しく整理する</span><h3>強みや条件も整理する</h3><p>本人の強みや、うまくいきやすい条件まで整理すると、支援の方向をより具体的にできます。分かる範囲で追加してみましょう。</p><button class="btn btn-secondary" id="toggleDeep" aria-expanded="${state.deepOpen}">${state.deepOpen ? '深掘り項目を閉じる' : '強みや条件も整理する'}</button></div>${state.deepOpen ? `<div class="deep-fields">${D.deepDive.map((group, index) => `<section class="deep-group"><div class="deep-heading"><span class="deep-number">${index + 5}</span><div><h4>${esc(group.title)}</h4><p>${esc(group.lead)}</p></div></div>${optionArea(group)}</section>`).join('')}<button class="btn btn-primary update-result" id="updateResult">詳しい結果に更新する</button></div>` : ''}</section>`;
-  }
-
-  function copyText(result) {
-    const lines = ['【支援の手がかりマップ】', '', '【この結果の使い方】', 'この結果は、選択内容をもとにした支援の手がかりです。', '診断や決めつけではありません。', '校内で話し合うときや、明日試す支援を考えるときの整理メモとして使ってください。', '', '【ここまでの整理】', `支援を考えたいこと：${labels('entrance').join('、')}`, '', '【今回見えている流れ】', useful('before').join('、') || 'まだよく分からない', '↓', useful('visible').join('、') || 'まだよく分からない', '↓', useful('after').join('、') || 'まだよく分からない', '', '【支援の手がかり】'];
-    result.top.forEach(key => lines.push(`・${D.categories[key].label}`, `理由：${result.reasons[key]}`, ''));
-    lines.push('【まず試すなら】', result.primary.action, '', '理由：', result.primary.reason, '', '【試したあとに見るポイント】', ...observationPoints(result).map(point => `・${point}`));
-    if (hasDeepData()) {
-      lines.push('', '【もっと詳しく整理した内容】');
-      if (useful('strengths').length) lines.push(`本人の強み：${useful('strengths').join('、')}`);
-      if (useful('conditions').length) lines.push(`力を発揮しやすい条件：${useful('conditions').join('、')}`);
-      lines.push('', '【関連するRELAY実践タグ】', ...result.relay.map(item => `・${item}`), '', '【関連しやすい自立活動6区分】', ...result.jiritsu.map(item => `・${item}`));
-    }
-    if (needsBodyNote(result)) lines.push('', '【姿勢・移動・体の使い方に関する確認】', D.bodyNotice);
-    return lines.join('\n');
-  }
-
-  function bindResult(result) {
-    document.querySelector('#back').addEventListener('click', () => { state.step = 3; renderStep(true); });
-    document.querySelector('#restart').addEventListener('click', () => { state.step = 0; state.selected = {}; state.other = ''; state.deepOpen = false; renderStep(true); });
-    document.querySelector('#toggleDeep').addEventListener('click', () => { state.deepOpen = !state.deepOpen; renderResult('#deepDive'); });
-    bindChoices(document.querySelector('#deepDive'));
-    document.querySelector('#updateResult')?.addEventListener('click', () => renderResult('#current-step'));
-    document.querySelector('#copy').addEventListener('click', async () => {
-      const text = copyText(result);
-      try { await navigator.clipboard.writeText(text); }
-      catch {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        textarea.remove();
-      }
-      document.querySelector('#copyStatus').textContent = '結果をコピーしました。記録や校内共有に貼り付けられます。';
-    });
-  }
-
-  function renderResult(scrollTarget = '#current-step') {
-    const result = resultData();
-    const points = observationPoints(result);
-    app.innerHTML = intro() + `<section class="card result-card step-card step-theme-5" id="current-step"><div class="step-heading"><span class="step-icon" aria-hidden="true">🔎</span><div><span class="step-kicker">かんたん整理の結果</span><h2>支援の手がかり</h2></div></div><p class="now-doing">答えを決めるのではなく、この流れを先生同士で見ながら、まず一つ試す支援を考えます。</p><div class="results-grid"><aside class="usage-note"><h3>この結果の使い方</h3><p>この結果は、選択内容をもとにした支援の手がかりです。診断や決めつけではありません。校内で話し合うときや、明日試す支援を考えるときの整理メモとして使ってください。</p></aside><section class="result-section flow-section"><h3><span>↳</span>今回見えている流れ</h3><p class="block-role">前後の状況を一緒に見ることが、このツールの中心です。</p><div class="flow">${flowHtml()}</div></section><section class="result-section"><h3><span>🔎</span>支援の手がかり</h3><ul class="category-list reason-list">${result.top.map(key => `<li><b>${esc(D.categories[key].label)}</b><small>理由：${esc(result.reasons[key])}</small></li>`).join('')}</ul></section><section class="result-section tomorrow-section"><div class="goal-label">まず一つから</div><h3><span>🌱</span>まず試すなら</h3><p class="primary-action">${esc(result.primary.action)}</p><div class="support-reason"><b>理由</b><p>${esc(result.primary.reason)}</p></div></section><section class="result-section"><h3><span>👀</span>試したあとに見るポイント</h3><ul class="observation-list">${points.map(point => `<li>${esc(point)}</li>`).join('')}</ul></section>${deepDiveHtml(result)}${needsBodyNote(result) ? `<aside class="expert-note"><b>姿勢・移動・体の使い方に関する確認</b><p>${esc(D.bodyNotice)}</p></aside>` : ''}</div>${deepDiveForm()}<div class="copy-panel"><div><b>校内の記録や共有に</b><small>画面と同じ流れ・改行でコピーします。</small></div><button class="btn btn-copy" id="copy">結果をコピー</button></div><div class="copy-status" id="copyStatus" aria-live="polite"></div><div class="actions"><button class="btn btn-secondary" id="back">前へ：その後のこと</button><button class="btn btn-secondary" id="restart">はじめから整理する</button></div></section>`;
-    document.querySelector('#current-step').insertAdjacentHTML('beforebegin', stepper(4));
-    bindResult(result);
-    requestAnimationFrame(() => document.querySelector(scrollTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  }
-
-  if (window.__SUPPORT_MAP_TEST_MODE__) {
-    window.SUPPORT_MAP_TEST = { generate(selected = {}, other = '') { state.selected = { ...selected }; state.other = other; const result = resultData(); return { result, copy: copyText(result) }; } };
-  } else renderStep(false);
+  function bindResult(r){document.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('change',e=>{state.selected[e.target.dataset.id]=e.target.checked;document.querySelector('[data-warning="resources"]').textContent=''}));document.querySelector('#openDeep')?.addEventListener('click',()=>{state.deepOpen=true;renderResult('.deepen-section')});document.querySelector('#editDeep')?.addEventListener('click',()=>{state.deepOpen=true;renderResult('.deepen-section')});document.querySelector('#applyDeep')?.addEventListener('click',()=>{if(!picked('resources').length){document.querySelector('[data-warning="resources"]').textContent='強みや条件を1つ以上選んでください。';return}state.deepened=true;state.deepOpen=false;renderResult('#detailed-results')});document.querySelector('#back').onclick=()=>{state.step=1;renderStep(true)};document.querySelector('#restart').onclick=()=>{Object.assign(state,{step:0,selected:{},other:'',deepOpen:false,deepened:false});renderStep(true)};document.querySelector('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(copyText(r))}catch{const ta=document.createElement('textarea');ta.value=copyText(r);document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}document.querySelector('#copyStatus').textContent='結果をコピーしました。'} }
+  if(window.__SUPPORT_MAP_TEST_MODE__){window.SUPPORT_MAP_TEST={generate(selected={},other='',deepened=false){state.selected={...selected};state.other=other;state.deepened=deepened;const result=resultData();return{result,copy:copyText(result)}}}}else renderStep(false);
 })();
